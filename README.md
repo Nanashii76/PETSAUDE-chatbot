@@ -2,7 +2,7 @@
 
 ## Informações Gerais
 
-> as variáveis de de ambiente do front já estão configuradas na .env
+> As variáveis de de ambiente do front já estão configuradas na .env
 
 ## Acesso ao N8N
 
@@ -24,7 +24,7 @@ git clone <link_repositorio>
 npm install
 ```
 
-3. Após instalar as dependências, rodeo código localmente utilizando
+3. Após instalar as dependências, rode o código localmente utilizando
 
 ```bash
 npm run dev
