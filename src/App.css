@@ -1,0 +1,295 @@
+/* --- RESET BÁSICO --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- VARIÁVEIS DE COR (TEMA ESCURO) --- */
+:root {
+  --bg-dark: #111827;       /* Fundo bem escuro */
+  --bg-panel: #1f2937;      /* Fundo da sidebar/header */
+  --border-color: #374151;  /* Cor das linhas */
+  --text-primary: #f3f4f6;  /* Texto claro */
+  --text-secondary: #9ca3af;/* Texto cinza */
+  --accent-blue: #3b82f6;   /* Azul do botão/balão */
+  --accent-hover: #2563eb;
+}
+
+/* --- LAYOUT GERAL --- */
+.app-container {
+  display: flex;
+  height: 100vh;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  overflow: hidden; /* Impede rolagem na página inteira */
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+  width: 300px;
+  background-color: var(--bg-panel);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-dark);
+  color: white;
+}
+
+.chat-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chat-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.chat-item:hover {
+  background-color: #374151;
+}
+
+.chat-item.active {
+  background-color: rgba(59, 130, 246, 0.1); /* Azul clarinho transparente */
+  border-left: 4px solid var(--accent-blue);
+}
+
+.chat-info {
+  margin-left: 10px;
+  flex: 1;
+}
+
+.chat-info-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.chat-info h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chat-info span {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.chat-info p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+/* --- ÁREA PRINCIPAL --- */
+.chat-window {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-dark);
+}
+
+.chat-header {
+  height: 70px;
+  background-color: var(--bg-panel);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.status {
+  font-size: 12px;
+  color: #4ade80; /* Verde */
+}
+
+/* --- MENSAGENS --- */
+.messages-area {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.message-row {
+  display: flex;
+  align-items: flex-end; /* Alinha avatar com o fundo do balão */
+  gap: 10px;
+  max-width: 70%;
+}
+
+/* Diferença entre Minha Mensagem e Deles */
+.message-row.them {
+  align-self: flex-start;
+}
+
+.message-row.me {
+  align-self: flex-end;
+  flex-direction: row-reverse; /* Inverte ordem avatar/balão */
+}
+
+.message-bubble {
+  padding: 12px 16px;
+  border-radius: 12px;
+  position: relative;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+.them .message-bubble {
+  background-color: var(--bg-panel);
+  border-bottom-left-radius: 2px;
+  color: var(--text-primary);
+}
+
+.me .message-bubble {
+  background-color: var(--accent-blue);
+  border-bottom-right-radius: 2px;
+  color: white;
+}
+
+.message-time {
+  display: block;
+  font-size: 10px;
+  margin-top: 5px;
+  opacity: 0.7;
+  text-align: right;
+}
+
+/* --- INPUT AREA --- */
+.input-area {
+  padding: 20px;
+  background-color: var(--bg-panel);
+  border-top: 1px solid var(--border-color);
+}
+
+.input-area form {
+  display: flex;
+  gap: 10px;
+}
+
+.input-area input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 30px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-dark);
+  color: white;
+  outline: none;
+}
+
+.input-area input:focus {
+  border-color: var(--accent-blue);
+}
+
+.input-area button {
+  padding: 0 25px;
+  background-color: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.input-area button:hover {
+  background-color: var(--accent-hover);
+}
+
+/* --- CORREÇÃO IMPORTANTE DOS AVATARES --- */
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #ddd;
+}
+
+/* Tamanho padrão para lista lateral */
+.avatar {
+  width: 40px;
+  height: 40px;
+}
+
+/* Avatar pequeno nas mensagens */
+.avatar.small {
+  width: 32px;
+  height: 32px;
+}
+
+/* Avatar grande no header */
+.avatar.big {
+  width: 45px;
+  height: 45px;
+}
+
+/* --- ESTILIZAÇÃO DO MARKDOWN (TEXTO FORMATADO) --- */
+
+/* Garante que o texto não "vaze" do balão */
+.markdown-content {
+  word-wrap: break-word; 
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Espaço entre parágrafos para não virar um bloco só */
+.markdown-content p {
+  margin-bottom: 10px;
+}
+
+/* Remove margem do último parágrafo para não sobrar espaço no fundo do balão */
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Estilo para listas com bolinhas (Bullet points) */
+.markdown-content ul, .markdown-content ol {
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+
+.markdown-content li {
+  list-style-type: disc; /* Bolinha */
+  margin-bottom: 4px;
+}
+
+/* Negrito forte */
+.markdown-content strong {
+  font-weight: 700;
+  color: inherit; /* Mantém a cor do texto (branco no azul, cinza no escuro) */
+}
+
+/* Links (se houver) */
+.markdown-content a {
+  text-decoration: underline;
+  color: inherit;
+}
