@@ -1,16 +1,29 @@
-# React + Vite
+# PETSAUDE chatbot
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Informações Gerais
 
-Currently, two official plugins are available:
+> as varivéside de ambiente do front já estão configuradas na .env
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Acesso ao N8N
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Expanding the ESLint configuration
+## Como usar
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. Copie o repositorio para a sua máquia usando
+
+```bash
+git clone <link_repositorio>
+```
+
+2. Entre na pasta do repositorio e digite em seu terminal
+
+```bash
+npm install
+```
+
+3. Após instalar as dependências, rode localmente utilizando
+
+```bash
+npm run dev
+```
