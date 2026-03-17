@@ -10,6 +10,12 @@ link: https://teste.donatopaez.com.br/workflow/lmUgY581A11sctwj53S7n
 felipededonatopaez@gmail.com
 Pipepaez1@123
 
+## Chat bot para teste
+
+link: https://teste.donatopaez.com.br/workflow/2yqtTUrNTZVPClxf
+felipededonatopaez@gmail.com
+Pipepaez1@123
+
 ## Como usar
 
 1. Copie o repositorio para a sua máquina usando
