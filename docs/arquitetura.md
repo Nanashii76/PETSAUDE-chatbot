@@ -73,26 +73,7 @@ Detalhes em: `docs/rag.md`.
 
 ## Diagrama (alto nível)
 
-```mermaid
-flowchart LR
-	FE[Frontend (Vite+React)] -->|POST /webhook| WH[Webhook (n8n)]
-	WH --> SET[Edit Fields]
-	SET --> RT[AI Agent (Router)]
-	RT --> SW{Switch}
-	SW -->|cardiologia| C[AI Agent1 (Cardio)]
-	SW -->|dermatologia| D[AI Agent2 (Derma)]
-	SW -->|endocrinologia| E[AI Agent4 (Endo)]
-	SW -->|duvidas_gerais| G[AI Agent3 (Geral)]
-	C --> CODE[Code: normaliza JSON]
-	D --> CODE
-	E --> CODE
-	G --> CODE
-	CODE --> IF{status == PENDENTE?}
-	IF -->|sim| RESP1[Respond to Webhook]
-	IF -->|não| RESP2[Respond to Webhook1]
-	RESP1 --> FE
-	RESP2 --> FE
-```
+![Diagrama do fluxo atual](assets/diagrama.png)
 
 ## Resposta ao frontend
 
