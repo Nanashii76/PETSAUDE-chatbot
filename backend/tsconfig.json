@@ -6,11 +6,11 @@
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
-    "rootDir": "./src",     /* Define explicitamente que a raiz dos códigos fonte é a pasta src */
-    "outDir": "./dist",     /* Define onde os arquivos .js compilados serão salvos */
-    "baseUrl": ".",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "*": ["./src/*"]
     }
   },
   "include": ["src/**/*"]
