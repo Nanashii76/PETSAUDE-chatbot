@@ -4,7 +4,7 @@ import './App.css';
 
 // 1. Atualize a variável de ambiente para apontar para o seu backend Express
 // Ex: VITE_API_WEBHOOK_URL=http://localhost:3000/api/webhook
-const API_WEBHOOK_URL = 'http://localhost:3000/api/webhook';
+const API_WEBHOOK_URL = import.meta.env.VITE_API_WEBHOOK_URL || 'http://localhost:3000/api/webhook';
 
 export default function ChatBot() {
   const [messages, setMessages] = useState([]);
