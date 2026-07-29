@@ -5,7 +5,9 @@ dotenv.config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-});
+  // Força o driver a usar IPv4 tipando como any para ignorar a restrição do PoolConfig
+  family: 4,
+} as any);
 
 // ==========================================
 // 1. GERENCIAMENTO DE SESSÕES
