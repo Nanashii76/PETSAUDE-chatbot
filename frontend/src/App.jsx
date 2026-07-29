@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ReactMarkdown from 'react-markdown'; // Importação essencial para formatar o texto
+import ReactMarkdown from 'react-markdown';
 import './App.css';
 
-// URL do Webhook carregada do arquivo .env
-const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL;
+// 1. Atualize a variável de ambiente para apontar para o seu backend Express
+// Ex: VITE_API_WEBHOOK_URL=http://localhost:3000/api/webhook
+const API_WEBHOOK_URL = 'http://localhost:3000/api/webhook';
 
 export default function ChatBot() {
   const [messages, setMessages] = useState([]);
@@ -13,7 +14,7 @@ export default function ChatBot() {
   
   const messagesEndRef = useRef(null);
 
-  // 1. Gera ou recupera ID de sessão
+  // Gera ou recupera ID de sessão do localStorage
   useEffect(() => {
     let storedId = localStorage.getItem("chat_user_id");
     if (!storedId) {
@@ -23,7 +24,6 @@ export default function ChatBot() {
     setUserId(storedId);
   }, []);
 
-  // Rolagem automática
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -32,23 +32,12 @@ export default function ChatBot() {
     scrollToBottom();
   }, [messages]);
 
-  // 2. Detectar SO
-  const getOperatingSystem = () => {
-    const userAgent = window.navigator.userAgent;
-    if (userAgent.indexOf("Win") !== -1) return "Windows";
-    if (userAgent.indexOf("Mac") !== -1) return "MacOS";
-    if (userAgent.indexOf("Linux") !== -1) return "Linux";
-    if (userAgent.indexOf("Android") !== -1) return "Android";
-    if (userAgent.indexOf("like Mac") !== -1) return "iOS";
-    return "Desconhecido";
-  };
-
-  // 3. Enviar Mensagem
+  // Enviar Mensagem
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputText.trim()) return;
 
-    // Adiciona mensagem do usuário (Optimistic UI)
+    // Adiciona mensagem do usuário na tela
     const userMessage = {
       id: Date.now(),
       text: inputText,
@@ -62,29 +51,29 @@ export default function ChatBot() {
     setInputText(""); 
     setIsLoading(true);
 
+    // 2. Novo Payload: Mapeado exatamente para o que o webhook.ts espera
     const payload = {
-      so: getOperatingSystem(),
-      user: userId,
-      content: contentToSend,
-      timestamp: new Date().toISOString()
+      remetente_id: userId,
+      mensagem: contentToSend,
+      origem: "web_frontend"
     };
 
-    console.log("Enviando payload:", payload);
+    console.log("[Frontend] Enviando payload:", payload);
 
     try {
-      const response = await fetch(N8N_WEBHOOK_URL, {
+      const response = await fetch(API_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
       const data = await response.json();
-      console.log("Resposta n8n:", data);
+      console.log("[Frontend] Resposta da API:", data);
 
       const botResponse = {
         id: Date.now() + 1,
-        // Se vier vazio, avisa. Se vier texto formatado, o ReactMarkdown resolve.
-        text: data.output || "Recebido (sem conteúdo no output).",
+        // 3. Nova chave de resposta: o backend envia "reply" e não mais "output"
+        text: data.reply || "Recebido (sem conteúdo).",
         sender: "them",
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
@@ -92,10 +81,10 @@ export default function ChatBot() {
       setMessages((prev) => [...prev, botResponse]);
 
     } catch (error) {
-      console.error("Erro:", error);
+      console.error("Erro na requisição:", error);
       const errorResponse = {
         id: Date.now() + 2,
-        text: "Erro de conexão com o servidor.",
+        text: "Erro de conexão com o servidor da Regulação.",
         sender: "system",
         time: ""
       };
@@ -115,12 +104,12 @@ export default function ChatBot() {
         </div>
         <div className="chat-list">
           <div className="chat-item active">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=n8nBot" alt="Bot" className="avatar" />
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="Bot" className="avatar" />
             <div className="chat-info">
               <div className="chat-info-top">
-                <h3>Chat Atual</h3>
+                <h3>Triagem Clínica</h3>
               </div>
-              <p>Conectado ao n8n</p>
+              <p>Conectado à API SUS</p>
             </div>
           </div>
         </div>
@@ -130,9 +119,9 @@ export default function ChatBot() {
       <main className="chat-window">
         <header className="chat-header">
           <div className="user-profile">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=n8nBot" alt="Bot" className="avatar big" />
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="Bot" className="avatar big" />
             <div>
-              <h3>Assistente Virtual</h3>
+              <h3>Auditor de Regulação IA</h3>
               <span className="status">Online</span>
             </div>
           </div>
@@ -141,39 +130,33 @@ export default function ChatBot() {
         <div className="messages-area">
           {messages.length === 0 && (
             <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '40px' }}>
-              <p>Olá! Como posso ajudar você hoje?</p>
+              <p>Olá, prezado(a) profissional de saúde! Descreva o quadro clínico para iniciarmos a regulação.</p>
             </div>
           )}
 
           {messages.map((msg) => (
             <div key={msg.id} className={`message-row ${msg.sender}`}>
-              
-              {/* Avatar Bot */}
               {msg.sender === 'them' && (
-                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=n8nBot" alt="bot" className="avatar small" />
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="bot" className="avatar small" />
               )}
               {msg.sender === 'system' && (
-                 <div className="avatar small" style={{background: 'red', display:'flex', alignItems:'center', justifyContent:'center', color:'white', fontWeight:'bold'}}>!</div>
+                <div className="avatar small" style={{background: 'red', display:'flex', alignItems:'center', justifyContent:'center', color:'white', fontWeight:'bold'}}>!</div>
               )}
 
-              {/* Balão de Mensagem com Markdown */}
               <div className="message-bubble" style={msg.sender === 'system' ? {background: '#ef4444', color: 'white'} : {}}>
-                
                 <div className="markdown-content">
                   <ReactMarkdown>{msg.text}</ReactMarkdown>
                 </div>
-                
                 <span className="message-time">{msg.time}</span>
               </div>
 
-              {/* Avatar User (Apenas visual, pois o layout já inverte) */}
               {msg.sender === 'me' && (
                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`} alt="me" className="avatar small" />
               )}
             </div>
           ))}
           
-          {isLoading && <div className="loading-indicator">Digitando...</div>}
+          {isLoading && <div className="loading-indicator">Analisando critérios clínicos...</div>}
           <div ref={messagesEndRef} />
         </div>
 
@@ -181,7 +164,7 @@ export default function ChatBot() {
           <form onSubmit={handleSendMessage}>
             <input 
               type="text" 
-              placeholder="Digite aqui..." 
+              placeholder="Descreva o quadro do paciente..." 
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               disabled={isLoading}
