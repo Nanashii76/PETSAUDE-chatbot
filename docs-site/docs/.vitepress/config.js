@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress';
 import { withMermaid } from 'vitepress-plugin-mermaid';
 
 export default withMermaid(defineConfig({
+  base: '/PETSAUDE-chatbot/',
   title: "Regulação SUS",
   description: "Sistema Inteligente de Triagem e Regulação Médica",
   
