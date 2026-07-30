@@ -41,7 +41,7 @@ export default withMermaid(defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/regulacao-sus' }
+      { icon: 'github', link: 'https://github.com/Nanashii76/PETSAUDE-chatbot' }
     ],
     
     footer: {
