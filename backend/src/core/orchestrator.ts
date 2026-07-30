@@ -1,5 +1,6 @@
 import { buscarHistoricoSessao, atualizarSessao } from '../services/database.js';
 import { chamarLLMComCascata } from '../services/openrouter.js';
+import { buscarContexto } from '../services/rag.js';
 import { 
   PROMPT_ROTEADOR, 
   PROMPT_CARDIOLOGIA, 
@@ -58,6 +59,13 @@ export async function processarMensagemLLM(sessao: any, mensagemUsuario: string)
     case 'duvidas_gerais':
       systemPrompt = PROMPT_GERAL;
       break;
+  }
+
+  // Busca o contexto nas Notas Técnicas oficiais (RAG)
+  const contextoRAG = await buscarContexto(mensagemUsuario, agenteAtual);
+  
+  if (contextoRAG) {
+    systemPrompt += `\n\n[CONTEXTO CLÍNICO OFICIAL - NOTAS TÉCNICAS DA SES-DF]\nUtilize rigorosamente as diretrizes abaixo para basear sua resposta e validação clínica:\n${contextoRAG}`;
   }
 
   // 4. Dispara a requisição para o Agente Especialista no OpenRouter
