@@ -1,0 +1,47 @@
+:root {
+  --vp-c-brand-1: #0ea5e9;
+  --vp-c-brand-2: #38bdf8;
+  --vp-c-brand-3: #7dd3fc;
+  
+  --vp-font-family-base: 'Inter', sans-serif;
+  
+  /* Gradiente lindo pro hero title */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #38bdf8 30%, #a855f7);
+  --vp-home-hero-image-background-image: linear-gradient(-45deg, #38bdf8 50%, #a855f7 50%);
+  --vp-home-hero-image-filter: blur(40px);
+}
+
+.dark {
+  --vp-c-bg: #0f172a;
+  --vp-c-bg-alt: #1e293b;
+  --vp-c-border: #334155;
+  --vp-c-text-1: #f8fafc;
+  --vp-c-text-2: #cbd5e1;
+}
+
+/* Glassmorphism nos cards da home */
+.VPFeature {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.VPFeature:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.dark .VPFeature {
+  background: rgba(30, 41, 59, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Micro-animações pros botões */
+.VPButton.brand {
+  transition: all 0.2s ease;
+}
+.VPButton.brand:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
+}
