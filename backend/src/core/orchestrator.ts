@@ -91,6 +91,7 @@ ${notaTecnica}`;
   // 5. Tratamento rigoroso do JSON de saída (Substitui o nó de Código do n8n)
   let respostaEstruturada;
   try {
+    console.log("[Orquestrador][DEBUG] JSON bruto do especialista:", respostaIA.conteudo);
     respostaEstruturada = JSON.parse(respostaIA.conteudo);
     
     // Normalização das chaves para garantir que batem com nosso banco

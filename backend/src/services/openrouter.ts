@@ -41,6 +41,7 @@ export async function chamarLLMComCascata(
           model: modelo,
           messages: messages,
           temperature: 0.2, // Baixa temperatura para respostas clínicas mais determinísticas
+          max_tokens: 2048, // Garante espaço suficiente para o JSON completo (nota técnica + histórico deixam o prompt longo)
           response_format: { type: 'json_object' } // O SEGREDO: Força o LLM a retornar JSON válido!
         })
       });
@@ -51,7 +52,7 @@ export async function chamarLLMComCascata(
       }
 
       const data = await response.json();
-      console.log(`[OpenRouter] Sucesso com o modelo: ${modelo}`);
+      console.log(`[OpenRouter] Sucesso com o modelo: ${modelo} (finish_reason: ${data.choices[0].finish_reason})`);
       
       return {
         conteudo: data.choices[0].message.content,
