@@ -5,13 +5,13 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Inicializa as chaves
+// Inicializa as chaves (Prioriza a Service Role Key para leitura interna dos vetores)
 const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
 const openaiApiKey = process.env.OPENAI_API_KEY || '';
 
 if (!supabaseUrl || !supabaseKey) {
-  console.warn("[RAG] SUPABASE_URL ou SUPABASE_ANON_KEY não estão configurados. A busca vetorial pode falhar.");
+  console.warn("[RAG] SUPABASE_URL ou Chave Supabase não estão configurados. A busca vetorial pode falhar.");
 }
 
 if (!openaiApiKey) {
@@ -34,22 +34,28 @@ export async function buscarContexto(query: string, agenteAtual: string, limite 
       return "";
     }
 
-    // Define a tabela e a função RPC (queryName) com base na especialidade
-    let tableName = "documents";
-    let queryName = "match_documents";
+    let tableName = "";
+    let queryName = "";
 
+    // Mapeamento correto e completo das tabelas e funções RPC criadas pelo n8n/SQL
     if (agenteAtual === 'cardiologia') {
       tableName = "notes_cardi";
       queryName = "match_notes_cardi";
     } else if (agenteAtual === 'endocrinologia') {
       tableName = "notes_endocri";
       queryName = "match_notes_endocri";
+    } else if (agenteAtual === 'dermatologia') {
+      tableName = "notes_derma";
+      queryName = "match_notes_derma";
+    } else {
+      // Retorna vazio imediatamente se for orquestrador ou dúvidas gerais (evita erro de tabela não encontrada)
+      return "";
     }
 
     const vectorStore = new SupabaseVectorStore(
       new OpenAIEmbeddings({
         openAIApiKey: openaiApiKey,
-        modelName: 'text-embedding-3-small', // Modelo padrão para 1536 dimensões
+        modelName: 'text-embedding-3-small', // Modelo padrão leve e eficiente
       }),
       {
         client: supabase,
@@ -65,12 +71,13 @@ export async function buscarContexto(query: string, agenteAtual: string, limite 
       return "";
     }
 
-    // Combina os resultados encontrados
-    const contexto = results.map(doc => doc.pageContent).join('\n\n');
-    console.log(`[RAG] Recuperados ${results.length} trechos relevantes.`);
+    // Combina os resultados encontrados com divisórias claras para a IA entender melhor
+    const contexto = results.map(doc => doc.pageContent).join('\n\n---\n\n');
+    console.log(`[RAG] Recuperados ${results.length} trechos relevantes da tabela ${tableName}.`);
+    
     return contexto;
   } catch (error) {
-    console.error("[RAG] Erro ao buscar contexto no banco vetorial:", error);
-    return ""; // Em caso de erro, continua a execução sem o contexto
+    console.error(`[RAG] Erro ao buscar contexto no banco vetorial para ${agenteAtual}:`, error);
+    return ""; // Em caso de erro (ex: banco caiu), continua a execução sem o contexto
   }
 }

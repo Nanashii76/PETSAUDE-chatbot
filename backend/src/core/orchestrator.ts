@@ -61,11 +61,15 @@ export async function processarMensagemLLM(sessao: any, mensagemUsuario: string)
       break;
   }
 
-  // Busca o contexto nas Notas Técnicas oficiais (RAG)
+  // 3.5 Busca o contexto nas Notas Técnicas oficiais (RAG)
   const contextoRAG = await buscarContexto(mensagemUsuario, agenteAtual);
   
   if (contextoRAG) {
-    systemPrompt += `\n\n[CONTEXTO CLÍNICO OFICIAL - NOTAS TÉCNICAS DA SES-DF]\nUtilize rigorosamente as diretrizes abaixo para basear sua resposta e validação clínica:\n${contextoRAG}`;
+    systemPrompt += `\n\n[CONTEXTO CLÍNICO OFICIAL - NOTAS TÉCNICAS DA SES-DF]
+Abaixo estão os trechos recuperados das diretrizes oficiais de regulação para esta especialidade. 
+Você é obrigado a utilizar estas informações para validar os critérios do paciente. Não invente regras:
+
+${contextoRAG}`;
   }
 
   // 4. Dispara a requisição para o Agente Especialista no OpenRouter
