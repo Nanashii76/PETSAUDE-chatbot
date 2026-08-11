@@ -1,6 +1,10 @@
 import { buscarHistoricoSessao, atualizarSessao } from '../services/database.js';
 import { chamarLLMComCascata } from '../services/openrouter.js';
-import { buscarContexto } from '../services/rag.js';
+import {
+  DOC_CARDIOLOGIA,
+  DOC_DERMATOLOGIA,
+  DOC_ENDOCRINOLOGIA
+} from './documents.js';
 import { 
   PROMPT_ROTEADOR, 
   PROMPT_CARDIOLOGIA, 
@@ -8,6 +12,13 @@ import {
   PROMPT_ENDOCRINOLOGIA, 
   PROMPT_GERAL 
 } from './prompts.js';
+
+// Mapeia cada agente/especialidade para a Nota Técnica estática correspondente
+const NOTAS_TECNICAS: Record<string, string> = {
+  cardiologia: DOC_CARDIOLOGIA,
+  dermatologia: DOC_DERMATOLOGIA,
+  endocrinologia: DOC_ENDOCRINOLOGIA
+};
 
 export async function processarMensagemLLM(sessao: any, mensagemUsuario: string) {
   // 1. Definição Dinâmica de Agentes (O equivalente ao nó "Switch")
@@ -61,15 +72,17 @@ export async function processarMensagemLLM(sessao: any, mensagemUsuario: string)
       break;
   }
 
-  // 3.5 Busca o contexto nas Notas Técnicas oficiais (RAG)
-  const contextoRAG = await buscarContexto(mensagemUsuario, agenteAtual);
-  
-  if (contextoRAG) {
-    systemPrompt += `\n\n[CONTEXTO CLÍNICO OFICIAL - NOTAS TÉCNICAS DA SES-DF]
-Abaixo estão os trechos recuperados das diretrizes oficiais de regulação para esta especialidade. 
-Você é obrigado a utilizar estas informações para validar os critérios do paciente. Não invente regras:
+  // 3.5 Injeta a Nota Técnica oficial correspondente à especialidade (contexto estático)
+  const notaTecnica = NOTAS_TECNICAS[agenteAtual];
 
-${contextoRAG}`;
+  if (notaTecnica) {
+    systemPrompt += `\n\n[CONTEXTO CLÍNICO OFICIAL - NOTAS TÉCNICAS DA SES-DF]
+Abaixo estão as diretrizes oficiais de regulação para esta especialidade. 
+Você é estritamente obrigado a utilizar estas informações para validar os critérios do paciente. Não invente regras que não estejam citadas abaixo:
+
+${notaTecnica}`;
+  } else {
+    console.warn(`[Orquestrador] Nenhuma Nota Técnica encontrada para o agente "${agenteAtual}".`);
   }
 
   // 4. Dispara a requisição para o Agente Especialista no OpenRouter
