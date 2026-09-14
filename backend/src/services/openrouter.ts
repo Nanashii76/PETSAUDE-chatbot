@@ -1,12 +1,19 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-// A cascata de modelos gratuitos :free, ordenada por preferência
+// A cascata de modelos gratuitos :free, ordenada por preferência.
+// IMPORTANTE: o catálogo de modelos gratuitos do OpenRouter muda com frequência —
+// modelos são descontinuados/renomeados sem aviso. Antes de trocar algum item aqui,
+// confira o catálogo atual em https://openrouter.ai/api/v1/models e filtre por
+// `supported_parameters` contendo "response_format" (exigido, pois usamos JSON mode
+// abaixo) — nem todo modelo ":free" suporta isso; alguns (ex: "openrouter/free",
+// removido daqui por esse motivo) ignoram a instrução e retornam texto livre,
+// quebrando o parse do JSON.
 const FALLBACK_CASCADE = [
-  'nvidia/nemotron-3-nano-30b-a3b:free',    // Rápido e limpo
-  'qwen/qwen3-next-80b-a3b-instruct:free',  // Excelente para contexto longo
-  'meta-llama/llama-3.3-70b-instruct:free', // Ótimo raciocínio lógico
-  'openrouter/free'                         // Rede de segurança final
+  'google/gemma-4-26b-a4b-it:free',         // Rápido e limpo
+  'nex-agi/nex-n2.5-mini:free',             // Contexto longo (262k tokens)
+  'nvidia/nemotron-3-super-120b-a12b:free', // Ótimo raciocínio lógico
+  'liquid/lfm-2.5-2.6b:free'                // Rede de segurança final
 ];
 
 export async function chamarLLMComCascata(
