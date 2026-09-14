@@ -1,83 +1,50 @@
-import { createClient } from '@supabase/supabase-js';
-import { SupabaseVectorStore } from '@langchain/community/vectorstores/supabase';
-import { OpenAIEmbeddings } from '@langchain/openai';
+import { Pool } from 'pg';
 import dotenv from 'dotenv';
+import { gerarEmbedding } from './embeddings.js';
 
 dotenv.config();
 
-// Inicializa as chaves (Prioriza a Service Role Key para leitura interna dos vetores)
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
-const openaiApiKey = process.env.OPENAI_API_KEY || '';
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-if (!supabaseUrl || !supabaseKey) {
-  console.warn("[RAG] SUPABASE_URL ou Chave Supabase não estão configurados. A busca vetorial pode falhar.");
-}
+const ESPECIALIDADES_COM_RAG = ['cardiologia', 'dermatologia', 'endocrinologia'];
 
-if (!openaiApiKey) {
-  console.warn("[RAG] OPENAI_API_KEY não configurada. A geração de embeddings falhará.");
-}
-
-// Cria o cliente Supabase
-export const supabase = (supabaseUrl && supabaseKey) 
-  ? createClient(supabaseUrl, supabaseKey) 
-  : null;
+export type FonteRag = { titulo: string; similarity: number };
+export type ResultadoRag = { contexto: string; fontes: FonteRag[] };
 
 /**
- * Realiza a busca vetorial (RAG) no Supabase baseado na query do usuário e no agente.
- * Retorna os textos das Notas Técnicas recuperadas.
+ * Recupera só os trechos relevantes da Nota Técnica (via busca vetorial), em vez
+ * de injetar o documento inteiro no prompt. Independente de qual LLM vai gerar a
+ * resposta — o embedding roda localmente, desacoplado do OpenRouter.
  */
-export async function buscarContexto(query: string, agenteAtual: string, limite = 3): Promise<string> {
+export async function buscarContexto(query: string, agenteAtual: string, limite = 4): Promise<ResultadoRag> {
+  if (!ESPECIALIDADES_COM_RAG.includes(agenteAtual)) {
+    // Orquestrador ou dúvidas gerais não têm Nota Técnica associada.
+    return { contexto: '', fontes: [] };
+  }
+
   try {
-    if (!supabase) {
-      console.error("[RAG] Cliente Supabase não inicializado.");
-      return "";
-    }
+    const embedding = await gerarEmbedding(query, 'query');
+    const embeddingStr = `[${embedding.join(',')}]`;
 
-    let tableName = "";
-    let queryName = "";
-
-    // Mapeamento correto e completo das tabelas e funções RPC criadas pelo n8n/SQL
-    if (agenteAtual === 'cardiologia') {
-      tableName = "notes_cardi";
-      queryName = "match_notes_cardi";
-    } else if (agenteAtual === 'endocrinologia') {
-      tableName = "notes_endocri";
-      queryName = "match_notes_endocri";
-    } else if (agenteAtual === 'dermatologia') {
-      tableName = "notes_derma";
-      queryName = "match_notes_derma";
-    } else {
-      // Retorna vazio imediatamente se for orquestrador ou dúvidas gerais (evita erro de tabela não encontrada)
-      return "";
-    }
-
-    const vectorStore = new SupabaseVectorStore(
-      new OpenAIEmbeddings({
-        openAIApiKey: openaiApiKey,
-        modelName: 'text-embedding-3-small', // Modelo padrão leve e eficiente
-      }),
-      {
-        client: supabase,
-        tableName: tableName,
-        queryName: queryName,
-      }
+    const result = await pool.query(
+      `SELECT * FROM match_documentos($1, $2, $3)`,
+      [embeddingStr, agenteAtual, limite]
     );
 
-    // Faz a busca de similaridade
-    const results = await vectorStore.similaritySearch(query, limite);
-    
-    if (results.length === 0) {
-      return "";
+    if (result.rows.length === 0) {
+      return { contexto: '', fontes: [] };
     }
 
-    // Combina os resultados encontrados com divisórias claras para a IA entender melhor
-    const contexto = results.map(doc => doc.pageContent).join('\n\n---\n\n');
-    console.log(`[RAG] Recuperados ${results.length} trechos relevantes da tabela ${tableName}.`);
-    
-    return contexto;
+    const contexto = result.rows.map((row) => row.conteudo).join('\n\n---\n\n');
+    const fontes = result.rows.map((row) => ({ titulo: row.titulo, similarity: row.similarity }));
+
+    console.log(`[RAG] Recuperados ${result.rows.length} trechos para "${agenteAtual}": ${fontes.map((f) => f.titulo).join(', ')}`);
+
+    return { contexto, fontes };
   } catch (error) {
-    console.error(`[RAG] Erro ao buscar contexto no banco vetorial para ${agenteAtual}:`, error);
-    return ""; // Em caso de erro (ex: banco caiu), continua a execução sem o contexto
+    console.error(`[RAG] Erro ao buscar contexto vetorial para ${agenteAtual}:`, error);
+    return { contexto: '', fontes: [] }; // Em caso de erro, segue sem contexto em vez de travar a conversa
   }
 }

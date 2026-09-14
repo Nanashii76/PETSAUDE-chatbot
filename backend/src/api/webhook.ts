@@ -20,14 +20,16 @@ async function processarEAuditar(remetenteId: string, mensagem: string) {
   // 4. INTEGRAÇÃO COM A INTELIGÊNCIA ARTIFICIAL
   const respostaIA = await processarMensagemLLM(sessao, mensagem);
 
-  // 5. Auditoria: Salva a resposta gerada
+  // 5. Auditoria: Salva a resposta gerada (incluindo quais trechos da Nota Técnica
+  // fundamentaram a resposta, para rastreabilidade)
   await salvarMensagem(
     sessao.id,
     'bot',
     respostaIA.texto_resposta,
     respostaIA.telemetria.modelo_usado,
     respostaIA.telemetria.tokens_prompt,
-    respostaIA.telemetria.tokens_resposta
+    respostaIA.telemetria.tokens_resposta,
+    respostaIA.fontes_rag?.length ? { fontes: respostaIA.fontes_rag } : undefined
   );
 
   // Salva o novo estado da sessão no banco
