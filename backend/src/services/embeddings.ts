@@ -4,8 +4,9 @@ dotenv.config();
 
 // Modelo de embedding gratuito do Google (quota generosa no free tier), chamado via
 // fetch puro — sem SDK, sem custo, e desacoplado do LLM de chat (que continua no
-// OpenRouter). Gera vetores de 768 dimensões.
-const MODELO = 'text-embedding-004';
+// OpenRouter). Truncamos via outputDimensionality para bater com o schema (VECTOR(768)).
+const MODELO = 'gemini-embedding-001';
+const DIMENSAO = 768;
 const URL_BASE = `https://generativelanguage.googleapis.com/v1beta/models/${MODELO}:embedContent`;
 
 const TASK_TYPE: Record<'query' | 'passage', string> = {
@@ -32,6 +33,7 @@ export async function gerarEmbedding(texto: string, tipo: 'query' | 'passage'): 
       model: `models/${MODELO}`,
       content: { parts: [{ text: texto }] },
       taskType: TASK_TYPE[tipo],
+      outputDimensionality: DIMENSAO,
     }),
   });
 

@@ -15,20 +15,29 @@ const DOCUMENTOS: { especialidade: string; texto: string }[] = [
   { especialidade: 'endocrinologia', texto: DOC_ENDOCRINOLOGIA },
 ];
 
-// Cada Nota Técnica já é dividida por condição clínica, e todo cabeçalho de seção
-// contém literalmente "Consulta em <Especialidade> - <Condição>" — serve como
-// delimitador de chunk mesmo a numeração variando entre documentos ("## X" na
-// cardiologia, "N. X" na dermatologia, texto puro na endocrinologia).
-const REGEX_CABECALHO = /^(?:##\s*)?(?:\d+\.\s*)?Consulta em (?:Cardiologia|Dermatologia|Endocrinologia)\s*-\s*.+$/gm;
+// Cabeçalho de seção em cada Nota Técnica: ou tem o formato "Consulta em <Especialidade> - X"
+// (usado em cardiologia/endocrinologia, e na maioria da dermatologia), ou é só um item de
+// lista numerado de nível 1 como "6. Micoses"/"9. Prurido" (também em dermatologia, sem repetir
+// "Consulta em..."). O `(?!\d)` depois do número exclui sub-itens como "1.1"/"8.1Condições..."
+// (segundo nível), que sempre têm outro dígito colado no primeiro ponto.
+const REGEX_CABECALHO = /^(?:##\s*)?(?:\d{1,2}\.\s+(?!\d).*|Consulta em (?:Cardiologia|Dermatologia|Endocrinologia)\s*-\s*.+)$/gm;
 
-function dividirEmChunks(texto: string): { titulo: string; conteudo: string }[] {
+function capitalizar(especialidade: string): string {
+  return especialidade.charAt(0).toUpperCase() + especialidade.slice(1);
+}
+
+function dividirEmChunks(texto: string, especialidade: string): { titulo: string; conteudo: string }[] {
   const cabecalhos = [...texto.matchAll(REGEX_CABECALHO)];
   const chunks: { titulo: string; conteudo: string }[] = [];
 
   for (let i = 0; i < cabecalhos.length; i++) {
     const inicio = cabecalhos[i].index!;
     const fim = i + 1 < cabecalhos.length ? cabecalhos[i + 1].index! : texto.length;
-    const titulo = cabecalhos[i][0].replace(/^##\s*/, '').replace(/^\d+\.\s*/, '').trim();
+    let titulo = cabecalhos[i][0].replace(/^##\s*/, '').replace(/^\d{1,2}\.\s*/, '').trim();
+    if (!titulo.includes('Consulta em')) {
+      // Cabeçalhos "soltos" (ex: "Micoses", "Prurido") não repetem o prefixo no texto-fonte.
+      titulo = `Consulta em ${capitalizar(especialidade)} - ${titulo}`;
+    }
     const conteudo = texto.slice(inicio, fim).trim();
     chunks.push({ titulo, conteudo });
   }
@@ -37,8 +46,11 @@ function dividirEmChunks(texto: string): { titulo: string; conteudo: string }[] 
 }
 
 async function ingerir() {
+  // Idempotente: pode rodar de novo sempre que os documentos-fonte mudarem, sem duplicar linhas.
+  await pool.query('TRUNCATE TABLE documentos_rag');
+
   for (const doc of DOCUMENTOS) {
-    const chunks = dividirEmChunks(doc.texto);
+    const chunks = dividirEmChunks(doc.texto, doc.especialidade);
     console.log(`[Ingestão] ${doc.especialidade}: ${chunks.length} chunks encontrados.`);
 
     for (const chunk of chunks) {
