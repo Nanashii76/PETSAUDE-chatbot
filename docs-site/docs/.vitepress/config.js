@@ -15,6 +15,7 @@ export default withMermaid(defineConfig({
       { text: 'Início', link: '/' },
       { text: 'Arquitetura', link: '/arquitetura' },
       { text: 'RAG', link: '/rag' },
+      { text: 'Incidentes', link: '/incidentes' },
       { text: 'Legado (n8n)', link: '/legado-n8n/index' }
     ],
 
@@ -23,8 +24,15 @@ export default withMermaid(defineConfig({
         {
           text: 'Sistema Atual',
           items: [
-            { text: 'Visão Geral', link: '/arquitetura' },
+            { text: 'Visão Geral e Arquitetura', link: '/arquitetura' },
             { text: 'Busca Vetorial (RAG)', link: '/rag' },
+            { text: 'Modelos de IA (Cascata)', link: '/modelos-ia' },
+            { text: 'Banco de Dados', link: '/banco-de-dados' },
+            { text: 'Integrações (WhatsApp e Frontend)', link: '/integracoes' },
+            { text: 'Testes', link: '/testes' },
+            { text: 'Infraestrutura', link: '/infraestrutura' },
+            { text: 'Histórico de Incidentes', link: '/incidentes' },
+            { text: 'Manutenção Futura', link: '/manutencao' },
             { text: 'FAQ', link: '/faq' },
           ]
         },

@@ -15,9 +15,9 @@ hero:
 
 features:
   - title: Arquitetura Moderna
-    details: SPA em React conectada a uma API Node.js (TypeScript) com ORM relacional/vetorial PostgreSQL.
+    details: SPA em React conectada a uma API Node.js (TypeScript) com acesso direto a PostgreSQL (pg, sem ORM).
   - title: Múltiplos Agentes AI
-    details: Agentes especializados em Cardiologia, Dermatologia e mais, via OpenRouter com cascata de LLMs gratuitos.
+    details: Agentes especializados em Cardiologia, Dermatologia e Endocrinologia, via OpenRouter com cascata de LLMs gratuitos.
   - title: RAG Integrado
-    details: Recuperação em tempo real (Supabase + pgvector) das Notas Técnicas oficiais para fundamentar o diagnóstico.
+    details: Recuperação vetorial (PostgreSQL + pgvector, embeddings via Gemini) das Notas Técnicas oficiais para fundamentar cada decisão.
 ---
