@@ -1,24 +1,13 @@
 import { buscarHistoricoSessao, atualizarSessao } from '../services/database.js';
 import { chamarLLMComCascata } from '../services/openrouter.js';
+import { buscarContexto } from '../services/rag.js';
 import {
-  DOC_CARDIOLOGIA,
-  DOC_DERMATOLOGIA,
-  DOC_ENDOCRINOLOGIA
-} from './documents.js';
-import { 
-  PROMPT_ROTEADOR, 
-  PROMPT_CARDIOLOGIA, 
-  PROMPT_DERMATOLOGIA, 
-  PROMPT_ENDOCRINOLOGIA, 
-  PROMPT_GERAL 
+  PROMPT_ROTEADOR,
+  PROMPT_CARDIOLOGIA,
+  PROMPT_DERMATOLOGIA,
+  PROMPT_ENDOCRINOLOGIA,
+  PROMPT_GERAL
 } from './prompts.js';
-
-// Mapeia cada agente/especialidade para a Nota Técnica estática correspondente
-const NOTAS_TECNICAS: Record<string, string> = {
-  cardiologia: DOC_CARDIOLOGIA,
-  dermatologia: DOC_DERMATOLOGIA,
-  endocrinologia: DOC_ENDOCRINOLOGIA
-};
 
 export async function processarMensagemLLM(sessao: any, mensagemUsuario: string) {
   // 1. Definição Dinâmica de Agentes (O equivalente ao nó "Switch")
@@ -72,17 +61,18 @@ export async function processarMensagemLLM(sessao: any, mensagemUsuario: string)
       break;
   }
 
-  // 3.5 Injeta a Nota Técnica oficial correspondente à especialidade (contexto estático)
-  const notaTecnica = NOTAS_TECNICAS[agenteAtual];
+  // 3.5 Busca só os trechos relevantes da Nota Técnica (RAG vetorial), em vez de
+  // injetar o documento inteiro — mantém o prompt pequeno e evita respostas cortadas.
+  const { contexto: notaTecnica, fontes: fontesRag } = await buscarContexto(mensagemUsuario, agenteAtual);
 
   if (notaTecnica) {
     systemPrompt += `\n\n[CONTEXTO CLÍNICO OFICIAL - NOTAS TÉCNICAS DA SES-DF]
-Abaixo estão as diretrizes oficiais de regulação para esta especialidade. 
+Abaixo estão os trechos mais relevantes das diretrizes oficiais de regulação para esta especialidade.
 Você é estritamente obrigado a utilizar estas informações para validar os critérios do paciente. Não invente regras que não estejam citadas abaixo:
 
 ${notaTecnica}`;
-  } else {
-    console.warn(`[Orquestrador] Nenhuma Nota Técnica encontrada para o agente "${agenteAtual}".`);
+  } else if (agenteAtual !== 'duvidas_gerais') {
+    console.warn(`[Orquestrador] Nenhum trecho de Nota Técnica recuperado para o agente "${agenteAtual}".`);
   }
 
   // 4. Dispara a requisição para o Agente Especialista no OpenRouter
@@ -101,6 +91,7 @@ ${notaTecnica}`;
       dados_coletados: { ...sessao.dados_coletados, ...(respostaEstruturada.dados_coletados_ate_o_momento || {}) },
       dados_pendentes: respostaEstruturada.dados_pendentes || [],
       agente_atual: agenteAtual,
+      fontes_rag: fontesRag,
       telemetria: {
         modelo_usado: respostaIA.modelo_usado,
         tokens_prompt: respostaIA.tokens_prompt,
@@ -115,6 +106,7 @@ ${notaTecnica}`;
       dados_coletados: sessao.dados_coletados,
       dados_pendentes: sessao.dados_pendentes,
       agente_atual: agenteAtual,
+      fontes_rag: fontesRag,
       telemetria: { modelo_usado: respostaIA.modelo_usado, tokens_prompt: 0, tokens_resposta: 0 }
     };
   }

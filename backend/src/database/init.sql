@@ -39,13 +39,15 @@ CREATE TABLE encaminhamentos (
 );
 
 -- 5. Tabela: documentos_rag (Base de Conhecimento Vetorial)
+-- Uma linha por trecho (chunk) de Nota Técnica, já filtrável por especialidade.
+-- 768 é a dimensão do embedding do Gemini (text-embedding-004, ver src/services/embeddings.ts).
 CREATE TABLE documentos_rag (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    especialidade VARCHAR(50) NOT NULL,
+    titulo TEXT NOT NULL,
     conteudo TEXT NOT NULL,
-    metadados JSONB DEFAULT '{}'::jsonb,
-    -- 1536 é o tamanho padrão para modelos de embedding como o da OpenAI. 
-    -- Se usar um modelo open-source (ex: nomic-embed-text), ajuste a dimensão (ex: 768)
-    embedding VECTOR(1536) 
+    embedding VECTOR(768) NOT NULL,
+    criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -62,7 +64,7 @@ CREATE INDEX idx_encaminhamentos_sessao_id ON encaminhamentos(sessao_id);
 -- Índices GIN para JSONB (Permite buscar dados específicos DENTRO do JSON instantaneamente)
 CREATE INDEX idx_sessoes_dados_coletados ON sessoes USING GIN (dados_coletados);
 CREATE INDEX idx_encaminhamentos_dados_estruturados ON encaminhamentos USING GIN (dados_estruturados);
-CREATE INDEX idx_documentos_rag_metadados ON documentos_rag USING GIN (metadados);
+CREATE INDEX idx_documentos_rag_especialidade ON documentos_rag(especialidade);
 
 -- Índice HNSW para busca vetorial de altíssima performance no RAG
 -- Usa a métrica de "distância de cosseno" (vector_cosine_ops), que é a ideal para textos e LLMs.
