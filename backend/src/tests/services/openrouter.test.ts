@@ -84,9 +84,10 @@ describe('chamarLLMComCascata', () => {
     expect(corpo.response_format).toEqual({ type: 'json_object' });
   });
 
-  it('regressão: pede reasoning de esforço baixo para o modelo não estourar max_tokens "pensando" antes do JSON', async () => {
-    // "effort: low", não "enabled: false" — pelo menos um modelo da cascata (liquid/lfm-2.5-2.6b:free)
-    // rejeita reasoning totalmente desligado com erro 400 ("Reasoning is mandatory for this endpoint").
+  it('regressão: limita o orçamento de reasoning para o modelo não gastar o max_tokens só "pensando" antes do JSON', async () => {
+    // Teto numérico ("max_tokens: 100"), não "enabled: false" — pelo menos um modelo da cascata
+    // (liquid/lfm-2.5-2.6b:free) rejeita reasoning totalmente desligado com erro 400
+    // ("Reasoning is mandatory for this endpoint").
     const fetchMock = vi.fn().mockResolvedValue(respostaOk('modelo-1', '{}'));
     vi.stubGlobal('fetch', fetchMock);
 
@@ -94,7 +95,34 @@ describe('chamarLLMComCascata', () => {
 
     const [, opcoes] = fetchMock.mock.calls[0];
     const corpo = JSON.parse((opcoes as RequestInit).body as string);
-    expect(corpo.reasoning).toEqual({ effort: 'low' });
+    expect(corpo.reasoning).toEqual({ max_tokens: 100 });
+  });
+
+  it('regressão: cancela a tentativa com AbortController se um modelo lento estourar o timeout', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockImplementationOnce((_url, opcoes: RequestInit) =>
+        new Promise((_resolve, reject) => {
+          opcoes.signal?.addEventListener('abort', () => {
+            const erro = new Error('This operation was aborted');
+            erro.name = 'AbortError';
+            reject(erro);
+          });
+        })
+      )
+      .mockResolvedValueOnce(respostaOk('modelo-2', '{"ok":true}'));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const resultadoPromise = chamarLLMComCascata('system prompt', []);
+    // A 1ª tentativa manda um signal de AbortController — dispara o abort manualmente em vez de
+    // esperar o timeout real, mantendo o teste rápido.
+    const [, primeiraOpcoes] = fetchMock.mock.calls[0];
+    (primeiraOpcoes as RequestInit).signal?.dispatchEvent(new Event('abort'));
+
+    const resultado = await resultadoPromise;
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(resultado.conteudo).toBe('{"ok":true}');
   });
 
   it('lança erro sem chamar fetch quando OPENROUTER_API_KEY não está configurada', async () => {

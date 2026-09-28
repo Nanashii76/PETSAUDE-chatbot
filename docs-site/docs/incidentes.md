@@ -104,12 +104,46 @@ real de uma chamada que já tinha sido paga ao provedor.
   `google/*` de propósito: testando ao vivo, `google/gemma-4-26b-a4b-it:free` (1º da cascata) estava
   rate-limited (429) no mesmo instante — dois modelos do mesmo provedor seguidos na cascata
   compartilham o mesmo pool e falham juntos.
-- Toda chamada agora manda `reasoning: { effort: 'low' }`, reduzindo drasticamente o raciocínio
-  narrado. Não é `enabled: false`: testado ao vivo, `liquid/lfm-2.5-2.6b:free` (a rede de segurança
-  final da cascata) responde erro 400 ("Reasoning is mandatory for this endpoint") se o reasoning
-  for completamente desligado — `effort: 'low'` é aceito por todos os 4 modelos da cascata.
+- Toda chamada agora manda `reasoning: { max_tokens: 100 }`, reduzindo o raciocínio narrado. Não é
+  `enabled: false`: testado ao vivo, `liquid/lfm-2.5-2.6b:free` (a rede de segurança final da
+  cascata) responde erro 400 ("Reasoning is mandatory for this endpoint") se o reasoning for
+  completamente desligado — um teto numérico é aceito por todos os 4 modelos da cascata (ver também
+  incidente #7, sobre os limites desse teto em modelos que não o respeitam à risca).
 - `orchestrator.ts` passou a preservar os tokens reais retornados pelo OpenRouter mesmo quando o
   JSON final falha, em vez de zerá-los.
 
-Coberto por testes de regressão em `openrouter.test.ts` (reasoning em esforço baixo) e
+Coberto por testes de regressão em `openrouter.test.ts` (reasoning limitado) e
 `orchestrator.test.ts` (telemetria preservada no fallback de erro).
+
+## 7. Latência inerente aos modelos gratuitos de raciocínio {#7-latencia-inerente-aos-modelos-gratuitos-de-raciocinio}
+
+Mesmo depois da correção do incidente #6, o tempo de resposta continuava alto (10-25s). Investigando
+com o prompt clínico real (nota técnica via RAG + estado da coleta, ~2000 tokens de prompt) contra
+os 4 modelos da cascata:
+
+| Modelo | Tempo observado | `reasoning_tokens` com teto de 100 |
+|---|---|---|
+| `google/gemma-4-26b-a4b-it:free` | — | rate-limited (429) na maioria das tentativas |
+| `nvidia/nemotron-3-super-120b-a12b:free` | ~4-15s | 90-105 (respeita o teto) |
+| `dots-studio/dots-3-note-preview:free` | 15-28s | 800-1400 (ignora o teto em tarefas complexas) |
+| `liquid/lfm-2.5-2.6b:free` | 17-18s | 1300+ (ignora o teto em tarefas complexas) |
+
+Conclusão: a lentidão não é um parâmetro mal configurado — é uma característica real do catálogo
+`:free` atual. `dots-studio` e `liquid` narram um bloco longo de raciocínio (visível no campo
+`message.reasoning` da resposta) independente do `reasoning.max_tokens` pedido, e o único modelo
+rápido e obediente (`nemotron`) tem um provedor upstream (Nvidia) com erros 503
+("Service temporarily overloaded") intermitentes.
+
+**Mitigação** (não elimina a lentidão de fundo, mas reduz a chance de cair nela):
+- Cascata reordenada por velocidade medida, não só por confiabilidade: `nemotron` (rápido quando
+  disponível) passou para 2º lugar, antes de `dots-studio` e `liquid` (estruturalmente lentos).
+- `max_tokens` da requisição subiu de 2048 para 3072 — dá margem para o reasoning residual dos
+  modelos que ignoram o teto pequeno, sem truncar o JSON no meio (recorrência do incidente #6 seria
+  possível de novo sem essa margem).
+- Timeout de 30s por tentativa via `AbortController`, para não travar indefinidamente num modelo
+  específico — ver [Modelos de IA](/modelos-ia) para o porquê de 30s (maior que a faixa observada de
+  15-28s, de propósito: um timeout mais curto trocaria uma resposta lenta-mas-correta por uma falha
+  rápida).
+
+Eliminar a lentidão de fato exigiria uma chave paga/BYOK do OpenRouter (foge do pool compartilhado
+gratuito) — decisão de custo fora do escopo desta correção.

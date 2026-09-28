@@ -5,12 +5,12 @@ Toda chamada ao LLM de conversação passa por `chamarLLMComCascata`
 responder com sucesso — resiliência a rate limit e indisponibilidade sem custo.
 
 ```ts
+// Ordenados por velocidade medida com o prompt clínico real, não só por confiabilidade.
 const FALLBACK_CASCADE = [
-  'google/gemma-4-26b-a4b-it:free',          // Rápido e limpo
-  'dots-studio/dots-3-note-preview:free',    // Provider diferente (AtlasCloud) — evita empilhar dois
-                                              // modelos do mesmo provedor logo no início da cascata
-  'nvidia/nemotron-3-super-120b-a12b:free',  // Ótimo raciocínio lógico
-  'liquid/lfm-2.5-2.6b:free'                 // Rede de segurança final
+  'google/gemma-4-26b-a4b-it:free',          // Rápido quando disponível, mas o mais rate-limited (429)
+  'nvidia/nemotron-3-super-120b-a12b:free',  // ~4-15s quando o provedor não está sobrecarregado — o único que respeita reasoning baixo
+  'dots-studio/dots-3-note-preview:free',    // Provider diferente (AtlasCloud), confiável, porém lento (15-28s)
+  'liquid/lfm-2.5-2.6b:free'                 // Rede de segurança final — também lento (15-18s), reasoning sempre obrigatório
 ];
 ```
 
@@ -19,13 +19,19 @@ clínicas determinísticas. Isso não é cosmético — veja no
 [Histórico de Incidentes](/incidentes#5-cascata-de-modelos-e-resposta-nao-json) como um modelo que
 ignora esse parâmetro derrubou o parse de JSON em produção.
 
-Também manda `reasoning: { effort: 'low' }`. Todo modelo `:free` atual do catálogo suporta
-"thinking"/reasoning — sem baixar o esforço, um modelo de raciocínio pode gastar o `max_tokens`
-inteiro narrando o próprio raciocínio em texto livre e nunca chegar a emitir o JSON
-(`finish_reason: "length"`, parse quebra). É `effort: 'low'`, não `enabled: false`: pelo menos um
-modelo da cascata (`liquid/lfm-2.5-2.6b:free`) rejeita reasoning totalmente desligado com erro 400
-("Reasoning is mandatory for this endpoint"). Ver
-[Histórico de Incidentes](/incidentes#6-modelo-de-raciocinio-estourando-max-tokens-antes-do-json).
+Também manda `reasoning: { max_tokens: 100 }` e usa `AbortController` com timeout de 30s por
+tentativa. Todo modelo `:free` atual do catálogo suporta "thinking"/reasoning — sem limitar isso,
+um modelo pode gastar o `max_tokens` inteiro narrando o próprio raciocínio em texto livre e nunca
+chegar a emitir o JSON (`finish_reason: "length"`, parse quebra). É um teto numérico
+(`max_tokens: 100`), não `enabled: false` nem `effort: 'low'`: testado ao vivo,
+`liquid/lfm-2.5-2.6b:free` rejeita reasoning totalmente desligado com erro 400 ("Reasoning is
+mandatory for this endpoint"), e `effort: 'low'` ainda deixava passar 1000+ tokens de raciocínio em
+tarefas complexas — o teto numérico é aceito por todos os 4 modelos, mesmo que dois deles
+(`dots-studio`, `liquid`) não o respeitem à risca. O timeout de 30s é rede de segurança contra
+travamento, não otimização de velocidade: é maior que a faixa observada de 15-28s desses dois
+modelos de propósito, para não converter uma resposta lenta-mas-correta numa falha rápida. Ver
+[Histórico de Incidentes](/incidentes#6-modelo-de-raciocinio-estourando-max-tokens-antes-do-json) e
+[#7](/incidentes#7-latencia-inerente-aos-modelos-gratuitos-de-raciocinio).
 
 ## Como a cascata funciona
 
