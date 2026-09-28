@@ -29,10 +29,10 @@ async function ingerir() {
       const embeddingStr = `[${embedding.join(',')}]`;
 
       await pool.query(
-        `INSERT INTO documentos_rag (especialidade, titulo, conteudo, embedding) VALUES ($1, $2, $3, $4)`,
-        [doc.especialidade, chunk.titulo, chunk.conteudo, embeddingStr]
+        `INSERT INTO documentos_rag (especialidade, titulo, conteudo, campos_minimos, embedding) VALUES ($1, $2, $3, $4, $5)`,
+        [doc.especialidade, chunk.titulo, chunk.conteudo, JSON.stringify(chunk.camposMinimos), embeddingStr]
       );
-      console.log(`  -> inserido: ${chunk.titulo}`);
+      console.log(`  -> inserido: ${chunk.titulo} (${chunk.camposMinimos.length} campos obrigatórios)`);
     }
   }
 

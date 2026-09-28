@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const { chamarLLMComCascataMock, buscarContextoMock, buscarHistoricoSessaoMock, atualizarSessaoMock } = vi.hoisted(() => ({
+const { chamarLLMComCascataMock, buscarContextoMock, atualizarSessaoMock } = vi.hoisted(() => ({
   chamarLLMComCascataMock: vi.fn(),
   buscarContextoMock: vi.fn(),
-  buscarHistoricoSessaoMock: vi.fn(),
   atualizarSessaoMock: vi.fn(),
 }));
 
@@ -16,7 +15,6 @@ vi.mock('../../services/rag.js', () => ({
 }));
 
 vi.mock('../../services/database.js', () => ({
-  buscarHistoricoSessao: buscarHistoricoSessaoMock,
   atualizarSessao: atualizarSessaoMock,
 }));
 
@@ -35,11 +33,9 @@ describe('processarMensagemLLM', () => {
   beforeEach(() => {
     chamarLLMComCascataMock.mockReset();
     buscarContextoMock.mockReset();
-    buscarHistoricoSessaoMock.mockReset();
     atualizarSessaoMock.mockReset();
 
-    buscarHistoricoSessaoMock.mockResolvedValue([]);
-    buscarContextoMock.mockResolvedValue({ contexto: '', fontes: [] });
+    buscarContextoMock.mockResolvedValue({ contexto: '', fontes: [], camposMinimos: [] });
     atualizarSessaoMock.mockResolvedValue({});
   });
 
@@ -61,6 +57,7 @@ describe('processarMensagemLLM', () => {
     buscarContextoMock.mockResolvedValue({
       contexto: 'trecho relevante',
       fontes: [{ titulo: 'Consulta em Cardiologia - Hipertensão Arterial Sistêmica', similarity: 0.9 }],
+      camposMinimos: ['Sinais e sintomas', 'Duas medidas de pressão arterial'],
     });
 
     const resultado = await processarMensagemLLM(sessao, 'paciente com hipertensão mal controlada');
@@ -71,6 +68,14 @@ describe('processarMensagemLLM', () => {
     expect(resultado.agente_atual).toBe('cardiologia');
     expect(resultado.texto_resposta).toBe('Preciso de mais dados.');
     expect(resultado.fontes_rag).toEqual([{ titulo: 'Consulta em Cardiologia - Hipertensão Arterial Sistêmica', similarity: 0.9 }]);
+
+    // A chamada ao especialista (2ª chamada) manda só a mensagem atual — sem histórico —
+    // e o system prompt traz a checklist de campos e o estado já coletado, em vez de prosa solta.
+    const [systemPromptEspecialista, mensagensEspecialista] = chamarLLMComCascataMock.mock.calls[1];
+    expect(mensagensEspecialista).toEqual([{ role: 'user', content: 'paciente com hipertensão mal controlada' }]);
+    expect(systemPromptEspecialista).toContain('[CAMPOS OBRIGATÓRIOS]');
+    expect(systemPromptEspecialista).toContain('Sinais e sintomas');
+    expect(systemPromptEspecialista).toContain('[ESTADO ATUAL DA COLETA]');
   });
 
   it('roteador retorna JSON inválido: cai para duvidas_gerais sem persistir sessão', async () => {
@@ -95,8 +100,8 @@ describe('processarMensagemLLM', () => {
     expect(atualizarSessaoMock).not.toHaveBeenCalled();
   });
 
-  it('sessão existente: não chama o roteador de novo (só 1 chamada ao LLM)', async () => {
-    const sessao = { id: 's3', agente_atual: 'cardiologia', status: 'PENDENTE', dados_coletados: {}, dados_pendentes: [] };
+  it('sessão existente: não chama o roteador de novo (só 1 chamada ao LLM), e o estado já coletado vai no prompt', async () => {
+    const sessao = { id: 's3', agente_atual: 'cardiologia', status: 'PENDENTE', dados_coletados: { idade: 62 }, dados_pendentes: [] };
 
     chamarLLMComCascataMock.mockResolvedValueOnce(
       respostaLLM(
@@ -113,6 +118,10 @@ describe('processarMensagemLLM', () => {
 
     expect(chamarLLMComCascataMock).toHaveBeenCalledTimes(1);
     expect(resultado.novo_status).toBe('FINALIZADO');
+
+    const [systemPrompt, mensagens] = chamarLLMComCascataMock.mock.calls[0];
+    expect(mensagens).toEqual([{ role: 'user', content: 'segue mais informação' }]);
+    expect(systemPrompt).toContain('"idade":62');
   });
 
   it('regressão: especialista retorna texto solto (não-JSON) — cai no fallback de erro, mantendo as fontes do RAG', async () => {
@@ -124,6 +133,7 @@ describe('processarMensagemLLM', () => {
     buscarContextoMock.mockResolvedValue({
       contexto: 'trecho',
       fontes: [{ titulo: 'Consulta em Cardiologia - Hipertensão Arterial Sistêmica', similarity: 0.7 }],
+      camposMinimos: [],
     });
 
     const resultado = await processarMensagemLLM(sessao, 'segue mais informação');

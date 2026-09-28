@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { dividirEmChunks } from '../../core/chunking.js';
+import { dividirEmChunks, extrairCamposMinimos } from '../../core/chunking.js';
 
 describe('dividirEmChunks', () => {
   it('divide cabeçalhos no estilo cardiologia ("## Consulta em X - Y")', () => {
@@ -107,5 +107,74 @@ Mais uma linha.
   it('retorna lista vazia quando não há nenhum cabeçalho reconhecível', () => {
     const chunks = dividirEmChunks('Texto solto sem nenhum cabeçalho de seção.', 'cardiologia');
     expect(chunks).toHaveLength(0);
+  });
+
+  it('inclui camposMinimos em cada chunk retornado', () => {
+    const texto = `
+## Consulta em Cardiologia - Valvopatias
+
+Condições clínicas...
+
+Conteúdo descritivo mínimo que o encaminhamento deve ter
+Sinais e sintomas;
+Descrição do sopro.
+`;
+    const chunks = dividirEmChunks(texto, 'cardiologia');
+
+    expect(chunks[0].camposMinimos).toEqual(['Sinais e sintomas;', 'Descrição do sopro.']);
+  });
+});
+
+describe('extrairCamposMinimos', () => {
+  it('extrai a lista quando o marcador termina com ":" (estilo endocrinologia/dermatologia)', () => {
+    const conteudo = `
+Consulta em Endocrinologia - Nódulo de Tireoide
+
+Condições clínicas que indicam...
+
+Conteúdo descritivo mínimo que o encaminhamento deve ter:
+Resultado de exame TSH, com data.
+Resultado de ecografia de tireoide.
+`;
+    expect(extrairCamposMinimos(conteudo)).toEqual([
+      'Resultado de exame TSH, com data.',
+      'Resultado de ecografia de tireoide.',
+    ]);
+  });
+
+  it('extrai a lista quando o marcador não tem ":" (estilo cardiologia)', () => {
+    const conteudo = `
+## Consulta em Cardiologia - Hipertensão Arterial Sistêmica
+
+Condições clínicas...
+
+Conteúdo descritivo mínimo que o encaminhamento deve ter
+Sinais e sintomas;
+Medicações em uso, com posologia;
+`;
+    expect(extrairCamposMinimos(conteudo)).toEqual([
+      'Sinais e sintomas;',
+      'Medicações em uso, com posologia;',
+    ]);
+  });
+
+  it('remove numeração residual de sub-itens (estilo dermatologia)', () => {
+    const conteudo = `
+1. Consulta em Dermatologia - Acne
+
+1.1 Condições clínicas...
+
+1.2 Conteúdo descritivo mínimo que o encaminhamento deve ter:
+1.2.1 descrição das lesões: tipo, distribuição, tempo de evolução;
+1.2.2 sintomas sistêmicos como febre ou artralgia (sim ou não).
+`;
+    expect(extrairCamposMinimos(conteudo)).toEqual([
+      'descrição das lesões: tipo, distribuição, tempo de evolução;',
+      'sintomas sistêmicos como febre ou artralgia (sim ou não).',
+    ]);
+  });
+
+  it('retorna lista vazia quando o chunk não tem a seção de campos mínimos', () => {
+    expect(extrairCamposMinimos('Só condições clínicas, sem a seção de campos mínimos.')).toEqual([]);
   });
 });

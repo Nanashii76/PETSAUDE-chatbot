@@ -1,4 +1,4 @@
-import { buscarHistoricoSessao, atualizarSessao } from '../services/database.js';
+import { atualizarSessao } from '../services/database.js';
 import { chamarLLMComCascata } from '../services/openrouter.js';
 import { buscarContexto } from '../services/rag.js';
 import {
@@ -35,15 +35,7 @@ export async function processarMensagemLLM(sessao: any, mensagemUsuario: string)
     }
   }
 
-  // 2. Prepara o contexto da conversa
-  const historicoBruto = await buscarHistoricoSessao(sessao.id);
-  const historicoFormatado = historicoBruto.map((msg: any) => ({
-    role: msg.remetente === 'profissional' ? 'user' : 'assistant',
-    content: msg.conteudo
-  }));
-  historicoFormatado.push({ role: 'user', content: mensagemUsuario });
-
-  // 3. Seleciona o Prompt Especialista correto
+  // 2. Seleciona o Prompt Especialista correto
   let systemPrompt = PROMPT_GERAL; // Fallback
   
   switch (agenteAtual) {
@@ -61,9 +53,10 @@ export async function processarMensagemLLM(sessao: any, mensagemUsuario: string)
       break;
   }
 
-  // 3.5 Busca só os trechos relevantes da Nota Técnica (RAG vetorial), em vez de
-  // injetar o documento inteiro — mantém o prompt pequeno e evita respostas cortadas.
-  const { contexto: notaTecnica, fontes: fontesRag } = await buscarContexto(mensagemUsuario, agenteAtual);
+  // 3. Busca só os trechos relevantes da Nota Técnica (RAG vetorial) e a checklist de campos
+  // obrigatórios já extraída na ingestão — em vez de injetar o documento inteiro e deixar o LLM
+  // reler o parágrafo pra inferir os requisitos de novo em todo turno.
+  const { contexto: notaTecnica, fontes: fontesRag, camposMinimos } = await buscarContexto(mensagemUsuario, agenteAtual);
 
   if (notaTecnica) {
     systemPrompt += `\n\n[CONTEXTO CLÍNICO OFICIAL - NOTAS TÉCNICAS DA SES-DF]
@@ -75,8 +68,19 @@ ${notaTecnica}`;
     console.warn(`[Orquestrador] Nenhum trecho de Nota Técnica recuperado para o agente "${agenteAtual}".`);
   }
 
-  // 4. Dispara a requisição para o Agente Especialista no OpenRouter
-  const respostaIA = await chamarLLMComCascata(systemPrompt, historicoFormatado);
+  if (camposMinimos.length > 0) {
+    systemPrompt += `\n\n[CAMPOS OBRIGATÓRIOS]
+${camposMinimos.map((campo) => `- ${campo}`).join('\n')}`;
+  }
+
+  // O estado já coletado substitui o histórico completo da conversa: o LLM não precisa reler
+  // todas as mensagens anteriores para saber o que já foi confirmado, só o que está aqui.
+  systemPrompt += `\n\n[ESTADO ATUAL DA COLETA]
+${JSON.stringify(sessao.dados_coletados || {})}`;
+
+  // 4. Dispara a requisição para o Agente Especialista no OpenRouter — só a mensagem atual,
+  // sem o histórico completo (que crescia a cada turno e inflava o consumo de tokens).
+  const respostaIA = await chamarLLMComCascata(systemPrompt, [{ role: 'user', content: mensagemUsuario }]);
 
   // 5. Tratamento rigoroso do JSON de saída (Substitui o nó de Código do n8n)
   let respostaEstruturada;

@@ -104,20 +104,6 @@ export async function salvarMensagem(
   }
 }
 
-export async function buscarHistoricoSessao(sessaoId: string) {
-  const client = await pool.connect();
-  try {
-    // Busca as mensagens em ordem cronológica para passar como contexto pro LLM
-    const result = await client.query(
-      `SELECT remetente, conteudo FROM mensagens WHERE sessao_id = $1 ORDER BY criado_em ASC`,
-      [sessaoId]
-    );
-    return result.rows;
-  } finally {
-    client.release();
-  }
-}
-
 // ==========================================
 // 3. ENCAMINHAMENTO FINAL
 // ==========================================

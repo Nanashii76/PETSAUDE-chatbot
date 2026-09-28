@@ -46,6 +46,9 @@ CREATE TABLE documentos_rag (
     especialidade VARCHAR(50) NOT NULL,
     titulo TEXT NOT NULL,
     conteudo TEXT NOT NULL,
+    -- Lista de campos obrigatórios ("Conteúdo descritivo mínimo..."), extraída uma vez na
+    -- ingestão para o LLM não precisar inferir isso de novo a cada turno.
+    campos_minimos JSONB DEFAULT '[]'::jsonb,
     embedding VECTOR(768) NOT NULL,
     criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

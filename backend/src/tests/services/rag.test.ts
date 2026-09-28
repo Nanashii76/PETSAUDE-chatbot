@@ -26,17 +26,27 @@ describe('buscarContexto', () => {
   it('retorna vazio sem chamar gerarEmbedding/query quando a especialidade não tem RAG associado', async () => {
     const resultado = await buscarContexto('oi, bom dia', 'duvidas_gerais');
 
-    expect(resultado).toEqual({ contexto: '', fontes: [] });
+    expect(resultado).toEqual({ contexto: '', fontes: [], camposMinimos: [] });
     expect(gerarEmbeddingMock).not.toHaveBeenCalled();
     expect(queryMock).not.toHaveBeenCalled();
   });
 
-  it('monta contexto e fontes a partir das linhas retornadas pela busca vetorial', async () => {
+  it('monta contexto e fontes a partir das linhas retornadas pela busca vetorial, e usa os camposMinimos do 1º resultado', async () => {
     gerarEmbeddingMock.mockResolvedValue([0.1, 0.2, 0.3]);
     queryMock.mockResolvedValue({
       rows: [
-        { titulo: 'Consulta em Cardiologia - Hipertensão Arterial Sistêmica', conteudo: 'trecho 1', similarity: 0.9 },
-        { titulo: 'Consulta em Cardiologia - Insuficiência Cardíaca', conteudo: 'trecho 2', similarity: 0.8 },
+        {
+          titulo: 'Consulta em Cardiologia - Hipertensão Arterial Sistêmica',
+          conteudo: 'trecho 1',
+          campos_minimos: ['Sinais e sintomas', 'Duas medidas de pressão arterial'],
+          similarity: 0.9,
+        },
+        {
+          titulo: 'Consulta em Cardiologia - Insuficiência Cardíaca',
+          conteudo: 'trecho 2',
+          campos_minimos: ['Classe funcional (NYHA)'],
+          similarity: 0.8,
+        },
       ],
     });
 
@@ -48,6 +58,8 @@ describe('buscarContexto', () => {
       { titulo: 'Consulta em Cardiologia - Hipertensão Arterial Sistêmica', similarity: 0.9 },
       { titulo: 'Consulta em Cardiologia - Insuficiência Cardíaca', similarity: 0.8 },
     ]);
+    // Só os campos do chunk mais similar (1º resultado), não a união dos 2
+    expect(resultado.camposMinimos).toEqual(['Sinais e sintomas', 'Duas medidas de pressão arterial']);
   });
 
   it('retorna vazio quando a busca vetorial não encontra nenhum trecho', async () => {
@@ -55,7 +67,7 @@ describe('buscarContexto', () => {
     queryMock.mockResolvedValue({ rows: [] });
 
     const resultado = await buscarContexto('pergunta qualquer', 'dermatologia');
-    expect(resultado).toEqual({ contexto: '', fontes: [] });
+    expect(resultado).toEqual({ contexto: '', fontes: [], camposMinimos: [] });
   });
 
   it('captura erro do banco/embedding e retorna vazio em vez de derrubar a conversa', async () => {
@@ -63,6 +75,6 @@ describe('buscarContexto', () => {
     queryMock.mockRejectedValue(new Error('conexão recusada'));
 
     const resultado = await buscarContexto('pergunta qualquer', 'endocrinologia');
-    expect(resultado).toEqual({ contexto: '', fontes: [] });
+    expect(resultado).toEqual({ contexto: '', fontes: [], camposMinimos: [] });
   });
 });

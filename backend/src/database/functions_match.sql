@@ -8,6 +8,7 @@ CREATE OR REPLACE FUNCTION match_documentos (
 ) RETURNS TABLE (
   titulo text,
   conteudo text,
+  campos_minimos jsonb,
   similarity float
 )
 LANGUAGE plpgsql
@@ -17,6 +18,7 @@ BEGIN
   SELECT
     documentos_rag.titulo,
     documentos_rag.conteudo,
+    documentos_rag.campos_minimos,
     1 - (documentos_rag.embedding <=> query_embedding) AS similarity
   FROM documentos_rag
   WHERE documentos_rag.especialidade = especialidade_filtro
