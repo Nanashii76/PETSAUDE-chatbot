@@ -156,7 +156,17 @@ export default function ChatBot() {
             </div>
           ))}
           
-          {isLoading && <div className="loading-indicator">Analisando critérios clínicos...</div>}
+          {isLoading && (
+            <div className="message-row them">
+              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="bot" className="avatar small" />
+              <div className="message-bubble typing-bubble">
+                <span>Gerando resposta</span>
+                <span className="typing-dot"></span>
+                <span className="typing-dot"></span>
+                <span className="typing-dot"></span>
+              </div>
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
 

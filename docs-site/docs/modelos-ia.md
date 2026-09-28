@@ -6,10 +6,11 @@ responder com sucesso — resiliência a rate limit e indisponibilidade sem cust
 
 ```ts
 const FALLBACK_CASCADE = [
-  'google/gemma-4-26b-a4b-it:free',         // Rápido e limpo
-  'nex-agi/nex-n2.5-mini:free',             // Contexto longo (262k tokens)
-  'nvidia/nemotron-3-super-120b-a12b:free', // Ótimo raciocínio lógico
-  'liquid/lfm-2.5-2.6b:free'                // Rede de segurança final
+  'google/gemma-4-26b-a4b-it:free',          // Rápido e limpo
+  'dots-studio/dots-3-note-preview:free',    // Provider diferente (AtlasCloud) — evita empilhar dois
+                                              // modelos do mesmo provedor logo no início da cascata
+  'nvidia/nemotron-3-super-120b-a12b:free',  // Ótimo raciocínio lógico
+  'liquid/lfm-2.5-2.6b:free'                 // Rede de segurança final
 ];
 ```
 
@@ -17,6 +18,14 @@ Cada chamada usa `response_format: { type: 'json_object' }` e `temperature: 0.2`
 clínicas determinísticas. Isso não é cosmético — veja no
 [Histórico de Incidentes](/incidentes#5-cascata-de-modelos-e-resposta-nao-json) como um modelo que
 ignora esse parâmetro derrubou o parse de JSON em produção.
+
+Também manda `reasoning: { effort: 'low' }`. Todo modelo `:free` atual do catálogo suporta
+"thinking"/reasoning — sem baixar o esforço, um modelo de raciocínio pode gastar o `max_tokens`
+inteiro narrando o próprio raciocínio em texto livre e nunca chegar a emitir o JSON
+(`finish_reason: "length"`, parse quebra). É `effort: 'low'`, não `enabled: false`: pelo menos um
+modelo da cascata (`liquid/lfm-2.5-2.6b:free`) rejeita reasoning totalmente desligado com erro 400
+("Reasoning is mandatory for this endpoint"). Ver
+[Histórico de Incidentes](/incidentes#6-modelo-de-raciocinio-estourando-max-tokens-antes-do-json).
 
 ## Como a cascata funciona
 

@@ -84,6 +84,19 @@ describe('chamarLLMComCascata', () => {
     expect(corpo.response_format).toEqual({ type: 'json_object' });
   });
 
+  it('regressão: pede reasoning de esforço baixo para o modelo não estourar max_tokens "pensando" antes do JSON', async () => {
+    // "effort: low", não "enabled: false" — pelo menos um modelo da cascata (liquid/lfm-2.5-2.6b:free)
+    // rejeita reasoning totalmente desligado com erro 400 ("Reasoning is mandatory for this endpoint").
+    const fetchMock = vi.fn().mockResolvedValue(respostaOk('modelo-1', '{}'));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await chamarLLMComCascata('system prompt', []);
+
+    const [, opcoes] = fetchMock.mock.calls[0];
+    const corpo = JSON.parse((opcoes as RequestInit).body as string);
+    expect(corpo.reasoning).toEqual({ effort: 'low' });
+  });
+
   it('lança erro sem chamar fetch quando OPENROUTER_API_KEY não está configurada', async () => {
     delete process.env.OPENROUTER_API_KEY;
     const fetchMock = vi.fn();

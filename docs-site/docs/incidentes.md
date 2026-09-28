@@ -73,3 +73,43 @@ em `openrouter.test.ts` e `orchestrator.test.ts`.
 
 *(log real depois da correção — o primeiro modelo bateu em rate limit, e a cascata corretamente
 seguiu para o próximo)*
+
+## 6. Modelo de raciocínio estourando max_tokens antes do JSON {#6-modelo-de-raciocinio-estourando-max-tokens-antes-do-json}
+
+```
+[OpenRouter] Falha no modelo google/gemma-4-26b-a4b-it:free (Status: 429)
+[OpenRouter] Falha no modelo nex-agi/nex-n2.5-mini:free (Status: 404)
+[OpenRouter] Sucesso com o modelo: nvidia/nemotron-3-super-120b-a12b:free (finish_reason: length)
+[Orquestrador][DEBUG] JSON bruto do especialista: We need to follow the flow. The user gave a
+description. We need to extract data and compare with required fields. [...]
+[Orquestrador] Falha no JSON final do agente especialista: We need to follow...
+```
+
+Recorrência do incidente #5: `nex-agi/nex-n2.5-mini:free` saiu do catálogo (404), e a cascata caiu
+no `nvidia/nemotron-3-super-120b-a12b:free`. Esse modelo é um modelo de raciocínio — ele suporta
+(e, por padrão, usa) o parâmetro `reasoning`/`include_reasoning` do OpenRouter, narrando seu
+raciocínio em texto livre antes de emitir a resposta final. Com `max_tokens: 2048`, o raciocínio
+sozinho consumiu o orçamento inteiro e o modelo nunca chegou a emitir o JSON
+(`finish_reason: "length"`). O parse falhou e o usuário viu "Houve uma falha na estruturação
+clínica" no front — de forma intermitente, já que uma nova tentativa podia ter sorte e terminar de
+"pensar" a tempo.
+
+Efeito colateral: como o parse falhava antes de `[Orquestrador]` conseguir ler os campos do JSON,
+o código zerava `tokens_prompt`/`tokens_resposta` na telemetria — escondendo do banco o consumo
+real de uma chamada que já tinha sido paga ao provedor.
+
+**Correção:**
+- `nex-agi/nex-n2.5-mini:free` substituído por `dots-studio/dots-3-note-preview:free` (confirmado
+  via `GET /api/v1/models` com suporte a `response_format`). Escolhido em vez de outro modelo
+  `google/*` de propósito: testando ao vivo, `google/gemma-4-26b-a4b-it:free` (1º da cascata) estava
+  rate-limited (429) no mesmo instante — dois modelos do mesmo provedor seguidos na cascata
+  compartilham o mesmo pool e falham juntos.
+- Toda chamada agora manda `reasoning: { effort: 'low' }`, reduzindo drasticamente o raciocínio
+  narrado. Não é `enabled: false`: testado ao vivo, `liquid/lfm-2.5-2.6b:free` (a rede de segurança
+  final da cascata) responde erro 400 ("Reasoning is mandatory for this endpoint") se o reasoning
+  for completamente desligado — `effort: 'low'` é aceito por todos os 4 modelos da cascata.
+- `orchestrator.ts` passou a preservar os tokens reais retornados pelo OpenRouter mesmo quando o
+  JSON final falha, em vez de zerá-los.
+
+Coberto por testes de regressão em `openrouter.test.ts` (reasoning em esforço baixo) e
+`orchestrator.test.ts` (telemetria preservada no fallback de erro).

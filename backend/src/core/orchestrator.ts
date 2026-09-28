@@ -111,7 +111,11 @@ ${JSON.stringify(sessao.dados_coletados || {})}`;
       dados_pendentes: sessao.dados_pendentes,
       agente_atual: agenteAtual,
       fontes_rag: fontesRag,
-      telemetria: { modelo_usado: respostaIA.modelo_usado, tokens_prompt: 0, tokens_resposta: 0 }
+      telemetria: {
+        modelo_usado: respostaIA.modelo_usado,
+        tokens_prompt: respostaIA.tokens_prompt,
+        tokens_resposta: respostaIA.tokens_resposta
+      }
     };
   }
 }

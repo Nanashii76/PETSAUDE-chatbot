@@ -128,7 +128,10 @@ describe('processarMensagemLLM', () => {
     const sessao = { id: 's4', agente_atual: 'cardiologia', status: 'PENDENTE', dados_coletados: { idade: 62 }, dados_pendentes: ['exames'] };
 
     chamarLLMComCascataMock.mockResolvedValueOnce(
-      respostaLLM('Prezado(a) profissional de saúde,\n\nCom base nas informações...')
+      respostaLLM('Prezado(a) profissional de saúde,\n\nCom base nas informações...', {
+        tokens_prompt: 850,
+        tokens_resposta: 2048,
+      })
     );
     buscarContextoMock.mockResolvedValue({
       contexto: 'trecho',
@@ -142,7 +145,10 @@ describe('processarMensagemLLM', () => {
     expect(resultado.novo_status).toBe('PENDENTE');
     expect(resultado.dados_coletados).toEqual({ idade: 62 });
     expect(resultado.fontes_rag).toEqual([{ titulo: 'Consulta em Cardiologia - Hipertensão Arterial Sistêmica', similarity: 0.7 }]);
-    expect(resultado.telemetria.tokens_prompt).toBe(0);
-    expect(resultado.telemetria.tokens_resposta).toBe(0);
+    // O consumo real de tokens já veio na resposta do OpenRouter mesmo com o JSON quebrado —
+    // zerar aqui esconderia da telemetria uma chamada que já foi paga (ex: modelo de raciocínio
+    // que estourou o max_tokens "pensando" e nunca chegou a emitir o JSON).
+    expect(resultado.telemetria.tokens_prompt).toBe(850);
+    expect(resultado.telemetria.tokens_resposta).toBe(2048);
   });
 });

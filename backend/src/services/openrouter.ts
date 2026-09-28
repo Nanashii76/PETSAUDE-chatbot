@@ -10,10 +10,12 @@ dotenv.config();
 // removido daqui por esse motivo) ignoram a instrução e retornam texto livre,
 // quebrando o parse do JSON.
 const FALLBACK_CASCADE = [
-  'google/gemma-4-26b-a4b-it:free',         // Rápido e limpo
-  'nex-agi/nex-n2.5-mini:free',             // Contexto longo (262k tokens)
-  'nvidia/nemotron-3-super-120b-a12b:free', // Ótimo raciocínio lógico
-  'liquid/lfm-2.5-2.6b:free'                // Rede de segurança final
+  'google/gemma-4-26b-a4b-it:free',          // Rápido e limpo
+  'dots-studio/dots-3-note-preview:free',    // Provider diferente (AtlasCloud) — substitui nex-agi (404, saiu do catálogo).
+                                              // Propositalmente não é outro modelo "google/*": os dois primeiros
+                                              // seguidos do mesmo provedor ficam vulneráveis ao mesmo rate limit.
+  'nvidia/nemotron-3-super-120b-a12b:free',  // Ótimo raciocínio lógico
+  'liquid/lfm-2.5-2.6b:free'                 // Rede de segurança final
 ];
 
 export async function chamarLLMComCascata(
@@ -49,7 +51,13 @@ export async function chamarLLMComCascata(
           messages: messages,
           temperature: 0.2, // Baixa temperatura para respostas clínicas mais determinísticas
           max_tokens: 2048, // Garante espaço suficiente para o JSON completo (nota técnica + histórico deixam o prompt longo)
-          response_format: { type: 'json_object' } // O SEGREDO: Força o LLM a retornar JSON válido!
+          response_format: { type: 'json_object' }, // O SEGREDO: Força o LLM a retornar JSON válido!
+          // Todos os modelos ":free" atuais suportam "thinking"/reasoning, e sem isso um modelo de
+          // raciocínio pode gastar o max_tokens inteiro só "pensando" em texto livre antes do JSON
+          // e nunca terminar (finish_reason: "length", parse quebra). "effort: low" em vez de
+          // "enabled: false" porque pelo menos um modelo da cascata (liquid/lfm-2.5-2.6b:free)
+          // retorna erro 400 se o reasoning for completamente desligado — "low" é aceito por todos.
+          reasoning: { effort: 'low' }
         })
       });
 
