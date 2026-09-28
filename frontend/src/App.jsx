@@ -100,11 +100,22 @@ export default function ChatBot() {
       {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <h2>Conversas</h2>
+          <div className="brand">
+            <div className="brand-mark">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 12h4l2-7 4 14 2-7h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div>
+              <h1>Regulação SUS</h1>
+              <span className="brand-subtitle">SES-DF · Apoio Clínico</span>
+            </div>
+          </div>
         </div>
         <div className="chat-list">
+          <p className="chat-list-label">Conversas</p>
           <div className="chat-item active">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="Bot" className="avatar" />
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="" className="avatar" />
             <div className="chat-info">
               <div className="chat-info-top">
                 <h3>Triagem Clínica</h3>
@@ -119,46 +130,54 @@ export default function ChatBot() {
       <main className="chat-window">
         <header className="chat-header">
           <div className="user-profile">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="Bot" className="avatar big" />
+            <div className="avatar-ring">
+              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="" className="avatar big" />
+            </div>
             <div>
               <h3>Auditor de Regulação IA</h3>
-              <span className="status">Online</span>
+              <span className="status"><span className="status-dot"></span>Online</span>
             </div>
           </div>
         </header>
 
         <div className="messages-area">
           {messages.length === 0 && (
-            <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '40px' }}>
-              <p>Olá, prezado(a) profissional de saúde! Descreva o quadro clínico para iniciarmos a regulação.</p>
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 9h8M8 13h5M6 20l3.5-3H18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2v2z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <h2>Olá, prezado(a) profissional de saúde</h2>
+              <p>Descreva o quadro clínico do paciente para iniciarmos a regulação.</p>
             </div>
           )}
 
           {messages.map((msg) => (
             <div key={msg.id} className={`message-row ${msg.sender}`}>
               {msg.sender === 'them' && (
-                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="bot" className="avatar small" />
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="" className="avatar small" />
               )}
               {msg.sender === 'system' && (
-                <div className="avatar small" style={{background: 'red', display:'flex', alignItems:'center', justifyContent:'center', color:'white', fontWeight:'bold'}}>!</div>
+                <div className="avatar small avatar-alert" aria-hidden="true">!</div>
               )}
 
-              <div className="message-bubble" style={msg.sender === 'system' ? {background: '#ef4444', color: 'white'} : {}}>
+              <div className="message-bubble">
                 <div className="markdown-content">
                   <ReactMarkdown>{msg.text}</ReactMarkdown>
                 </div>
-                <span className="message-time">{msg.time}</span>
+                {msg.time && <span className="message-time">{msg.time}</span>}
               </div>
 
               {msg.sender === 'me' && (
-                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`} alt="me" className="avatar small" />
+                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`} alt="" className="avatar small" />
               )}
             </div>
           ))}
-          
+
           {isLoading && (
             <div className="message-row them">
-              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="bot" className="avatar small" />
+              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="" className="avatar small" />
               <div className="message-bubble typing-bubble">
                 <span>Gerando resposta</span>
                 <span className="typing-dot"></span>
@@ -172,14 +191,19 @@ export default function ChatBot() {
 
         <div className="input-area">
           <form onSubmit={handleSendMessage}>
-            <input 
-              type="text" 
-              placeholder="Descreva o quadro do paciente..." 
+            <input
+              type="text"
+              placeholder="Descreva o quadro do paciente..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               disabled={isLoading}
             />
-            <button type="submit" disabled={isLoading}>Enviar</button>
+            <button type="submit" disabled={isLoading || !inputText.trim()} aria-label="Enviar mensagem">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <line x1="21" y1="3" x2="10.5" y2="13.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M21 3L14 21l-3.5-7.5L3 10l18-7z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+              </svg>
+            </button>
           </form>
         </div>
       </main>
