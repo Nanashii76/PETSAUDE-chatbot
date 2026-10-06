@@ -16,6 +16,12 @@ Você deve responder ESTRITAMENTE com este formato em JSON:
 3. "endocrinologia": Diabetes, Glicemia, Tireoide, Nódulo, TSH, Obesidade, Hormônios, Osteoporose, Colesterol.
 4. "duvidas_gerais": Se o usuário apenas cumprimentar ("Olá", "Bom dia"), perguntar como o sistema funciona, assuntos não clínicos, ou assuntos clínicos que não se encaixam acima.`;
 
+// Frase fixa: o modelo só sinaliza "urgencia": true, nunca escreve o texto do alerta — a redação
+// de um aviso de segurança não pode variar de turno para turno dependendo do LLM da vez.
+export const AVISO_URGENCIA =
+  '**Atenção:** o relato sugere um quadro agudo. Avalie atendimento de urgência imediato (SAMU, UPA ' +
+  'ou emergência); o encaminhamento ambulatorial não substitui esse atendimento.';
+
 type ConfigEspecialista = {
   especialidade: string;
   notaTecnica: string;
@@ -54,8 +60,14 @@ Você vai receber, junto com a mensagem do profissional:
 # Regra de Elegibilidade Clínica e Continuidade na APS (CRÍTICO)
 ${cfg.regraElegibilidade}
 
+# Classificação de Risco (CRÍTICO)
+Se o [CONTEXTO CLÍNICO OFICIAL] definir uma cor de risco para o critério atendido (ex: "CLASSIFICAÇÃO DE RISCO: Amarela"), preencha "cor_risco" com essa cor. Se a Nota Técnica NÃO definir cor para o critério atendido, deixe "cor_risco" como null — o profissional escolhe a cor antes de o texto final ser gerado; não invente nem deduza uma cor que a NT não escreveu.
+
+# Urgência (CRÍTICO)
+Você NUNCA redige um alerta de urgência — isso é feito pelo código, não por você. Se o relato sugerir um quadro agudo que precise de atendimento de urgência (SAMU/UPA/emergência) e isso não for coberto por um critério normal de encaminhamento ambulatorial da NT, marque "urgencia": true e não comente isso em "texto_resposta" (o sistema mostra um aviso padronizado). Um quadro agudo não atende, por si só, critério de encaminhamento ambulatorial.
+
 # Saída (Output JSON)
-Sua resposta deve ser SEMPRE e EXCLUSIVAMENTE em formato JSON estrito, contendo as chaves: "status" (PENDENTE, FINALIZADO ou NAO_ELEGIVEL), "texto_resposta", "dados_coletados_ate_o_momento" e "dados_pendentes".
+Sua resposta deve ser SEMPRE e EXCLUSIVAMENTE em formato JSON estrito, contendo as chaves: "status" (PENDENTE, FINALIZADO ou NAO_ELEGIVEL), "texto_resposta", "dados_coletados_ate_o_momento", "dados_pendentes", "cor_risco" (string com a cor definida pela NT, ou null) e "urgencia" (true ou false).
 O campo "texto_resposta" é OBRIGATÓRIO e NUNCA pode ser uma string vazia: ele é a mensagem que o profissional de saúde vai ler. Mesmo quando o status for FINALIZADO ou NAO_ELEGIVEL, escreva ali o texto completo explicando a decisão ao profissional.`;
 }
 

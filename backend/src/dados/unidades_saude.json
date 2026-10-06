@@ -1,0 +1,1207 @@
+{
+ "fonte": "https://apidadosabertos.saude.gov.br/cnes/estabelecimentos (codigo_municipio=530010, codigo_tipo_unidade=2 e 1, CNPJ da SES-DF)",
+ "atualizado_em": "2026-10-06",
+ "regiao_derivada_da_ra": "a região de saúde não vem no CNES; derivada da RA, a confirmar com a SES-DF",
+ "unidades": [
+  {
+   "cnes": "10731",
+   "nome": "UBS 1 Cruzeiro",
+   "ra": "Cruzeiro",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "10758",
+   "nome": "UBS 2 Cruzeiro",
+   "ra": "Cruzeiro",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "11177",
+   "nome": "UBS 1 Lago Norte",
+   "ra": "Lago Norte",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "10812",
+   "nome": "UBS 01 Lago Sul",
+   "ra": "Lago Sul",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "4431618",
+   "nome": "UBS 1 Lago Sul",
+   "ra": "Lago Sul",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "10693",
+   "nome": "UBS 01 Asa Sul",
+   "ra": "Plano Piloto",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "263680",
+   "nome": "UBS 01 DCCP",
+   "ra": "Plano Piloto",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "10707",
+   "nome": "UBS 1 Asa Norte",
+   "ra": "Plano Piloto",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "11150",
+   "nome": "UBS 1 Asa Sul",
+   "ra": "Plano Piloto",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "10723",
+   "nome": "UBS 2 Asa Norte",
+   "ra": "Plano Piloto",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "11355",
+   "nome": "UBS 3 Asa Norte Vila Planalto",
+   "ra": "Plano Piloto",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "5117666",
+   "nome": "UBS 5 Granja do Torto",
+   "ra": "Plano Piloto",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "7153368",
+   "nome": "UBS Consultorio Na Rua de Brasilia Asa Norte",
+   "ra": "Plano Piloto",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "2617358",
+   "nome": "UBS 1 Varjao",
+   "ra": "Varjão",
+   "regiao": "Central"
+  },
+  {
+   "cnes": "11185",
+   "nome": "UBS 01 Candangolandia",
+   "ra": "Candangolândia",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "11118",
+   "nome": "UBS 01 Guara",
+   "ra": "Guará",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "3027651",
+   "nome": "UBS 01 SIA CPP",
+   "ra": "Guará",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "11266",
+   "nome": "UBS 02 Guara",
+   "ra": "Guará",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "11274",
+   "nome": "UBS 03 Guara",
+   "ra": "Guará",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "11657",
+   "nome": "UBS 04 Guara",
+   "ra": "Guará",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "9263632",
+   "nome": "UBS 05 Guara",
+   "ra": "Guará",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "11126",
+   "nome": "UBS 01 Nucleo Bandeirante",
+   "ra": "Núcleo Bandeirante",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "7236778",
+   "nome": "UBS 02 Nucleo Bandeirante",
+   "ra": "Núcleo Bandeirante",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "11681",
+   "nome": "UBS 01 Park Way",
+   "ra": "Park Way",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "5038669",
+   "nome": "UBS 01 Riacho Fundo II",
+   "ra": "Riacho Fundo II",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "3410196",
+   "nome": "UBS 02 Riacho Fundo II",
+   "ra": "Riacho Fundo II",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "2660199",
+   "nome": "UBS 03 Riacho Fundo II",
+   "ra": "Riacho Fundo II",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "2673924",
+   "nome": "UBS 04 Riacho Fundo II",
+   "ra": "Riacho Fundo II",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "7526504",
+   "nome": "UBS 05 Riacho Fundo II",
+   "ra": "Riacho Fundo II",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "7060343",
+   "nome": "Unidade Basica de Saude QN 08 C Riacho Fundo II",
+   "ra": "Riacho Fundo II",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "11169",
+   "nome": "UBS 01 Riacho Fundo I",
+   "ra": "Riacho Fundo",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "3781437",
+   "nome": "UBS 02 Riacho Fundo I",
+   "ra": "Riacho Fundo",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "5295033",
+   "nome": "UBS QS 04 Riacho Fundo I",
+   "ra": "Riacho Fundo",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "2779374",
+   "nome": "UBS 01 Estrutural",
+   "ra": "SCIA/Estrutural",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "3513564",
+   "nome": "UBS 02 Estrutural",
+   "ra": "SCIA/Estrutural",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "7694733",
+   "nome": "UBS 03 Estrutural",
+   "ra": "SCIA/Estrutural",
+   "regiao": "Centro-Sul"
+  },
+  {
+   "cnes": "4986792",
+   "nome": "UBS 04 Itapoa",
+   "ra": "Itapoã",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "6268269",
+   "nome": "UBS 1 Itapoa",
+   "ra": "Itapoã",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3286959",
+   "nome": "UBS 2 Itapoa",
+   "ra": "Itapoã",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "9572481",
+   "nome": "UBS 3 Itapoa",
+   "ra": "Itapoã",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "8554277",
+   "nome": "UBS 5 Itapoa Parque",
+   "ra": "Itapoã",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "4986725",
+   "nome": "UBS 03 Jardim Botanico",
+   "ra": "Jardim Botânico",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "736260",
+   "nome": "UBS 1 Jardins Mangueiral",
+   "ra": "Jardim Botânico",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "10634",
+   "nome": "UBS 1 Paranoa",
+   "ra": "Paranoá",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3286975",
+   "nome": "UBS 2 Quadra 18 Paranoa",
+   "ra": "Paranoá",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "9572511",
+   "nome": "UBS 3 Paranoa Parque",
+   "ra": "Paranoá",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "11606",
+   "nome": "UBS 4 Jardim II Paranoa",
+   "ra": "Paranoá",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "11614",
+   "nome": "UBS 5 Quebrada dos Neres",
+   "ra": "Paranoá",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "2804107",
+   "nome": "UBS 6 Cariru Paranoa",
+   "ra": "Paranoá",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "7075596",
+   "nome": "UBS 7 Cafe Sem Troco Paranoa",
+   "ra": "Paranoá",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "11630",
+   "nome": "UBS 8 PADDF Paranoa",
+   "ra": "Paranoá",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "10790",
+   "nome": "UBS 1 Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3286932",
+   "nome": "UBS 10 Joao Candido Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3212025",
+   "nome": "UBS 11 Residencial do Bosque 2 Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "7423489",
+   "nome": "UBS 12 Sao Jose Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3212076",
+   "nome": "UBS 13 Vila Nova Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3028003",
+   "nome": "UBS 14 Sao Sebastiao PDF IV",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3028011",
+   "nome": "UBS 15 CIR Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "7566530",
+   "nome": "UBS 16 PDF I Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3027643",
+   "nome": "UBS 17 PDF II Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3254909",
+   "nome": "UBS 19 Vila do Boa Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3254887",
+   "nome": "UBS 2 T R E Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "207225",
+   "nome": "UBS 20 Sao Sebastiao CDP",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "207306",
+   "nome": "UBS 21 CDP II Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3212068",
+   "nome": "UBS 3 Residencial Oeste Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3212033",
+   "nome": "UBS 4 Morro Azul Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "11363",
+   "nome": "UBS 5 Nova Betania Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3212017",
+   "nome": "UBS 6 Sao Francisco Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3781402",
+   "nome": "UBS 7 Morro da Cruz Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "7975295",
+   "nome": "UBS 8 Cavas de Baixo Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "3742873",
+   "nome": "UBS 9 Residencial do Bosque 1 Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste"
+  },
+  {
+   "cnes": "11541",
+   "nome": "PSR 1 Rua do Mato Fercal",
+   "ra": "Fercal",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "11525",
+   "nome": "PSR 2 Corrego do Ouro Fercal",
+   "ra": "Fercal",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "2804360",
+   "nome": "UBS 1 Engenho Velho Fercal",
+   "ra": "Fercal",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "11517",
+   "nome": "UBS 2 Catingueiro Fercal",
+   "ra": "Fercal",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "161616",
+   "nome": "UBS 3 Lobeiral Fercal",
+   "ra": "Fercal",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "5167817",
+   "nome": "UBS 1 Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "2804174",
+   "nome": "UBS 10 Taquara Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "11576",
+   "nome": "UBS 11 Rajadinha Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "2804123",
+   "nome": "UBS 12 Bica do Der Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "11622",
+   "nome": "UBS 13 Sao Jose Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "11584",
+   "nome": "UBS 14 Tabatinga Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "2672227",
+   "nome": "UBS 15 Rio Preto Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "11592",
+   "nome": "UBS 16 Pipiripau Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "3144666",
+   "nome": "UBS 17 Jardim Morumbi Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "9566961",
+   "nome": "UBS 18 Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "9566988",
+   "nome": "UBS 19 Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "10650",
+   "nome": "UBS 2 Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "9768637",
+   "nome": "UBS 20 Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "11096",
+   "nome": "UBS 3 Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "6216013",
+   "nome": "UBS 4 Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "6216021",
+   "nome": "UBS 5 Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "5050340",
+   "nome": "UBS 6 Arapoanga Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "2360233",
+   "nome": "UBS 7 Jardim Roriz Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "5050359",
+   "nome": "UBS 8 Vale do Amanhecer Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "2672235",
+   "nome": "UBS 9 Santos Dumont Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "11258",
+   "nome": "UBS 1 Sobradinho II",
+   "ra": "Sobradinho II",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "7368895",
+   "nome": "UBS 2 Sobradinho II",
+   "ra": "Sobradinho II",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "6770681",
+   "nome": "UBS 3 Vale dos Pinheiros Sobradinho II",
+   "ra": "Sobradinho II",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "6770665",
+   "nome": "UBS 4 Setor de Mansoes Sobradinho II",
+   "ra": "Sobradinho II",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "7686730",
+   "nome": "UBS 5 Setor de Mansoes Sobradinho II",
+   "ra": "Sobradinho II",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "7041594",
+   "nome": "UBS 6 Vale das Acacias Sobradinho II",
+   "ra": "Sobradinho II",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "957755",
+   "nome": "UBS 7 Buritizinho Sobradinho II",
+   "ra": "Sobradinho II",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "11223",
+   "nome": "UBS 1 Sobradinho",
+   "ra": "Sobradinho",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "11231",
+   "nome": "UBS 2 Sobradinho",
+   "ra": "Sobradinho",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "11568",
+   "nome": "UBS 3 Nova Colina Sobradinho",
+   "ra": "Sobradinho",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "7687079",
+   "nome": "UBS 4 Rota do Cavalo Sobradinho",
+   "ra": "Sobradinho",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "6770657",
+   "nome": "UBS 5 Basevi Sobradinho",
+   "ra": "Sobradinho",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "2804387",
+   "nome": "UBS 6 Lago Oeste Sobradinho",
+   "ra": "Sobradinho",
+   "regiao": "Norte"
+  },
+  {
+   "cnes": "2673908",
+   "nome": "PSF Brazlandia",
+   "ra": "Brazlândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "11215",
+   "nome": "UBS 1 Brazlandia",
+   "ra": "Brazlândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "6662358",
+   "nome": "UBS 2 Brazlandia",
+   "ra": "Brazlândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "3144658",
+   "nome": "UBS 3 Veredas I Brazlandia",
+   "ra": "Brazlândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "3742865",
+   "nome": "UBS 4 Veredas II Brazlandia",
+   "ra": "Brazlândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "3144631",
+   "nome": "UBS 5 Chapadinha Brazlandia",
+   "ra": "Brazlândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "11495",
+   "nome": "UBS 6 Almecegas Brazlandia",
+   "ra": "Brazlândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "11509",
+   "nome": "UBS 7 Incra 08 Brazlandia",
+   "ra": "Brazlândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "9571280",
+   "nome": "UBS 8 Torre de Brazlandia",
+   "ra": "Brazlândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "9548203",
+   "nome": "UBS 9 Zona Rural de Brazlandia",
+   "ra": "Brazlândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "7347715",
+   "nome": "UBS 1 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "11207",
+   "nome": "UBS 10 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "11061",
+   "nome": "UBS 11 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "2617293",
+   "nome": "UBS 12 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "3144542",
+   "nome": "UBS 13 Boa Esperanca Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "3677044",
+   "nome": "UBS 14 Condominio Prive Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "7347723",
+   "nome": "UBS 15 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "9475931",
+   "nome": "UBS 16 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "9509356",
+   "nome": "UBS 17 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "9643338",
+   "nome": "UBS 18 CAIC Bernardo Sayao",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "4986768",
+   "nome": "UBS 19 Vista Bela",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "10987",
+   "nome": "UBS 2 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "10995",
+   "nome": "UBS 3 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "11002",
+   "nome": "UBS 4 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "11010",
+   "nome": "UBS 5 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "11029",
+   "nome": "UBS 6 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "11037",
+   "nome": "UBS 7 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "11045",
+   "nome": "UBS 8 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "11053",
+   "nome": "UBS 9 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste"
+  },
+  {
+   "cnes": "7108923",
+   "nome": "UBS 01 Aguas Claras",
+   "ra": "Águas Claras",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "3742822",
+   "nome": "UBS 02 Aguas Claras",
+   "ra": "Águas Claras",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "10804",
+   "nome": "UBS 01 Recanto das Emas",
+   "ra": "Recanto das Emas",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "11134",
+   "nome": "UBS 02 Recanto das Emas",
+   "ra": "Recanto das Emas",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "7170939",
+   "nome": "UBS 03 Recanto das Emas",
+   "ra": "Recanto das Emas",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "7417632",
+   "nome": "UBS 04 Recanto das Emas",
+   "ra": "Recanto das Emas",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "7059892",
+   "nome": "UBS 05 Recanto das Emas",
+   "ra": "Recanto das Emas",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "7059965",
+   "nome": "UBS 06 Recanto das Emas",
+   "ra": "Recanto das Emas",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "2804247",
+   "nome": "UBS 08 Recanto das Emas Sao Francisco",
+   "ra": "Recanto das Emas",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "7059957",
+   "nome": "UBS 09 Recanto das Emas",
+   "ra": "Recanto das Emas",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "3144623",
+   "nome": "UBS 10 Recanto das Emas",
+   "ra": "Recanto das Emas",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "9543945",
+   "nome": "UBS 11 Recanto das Emas",
+   "ra": "Recanto das Emas",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "10642",
+   "nome": "UBS 01 Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "10774",
+   "nome": "UBS 02 Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "10677",
+   "nome": "UBS 03 Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "10685",
+   "nome": "UBS 04 Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "6921736",
+   "nome": "UBS 05 Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "7053754",
+   "nome": "UBS 06 Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "7299877",
+   "nome": "UBS 07 Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "7114397",
+   "nome": "UBS 08 Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "3742857",
+   "nome": "UBS 09 Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "3633845",
+   "nome": "UBS 10 Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "7771479",
+   "nome": "UBS 11 Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "9480587",
+   "nome": "UBS 12 Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "9647597",
+   "nome": "UBS 13 Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "10901",
+   "nome": "UBS 01 Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "10928",
+   "nome": "UBS 02 Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "10936",
+   "nome": "UBS 03 Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "10626",
+   "nome": "UBS 05 Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "10952",
+   "nome": "UBS 06 Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "10960",
+   "nome": "UBS 07 Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "2617269",
+   "nome": "UBS 08 Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "9056963",
+   "nome": "UBS 01 Vicente Pires",
+   "ra": "Vicente Pires",
+   "regiao": "Sudoeste"
+  },
+  {
+   "cnes": "10820",
+   "nome": "UBS 1 Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "7360568",
+   "nome": "UBS 10 Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "4979656",
+   "nome": "UBS 10 Gama Zona Rural Ponte Alta",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "3144577",
+   "nome": "UBS 11 Ponte Alta Norte Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "3144615",
+   "nome": "UBS 12 Ponte Alta Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "7360592",
+   "nome": "UBS 13 Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "2779331",
+   "nome": "UBS 13 Gama Casa Grande",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "3027635",
+   "nome": "UBS 15 PFDF Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "7843135",
+   "nome": "UBS 16 ATP Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "10839",
+   "nome": "UBS 2 Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "10847",
+   "nome": "UBS 3 Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "10855",
+   "nome": "UBS 4 Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "10863",
+   "nome": "UBS 5 Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "10871",
+   "nome": "UBS 6 Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "10898",
+   "nome": "UBS 7 Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "2779404",
+   "nome": "UBS 9 Engenho das Lages Gama",
+   "ra": "Gama",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "10782",
+   "nome": "UBS 1 Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "2673894",
+   "nome": "UBS 10 Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "8192650",
+   "nome": "UBS 11 Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "10669",
+   "nome": "UBS 2 Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "3144550",
+   "nome": "UBS 3 Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "4979699",
+   "nome": "UBS 4 de Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "7493576",
+   "nome": "UBS 4 Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "3144593",
+   "nome": "UBS 5 Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "3144607",
+   "nome": "UBS 6 Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "3144569",
+   "nome": "UBS 7 Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "7559194",
+   "nome": "UBS 8 Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "5789494",
+   "nome": "UBS 9 Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul"
+  },
+  {
+   "cnes": "7740581",
+   "nome": "UBS 9 Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul"
+  }
+ ]
+}

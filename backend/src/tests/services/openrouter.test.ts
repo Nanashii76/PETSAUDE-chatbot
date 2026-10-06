@@ -74,7 +74,7 @@ describe('chamarLLMComCascata', () => {
   });
 
   it('sempre pede response_format: json_object no corpo da requisição', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(respostaOk('modelo-1', '{}'));
+    const fetchMock = vi.fn().mockResolvedValue(respostaOk('modelo-1', '{"ok":true}'));
     vi.stubGlobal('fetch', fetchMock);
 
     await chamarLLMComCascata('system prompt', []);
@@ -88,7 +88,7 @@ describe('chamarLLMComCascata', () => {
     // Teto numérico ("max_tokens: 100"), não "enabled: false" — pelo menos um modelo da cascata
     // (liquid/lfm-2.5-2.6b:free) rejeita reasoning totalmente desligado com erro 400
     // ("Reasoning is mandatory for this endpoint").
-    const fetchMock = vi.fn().mockResolvedValue(respostaOk('modelo-1', '{}'));
+    const fetchMock = vi.fn().mockResolvedValue(respostaOk('modelo-1', '{"ok":true}'));
     vi.stubGlobal('fetch', fetchMock);
 
     await chamarLLMComCascata('system prompt', []);
@@ -123,6 +123,45 @@ describe('chamarLLMComCascata', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(resultado.conteudo).toBe('{"ok":true}');
+  });
+
+  it('regressão: cascateia quando o modelo devolve HTTP 200 com JSON vazio/degenerado (ex: {"": ""})', async () => {
+    // Descoberto ao vivo com nvidia/nemotron-3-super-120b-a12b:free: resposta "bem-sucedida" do
+    // ponto de vista HTTP, mas sem conteúdo nenhum — response.ok sozinho não pega isso.
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(respostaOk('modelo-1', '{"": ""}'))
+      .mockResolvedValueOnce(respostaOk('modelo-2', '{"status":"PENDENTE","texto_resposta":"oi"}'));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const resultado = await chamarLLMComCascata('system prompt', []);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(resultado.conteudo).toBe('{"status":"PENDENTE","texto_resposta":"oi"}');
+  });
+
+  it('regressão: também cascateia para conteúdo vazio ou JSON "{}" sem nenhuma chave', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(respostaOk('modelo-1', ''))
+      .mockResolvedValueOnce(respostaOk('modelo-2', '{}'))
+      .mockResolvedValueOnce(respostaOk('modelo-3', '{"status":"PENDENTE","texto_resposta":"oi"}'));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const resultado = await chamarLLMComCascata('system prompt', []);
+
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(resultado.conteudo).toBe('{"status":"PENDENTE","texto_resposta":"oi"}');
+  });
+
+  it('não trata texto livre (não-JSON) como degenerado — deixa o parse de verdade no orquestrador decidir', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(respostaOk('modelo-1', 'isso não é um JSON válido'));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const resultado = await chamarLLMComCascata('system prompt', []);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(resultado.conteudo).toBe('isso não é um JSON válido');
   });
 
   it('lança erro sem chamar fetch quando OPENROUTER_API_KEY não está configurada', async () => {

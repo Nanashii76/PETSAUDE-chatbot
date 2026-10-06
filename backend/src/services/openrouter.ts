@@ -1,6 +1,22 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+// Detecta um JSON "tecnicamente válido" mas sem conteúdo útil (ex: '{"": ""}', '{}', '   '), que
+// response.ok não pega porque o HTTP em si foi 200. Verificação genérica (sem conhecer o esquema
+// de domínio dos prompts) — só confere se há pelo menos uma chave com valor não-vazio.
+function respostaDegenerada(conteudo: string): boolean {
+  if (!conteudo || conteudo.trim().length < 10) return true;
+  try {
+    const obj = JSON.parse(conteudo);
+    if (obj && typeof obj === 'object') {
+      return !Object.values(obj).some((v) => v !== null && v !== '' && v !== undefined);
+    }
+  } catch {
+    // Não é JSON — deixa o parse de verdade no orquestrador decidir se é um erro.
+  }
+  return false;
+}
+
 // A cascata de modelos gratuitos :free, ordenada por preferência.
 // IMPORTANTE: o catálogo de modelos gratuitos do OpenRouter muda com frequência —
 // modelos são descontinuados/renomeados sem aviso. Antes de trocar algum item aqui,
@@ -9,16 +25,19 @@ dotenv.config();
 // abaixo) — nem todo modelo ":free" suporta isso; alguns (ex: "openrouter/free",
 // removido daqui por esse motivo) ignoram a instrução e retornam texto livre,
 // quebrando o parse do JSON.
-// Ordenados por velocidade medida com o prompt clínico real (nota técnica + estado da coleta),
-// não só por confiabilidade — ver Histórico de Incidentes #6. Com reasoning limitado a 100 tokens,
-// nemotron respeita o limite e responde em ~4s; dots-studio e liquid IGNORAM um teto de reasoning
-// pequeno em tarefas complexas (bloco de ~800-1400 tokens de raciocínio de qualquer forma) e levam
-// 15-28s mesmo assim — por isso vêm depois na cascata, não antes.
+// Ordenados por confiabilidade+velocidade medida ao vivo com o prompt clínico real (ver Histórico
+// de Incidentes #6-#8) — o catálogo de modelos gratuitos muda de comportamento com frequência,
+// então "ordenados por velocidade" numa sessão pode estar errado na próxima. nemotron, que já foi o
+// mais rápido e confiável, passou a devolver JSON vazio/degenerado ({"": ""}) em boa parte das
+// chamadas numa re-checagem posterior — por isso foi rebaixado, não removido (ainda funciona às
+// vezes e tem bom raciocínio quando funciona).
 const FALLBACK_CASCADE = [
   'google/gemma-4-26b-a4b-it:free',          // Rápido quando disponível, mas historicamente o mais rate-limited (429)
-  'nvidia/nemotron-3-super-120b-a12b:free',  // ~4s quando o provedor não está sobrecarregado — o único que respeita reasoning baixo
-  'dots-studio/dots-3-note-preview:free',    // Provider diferente (AtlasCloud) — substitui nex-agi (404, saiu do catálogo). Confiável, porém lento (15-28s)
-  'liquid/lfm-2.5-2.6b:free'                 // Rede de segurança final — também lento (15-18s), mas nunca falha por reasoning obrigatório
+  'apodex/apodex-1.1-mini:free',             // Novo no catálogo — rápido e confiável nos testes ao vivo
+  'dots-studio/dots-3-note-preview:free',    // Provider diferente (AtlasCloud) — confiável e rápido nos testes mais recentes
+  'liquid/lfm-2.5-2.6b:free',                // Provider diferente (Liquid) — confiável e rápido nos testes mais recentes
+  'nvidia/nemotron-3-super-120b-a12b:free',  // Rebaixado: respondendo vazio/degenerado com frequência numa re-checagem
+  'google/gemma-4-31b-it:free'               // Mesmo provedor de rate limit do 1º (Google) — rede de segurança final, baixo custo de tentar
 ];
 
 // Rede de segurança contra travamento, não uma otimização de velocidade: medido com o prompt
@@ -82,10 +101,21 @@ export async function chamarLLMComCascata(
       }
 
       const data = await response.json();
+      const conteudo = data.choices[0].message.content;
+
+      // Alguns modelos, raramente, devolvem HTTP 200 com um JSON tecnicamente válido mas vazio ou
+      // degenerado (ex: '{"": ""}') em vez do objeto esperado — descoberto ao vivo com
+      // nvidia/nemotron-3-super-120b-a12b:free. response.ok não detecta isso: sem essa checagem, a
+      // cascata para aqui e devolve lixo em vez de tentar o próximo modelo.
+      if (respostaDegenerada(conteudo)) {
+        console.warn(`[OpenRouter] Modelo ${modelo} devolveu uma resposta vazia/degenerada: ${conteudo}. Acionando fallback...`);
+        continue;
+      }
+
       console.log(`[OpenRouter] Sucesso com o modelo: ${modelo} (finish_reason: ${data.choices[0].finish_reason}, ${Date.now() - inicio}ms)`);
 
       return {
-        conteudo: data.choices[0].message.content,
+        conteudo,
         modelo_usado: modelo,
         tokens_prompt: data.usage?.prompt_tokens || 0,
         tokens_resposta: data.usage?.completion_tokens || 0

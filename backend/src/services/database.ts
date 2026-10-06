@@ -119,10 +119,55 @@ export async function salvarEncaminhamento(
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `INSERT INTO encaminhamentos 
-       (sessao_id, especialidade, classificacao_risco, resumo_sisreg, dados_estruturados, elegivel) 
+      `INSERT INTO encaminhamentos
+       (sessao_id, especialidade, classificacao_risco, resumo_sisreg, dados_estruturados, elegivel)
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       [sessaoId, especialidade, classificacaoRisco, resumoSisreg, JSON.stringify(dadosEstruturados), elegivel]
+    );
+    return result.rows[0];
+  } finally {
+    client.release();
+  }
+}
+
+// ==========================================
+// 4. IDENTIDADE DO PROFISSIONAL (NOME E UNIDADE)
+// ==========================================
+
+export async function buscarOuCriarInterlocutor(canal: 'web' | 'whatsapp', identificador: string) {
+  const client = await pool.connect();
+  try {
+    const existente = await client.query(
+      `SELECT * FROM interlocutores WHERE canal = $1 AND identificador = $2 LIMIT 1`,
+      [canal, identificador]
+    );
+    if (existente.rows.length > 0) {
+      return existente.rows[0];
+    }
+    const criado = await client.query(
+      `INSERT INTO interlocutores (canal, identificador) VALUES ($1, $2) RETURNING *`,
+      [canal, identificador]
+    );
+    return criado.rows[0];
+  } finally {
+    client.release();
+  }
+}
+
+export async function atualizarInterlocutor(
+  canal: 'web' | 'whatsapp',
+  identificador: string,
+  dados: { nome?: string; unidade_cnes?: string }
+) {
+  await buscarOuCriarInterlocutor(canal, identificador);
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      `UPDATE interlocutores
+       SET nome = COALESCE($3, nome),
+           unidade_cnes = COALESCE($4, unidade_cnes)
+       WHERE canal = $1 AND identificador = $2 RETURNING *`,
+      [canal, identificador, dados.nome ?? null, dados.unidade_cnes ?? null]
     );
     return result.rows[0];
   } finally {

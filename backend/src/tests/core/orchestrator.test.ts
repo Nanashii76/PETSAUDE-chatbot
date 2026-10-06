@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const { chamarLLMComCascataMock, buscarContextoMock, atualizarSessaoMock } = vi.hoisted(() => ({
+const { chamarLLMComCascataMock, buscarContextoMock, atualizarSessaoMock, salvarEncaminhamentoMock } = vi.hoisted(() => ({
   chamarLLMComCascataMock: vi.fn(),
   buscarContextoMock: vi.fn(),
   atualizarSessaoMock: vi.fn(),
+  salvarEncaminhamentoMock: vi.fn(),
 }));
 
 vi.mock('../../services/openrouter.js', () => ({
@@ -16,6 +17,7 @@ vi.mock('../../services/rag.js', () => ({
 
 vi.mock('../../services/database.js', () => ({
   atualizarSessao: atualizarSessaoMock,
+  salvarEncaminhamento: salvarEncaminhamentoMock,
 }));
 
 const { processarMensagemLLM } = await import('../../core/orchestrator.js');
@@ -34,9 +36,11 @@ describe('processarMensagemLLM', () => {
     chamarLLMComCascataMock.mockReset();
     buscarContextoMock.mockReset();
     atualizarSessaoMock.mockReset();
+    salvarEncaminhamentoMock.mockReset();
 
     buscarContextoMock.mockResolvedValue({ contexto: '', fontes: [], camposMinimos: [] });
     atualizarSessaoMock.mockResolvedValue({});
+    salvarEncaminhamentoMock.mockResolvedValue({});
   });
 
   it('sessão nova: chama o roteador, classifica a especialidade e persiste o novo agente', async () => {
@@ -110,6 +114,8 @@ describe('processarMensagemLLM', () => {
           texto_resposta: 'Encaminhamento aprovado.',
           dados_coletados_ate_o_momento: {},
           dados_pendentes: [],
+          cor_risco: 'Amarela',
+          urgencia: false,
         })
       )
     );
@@ -118,10 +124,188 @@ describe('processarMensagemLLM', () => {
 
     expect(chamarLLMComCascataMock).toHaveBeenCalledTimes(1);
     expect(resultado.novo_status).toBe('FINALIZADO');
+    expect(resultado.cor_risco).toBe('Amarela');
+    expect(salvarEncaminhamentoMock).toHaveBeenCalledWith(
+      's3', 'cardiologia', 'Amarela', 'Encaminhamento aprovado.', expect.any(Object), true
+    );
 
     const [systemPrompt, mensagens] = chamarLLMComCascataMock.mock.calls[0];
     expect(mensagens).toEqual([{ role: 'user', content: 'segue mais informação' }]);
     expect(systemPrompt).toContain('"idade":62');
+  });
+
+  it('urgência: prefixa o aviso fixo do código (não o texto do LLM) e marca a sessão pra não repetir', async () => {
+    const sessao = { id: 's5', agente_atual: 'cardiologia', status: 'PENDENTE', dados_coletados: {}, dados_pendentes: [] };
+
+    chamarLLMComCascataMock.mockResolvedValueOnce(
+      respostaLLM(
+        JSON.stringify({
+          status: 'PENDENTE',
+          texto_resposta: 'Entendido, vou precisar de mais alguns dados.',
+          dados_coletados_ate_o_momento: {},
+          dados_pendentes: ['exames'],
+          cor_risco: null,
+          urgencia: true,
+        })
+      )
+    );
+
+    const resultado = await processarMensagemLLM(sessao, 'paciente com dor torácica intensa agora');
+
+    expect(resultado.texto_resposta).toMatch(/^\*\*Atenção:\*\* o relato sugere um quadro agudo/);
+    expect(resultado.texto_resposta).toContain('Entendido, vou precisar de mais alguns dados.');
+    expect(resultado.dados_coletados._urgencia_mostrada).toBe(true);
+  });
+
+  it('urgência: não repete o aviso se a sessão já mostrou nesta conversa', async () => {
+    const sessao = {
+      id: 's6', agente_atual: 'cardiologia', status: 'PENDENTE',
+      dados_coletados: { _urgencia_mostrada: true }, dados_pendentes: [],
+    };
+
+    chamarLLMComCascataMock.mockResolvedValueOnce(
+      respostaLLM(
+        JSON.stringify({
+          status: 'PENDENTE',
+          texto_resposta: 'Prosseguindo com a coleta.',
+          dados_coletados_ate_o_momento: {},
+          dados_pendentes: [],
+          cor_risco: null,
+          urgencia: true,
+        })
+      )
+    );
+
+    const resultado = await processarMensagemLLM(sessao, 'segue o relato');
+
+    expect(resultado.texto_resposta).toBe('Prosseguindo com a coleta.');
+  });
+
+  it('cor de risco: FINALIZADO sem cor definida pela NT vira PENDENTE e pergunta a cor, sem gerar encaminhamento ainda', async () => {
+    const sessao = { id: 's7', agente_atual: 'endocrinologia', status: 'PENDENTE', dados_coletados: {}, dados_pendentes: [] };
+
+    chamarLLMComCascataMock.mockResolvedValueOnce(
+      respostaLLM(
+        JSON.stringify({
+          status: 'FINALIZADO',
+          texto_resposta: 'Caso elegível, encaminhamento pronto.',
+          dados_coletados_ate_o_momento: { diagnostico: 'nódulo de tireoide' },
+          dados_pendentes: [],
+          cor_risco: null,
+          urgencia: false,
+        })
+      )
+    );
+
+    const resultado = await processarMensagemLLM(sessao, 'segue o caso');
+
+    expect(resultado.novo_status).toBe('PENDENTE');
+    expect(resultado.texto_resposta).toMatch(/classificação de risco/i);
+    expect(resultado.dados_coletados._aguardando_cor).toBe(true);
+    expect(resultado.dados_coletados._cor_risco_perguntada).toBe(true);
+    expect(salvarEncaminhamentoMock).not.toHaveBeenCalled();
+  });
+
+  it('cor de risco: resposta à pergunta de cor inclui o contexto [PERGUNTA PENDENTE] e finaliza de verdade', async () => {
+    const sessao = {
+      id: 's8', agente_atual: 'endocrinologia', status: 'PENDENTE',
+      dados_coletados: { diagnostico: 'nódulo de tireoide', _aguardando_cor: true, _cor_risco_perguntada: true },
+      dados_pendentes: ['Classificação de risco (Amarela, Verde ou Azul)'],
+    };
+
+    chamarLLMComCascataMock.mockResolvedValueOnce(
+      respostaLLM(
+        JSON.stringify({
+          status: 'FINALIZADO',
+          texto_resposta: 'Encaminhamento pronto com a cor informada.',
+          dados_coletados_ate_o_momento: {},
+          dados_pendentes: [],
+          cor_risco: 'Verde',
+          urgencia: false,
+        })
+      )
+    );
+
+    const resultado = await processarMensagemLLM(sessao, 'Verde');
+
+    const [systemPrompt] = chamarLLMComCascataMock.mock.calls[0];
+    expect(systemPrompt).toContain('[PERGUNTA PENDENTE]');
+    expect(resultado.novo_status).toBe('FINALIZADO');
+    expect(resultado.cor_risco).toBe('Verde');
+    expect(resultado.dados_coletados._aguardando_cor).toBeUndefined();
+    expect(salvarEncaminhamentoMock).toHaveBeenCalledWith(
+      's8', 'endocrinologia', 'Verde', 'Encaminhamento pronto com a cor informada.', expect.any(Object), true
+    );
+  });
+
+  it('cor de risco: não pergunta uma segunda vez na mesma sessão (evita travar o profissional num loop)', async () => {
+    const sessao = {
+      id: 's9', agente_atual: 'endocrinologia', status: 'PENDENTE',
+      dados_coletados: { _cor_risco_perguntada: true },
+      dados_pendentes: [],
+    };
+
+    chamarLLMComCascataMock.mockResolvedValueOnce(
+      respostaLLM(
+        JSON.stringify({
+          status: 'FINALIZADO',
+          texto_resposta: 'Encaminhamento pronto.',
+          dados_coletados_ate_o_momento: {},
+          dados_pendentes: [],
+          cor_risco: null,
+          urgencia: false,
+        })
+      )
+    );
+
+    const resultado = await processarMensagemLLM(sessao, 'segue o caso');
+
+    expect(resultado.novo_status).toBe('FINALIZADO');
+    expect(salvarEncaminhamentoMock).toHaveBeenCalledWith(
+      's9', 'endocrinologia', null, 'Encaminhamento pronto.', expect.any(Object), true
+    );
+  });
+
+  it('NAO_ELEGIVEL também grava em encaminhamentos, com elegivel=false', async () => {
+    const sessao = { id: 's10', agente_atual: 'dermatologia', status: 'PENDENTE', dados_coletados: {}, dados_pendentes: [] };
+
+    chamarLLMComCascataMock.mockResolvedValueOnce(
+      respostaLLM(
+        JSON.stringify({
+          status: 'NAO_ELEGIVEL',
+          texto_resposta: 'Não atende critério, manejar na APS.',
+          dados_coletados_ate_o_momento: {},
+          dados_pendentes: [],
+          cor_risco: null,
+          urgencia: false,
+        })
+      )
+    );
+
+    const resultado = await processarMensagemLLM(sessao, 'segue o caso');
+
+    expect(resultado.novo_status).toBe('NAO_ELEGIVEL');
+    expect(salvarEncaminhamentoMock).toHaveBeenCalledWith(
+      's10', 'dermatologia', null, 'Não atende critério, manejar na APS.', expect.any(Object), false
+    );
+  });
+
+  it('regressão: especialista retorna JSON tecnicamente válido mas vazio/degenerado ({"": ""}) — cai no mesmo fallback de erro', async () => {
+    const sessao = { id: 's11', agente_atual: 'cardiologia', status: 'PENDENTE', dados_coletados: { idade: 62 }, dados_pendentes: ['exames'] };
+
+    chamarLLMComCascataMock.mockResolvedValueOnce(respostaLLM('{"": ""}'));
+    buscarContextoMock.mockResolvedValue({
+      contexto: 'trecho',
+      fontes: [{ titulo: 'Consulta em Cardiologia - Hipertensão Arterial Sistêmica', similarity: 0.7 }],
+      camposMinimos: [],
+    });
+
+    const resultado = await processarMensagemLLM(sessao, 'segue mais informação');
+
+    expect(resultado.texto_resposta).toBe('Houve uma falha na estruturação clínica. Poderia repetir a última informação, por favor?');
+    expect(resultado.novo_status).toBe('PENDENTE');
+    expect(resultado.dados_coletados).toEqual({ idade: 62 });
+    expect(salvarEncaminhamentoMock).not.toHaveBeenCalled();
   });
 
   it('regressão: especialista retorna texto solto (não-JSON) — cai no fallback de erro, mantendo as fontes do RAG', async () => {

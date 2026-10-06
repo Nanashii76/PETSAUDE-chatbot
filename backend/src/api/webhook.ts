@@ -1,5 +1,11 @@
 import { Router, type Request, type Response } from 'express';
-import { buscarOuCriarSessao, salvarMensagem, atualizarSessao } from '../services/database.js';
+import {
+  buscarOuCriarSessao,
+  salvarMensagem,
+  atualizarSessao,
+  buscarOuCriarInterlocutor,
+  atualizarInterlocutor,
+} from '../services/database.js';
 import { processarMensagemLLM } from '../core/orchestrator.js'; // Será injetado na próxima etapa
 import { enviarMensagemWhatsapp, extrairMensagemDoWebhookEvolution } from '../services/evolution.js';
 
@@ -93,8 +99,15 @@ router.post('/evolution', async (req: Request, res: Response): Promise<any> => {
       return res.status(200).json({ success: true, ignored: true });
     }
 
-    const { remetenteId, mensagem } = mensagemExtraida;
+    const { remetenteId, mensagem, nomeContato } = mensagemExtraida;
     console.log(`[Webhook Evolution] Mensagem recebida de ${remetenteId}: ${mensagem}`);
+
+    // Nome capturado automaticamente do contato do WhatsApp — sem perguntar, diferente do fluxo
+    // web. Só grava na primeira vez (não sobrescreve um nome já registrado).
+    const interlocutor = await buscarOuCriarInterlocutor('whatsapp', remetenteId);
+    if (nomeContato && !interlocutor.nome) {
+      await atualizarInterlocutor('whatsapp', remetenteId, { nome: nomeContato });
+    }
 
     const respostaIA = await processarEAuditar(remetenteId, mensagem);
 

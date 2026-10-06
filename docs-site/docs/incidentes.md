@@ -147,3 +147,66 @@ rápido e obediente (`nemotron`) tem um provedor upstream (Nvidia) com erros 503
 
 Eliminar a lentidão de fato exigiria uma chave paga/BYOK do OpenRouter (foge do pool compartilhado
 gratuito) — decisão de custo fora do escopo desta correção.
+
+## 8. Modelo "bem-sucedido" devolvendo JSON vazio/degenerado {#8-modelo-bem-sucedido-devolvendo-json-vazio-degenerado}
+
+```
+[OpenRouter] Sucesso com o modelo: nvidia/nemotron-3-super-120b-a12b:free (finish_reason: stop, 402ms)
+[Orquestrador][DEBUG] JSON bruto do especialista: {"": ""}
+```
+
+Descoberto ao testar a Fase 2 (cor de risco/urgência) do roteiro de melhorias inspiradas no projeto
+irmão `chatbot2`: `nvidia/nemotron-3-super-120b-a12b:free`, que era o modelo mais rápido e confiável
+da cascata (incidentes #6 e #7), passou a devolver com frequência (~50-80% das chamadas, numa
+re-checagem ao vivo) um JSON tecnicamente válido mas vazio — `{"": ""}` — com `finish_reason: stop` e
+HTTP 200. Como `response.ok` é `true` e `JSON.parse` não lança erro, a cascata aceitava essa resposta
+como sucesso e a devolvia para o profissional como `"Sem resposta."` — pior que o erro genérico já
+existente, porque não orientava a tentar de novo. Testado com `reasoning.max_tokens` em 100 e 300: o
+problema persistiu nos dois casos, então não é o teto de reasoning — é uma degradação do modelo/
+provedor no momento do teste.
+
+**Correção:**
+- `openrouter.ts` ganhou uma checagem genérica de "resposta degenerada" (conteúdo vazio, ou um JSON
+  sem nenhuma chave com valor não-vazio) que acontece *antes* de aceitar a resposta como sucesso —
+  se degenerada, conta como falha e aciona o próximo modelo da cascata, do mesmo jeito que um 429 ou
+  timeout. Não é uma checagem do esquema de domínio (status/texto_resposta): fica em `openrouter.ts`,
+  que não conhece o formato dos prompts — só confere se há *algum* conteúdo real.
+- `orchestrator.ts` ganhou uma segunda linha de defesa: mesmo que todos os modelos da cascata
+  devolvam algo degenerado, o parse agora exige `status` e `texto_resposta` não-vazios, caindo no
+  fallback de erro existente (`"Houve uma falha na estruturação clínica..."`) em vez de
+  `"Sem resposta."`.
+- Cascata reordenada e ampliada com dados ao vivo do momento (catálogo de modelos `:free` muda de
+  comportamento com frequência — isto é uma foto de agora, não uma verdade permanente):
+  `nemotron` rebaixado (ainda funciona às vezes, mantido como fallback profundo); adicionado
+  `apodex/apodex-1.1-mini:free` (novo no catálogo, rápido e confiável nos testes); mantidos
+  `dots-studio` e `liquid`, que desta vez responderam rápido (ao contrário da lentidão de 15-28s
+  medida no incidente #7 — o comportamento desses modelos também varia de sessão para sessão).
+
+Coberto por testes de regressão em `openrouter.test.ts` (resposta degenerada aciona o fallback,
+`{}`/string vazia também contam, texto livre não-JSON não é tratado como degenerado) e
+`orchestrator.test.ts` (JSON válido mas vazio cai no mesmo fallback de erro do JSON inválido).
+
+## 9. Resposta de uma palavra confundindo a busca vetorial {#9-resposta-de-uma-palavra-confundindo-a-busca-vetorial}
+
+```
+[RAG] Recuperados 3 trechos para "cardiologia": Consulta em Cardiologia - Insuficiência Cardíaca, ...
+(usuário responde "Verde" à pergunta de cor de risco)
+[RAG] Recuperados 3 trechos para "cardiologia": Consulta em Cardiologia - Arritmia / Taquiarritmias, ...
+```
+
+Também descoberto testando a Fase 2: quando o caso já estava quase fechado e faltava só a cor de
+risco (pergunta nova desta fase — ver `/modelos-ia` ou o código do orquestrador), a resposta do
+profissional era só a cor ("Verde", "Amarela"...). Como `buscarContexto` usa a mensagem atual como
+consulta da busca vetorial a cada turno, uma palavra sem nenhum sinal clínico recuperava um trecho
+da Nota Técnica aleatório (o vizinho vetorial mais próximo de "Verde" sozinho), trocando o contexto
+de Insuficiência Cardíaca por Taquiarritmia no meio da conversa — o especialista passava a cobrar
+campos da condição errada.
+
+**Correção:** quando a sessão está `_aguardando_cor` (aguardando a resposta à pergunta de cor), a
+consulta à busca vetorial passa a ser o `[ESTADO ATUAL DA COLETA]` inteiro (JSON com todos os campos
+já extraídos) concatenado com a resposta do profissional, em vez da resposta sozinha — dá à busca o
+mesmo sinal clínico que a pergunta original tinha. Esse é um remendo pontual para o caso que a Fase 2
+introduziu; o problema de fundo (buscar de novo a cada turno, com a mensagem isolada, em vez de fixar
+a condição já identificada) pode se repetir em qualquer resposta curta a uma pergunta de
+esclarecimento — não só a de cor — e fica registrado aqui como ponto de atenção para uma correção
+mais ampla no futuro.

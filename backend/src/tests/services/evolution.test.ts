@@ -13,6 +13,7 @@ describe('extrairMensagemDoWebhookEvolution', () => {
     expect(extrairMensagemDoWebhookEvolution(payload)).toEqual({
       remetenteId: '5561999999999',
       mensagem: 'Olá, preciso de ajuda',
+      nomeContato: null,
     });
   });
 
@@ -27,7 +28,36 @@ describe('extrairMensagemDoWebhookEvolution', () => {
     expect(extrairMensagemDoWebhookEvolution(payload)).toEqual({
       remetenteId: '5561988887777',
       mensagem: 'Paciente de 62 anos...',
+      nomeContato: null,
     });
+  });
+
+  it('extrai o pushName como nome do contato, quando presente', () => {
+    const payload = {
+      data: {
+        key: { fromMe: false, remoteJid: '5561999999999@s.whatsapp.net' },
+        message: { conversation: 'Olá' },
+        pushName: 'Dra. Ana Souza',
+      },
+    };
+
+    expect(extrairMensagemDoWebhookEvolution(payload)).toEqual({
+      remetenteId: '5561999999999',
+      mensagem: 'Olá',
+      nomeContato: 'Dra. Ana Souza',
+    });
+  });
+
+  it('trata pushName em branco ou ausente como nomeContato: null', () => {
+    const payload = {
+      data: {
+        key: { fromMe: false, remoteJid: '5561999999999@s.whatsapp.net' },
+        message: { conversation: 'Olá' },
+        pushName: '   ',
+      },
+    };
+
+    expect(extrairMensagemDoWebhookEvolution(payload)?.nomeContato).toBeNull();
   });
 
   it('ignora mensagens enviadas pelo próprio bot (fromMe: true)', () => {

@@ -1,4 +1,4 @@
-import { atualizarSessao } from '../services/database.js';
+import { atualizarSessao, salvarEncaminhamento } from '../services/database.js';
 import { chamarLLMComCascata } from '../services/openrouter.js';
 import { buscarContexto } from '../services/rag.js';
 import {
@@ -6,8 +6,11 @@ import {
   PROMPT_CARDIOLOGIA,
   PROMPT_DERMATOLOGIA,
   PROMPT_ENDOCRINOLOGIA,
-  PROMPT_GERAL
+  PROMPT_GERAL,
+  AVISO_URGENCIA
 } from './prompts.js';
+
+const ESPECIALIDADES = ['cardiologia', 'dermatologia', 'endocrinologia'];
 
 export async function processarMensagemLLM(sessao: any, mensagemUsuario: string) {
   // 1. Definição Dinâmica de Agentes (O equivalente ao nó "Switch")
@@ -53,10 +56,21 @@ export async function processarMensagemLLM(sessao: any, mensagemUsuario: string)
       break;
   }
 
+  // Turno anterior perguntou a cor de risco (NT não define uma para o critério atendido) — a
+  // mensagem atual é a resposta a essa pergunta (ex: "Verde"), não um novo fato clínico solto.
+  // Calculado antes do RAG: uma resposta de uma palavra não tem sinal clínico nenhum para a busca
+  // vetorial — sozinha, ela pode recuperar um trecho da NT completamente errado (achado ao vivo:
+  // "Verde" sem contexto recuperou Taquiarritmia em vez de Insuficiência Cardíaca). Juntar com o
+  // estado já coletado dá à busca o mesmo sinal clínico que a pergunta original tinha.
+  const aguardandoCor = !!sessao.dados_coletados?._aguardando_cor;
+  const consultaRag = aguardandoCor
+    ? `${JSON.stringify(sessao.dados_coletados || {})} ${mensagemUsuario}`
+    : mensagemUsuario;
+
   // 3. Busca só os trechos relevantes da Nota Técnica (RAG vetorial) e a checklist de campos
   // obrigatórios já extraída na ingestão — em vez de injetar o documento inteiro e deixar o LLM
   // reler o parágrafo pra inferir os requisitos de novo em todo turno.
-  const { contexto: notaTecnica, fontes: fontesRag, camposMinimos } = await buscarContexto(mensagemUsuario, agenteAtual);
+  const { contexto: notaTecnica, fontes: fontesRag, camposMinimos } = await buscarContexto(consultaRag, agenteAtual);
 
   if (notaTecnica) {
     systemPrompt += `\n\n[CONTEXTO CLÍNICO OFICIAL - NOTAS TÉCNICAS DA SES-DF]
@@ -78,6 +92,11 @@ ${camposMinimos.map((campo) => `- ${campo}`).join('\n')}`;
   systemPrompt += `\n\n[ESTADO ATUAL DA COLETA]
 ${JSON.stringify(sessao.dados_coletados || {})}`;
 
+  if (aguardandoCor) {
+    systemPrompt += `\n\n[PERGUNTA PENDENTE]
+Você perguntou ao profissional a classificação de risco (Amarela, Verde, Azul ou Vermelha), pois a Nota Técnica não define uma cor fixa para o critério já atendido. A mensagem a seguir é a resposta a essa pergunta: use-a como "cor_risco". Se os demais campos obrigatórios já estiverem completos, pode finalizar (status FINALIZADO) com essa cor.`;
+  }
+
   // 4. Dispara a requisição para o Agente Especialista no OpenRouter — só a mensagem atual,
   // sem o histórico completo (que crescia a cada turno e inflava o consumo de tokens).
   const respostaIA = await chamarLLMComCascata(systemPrompt, [{ role: 'user', content: mensagemUsuario }]);
@@ -87,13 +106,53 @@ ${JSON.stringify(sessao.dados_coletados || {})}`;
   try {
     console.log("[Orquestrador][DEBUG] JSON bruto do especialista:", respostaIA.conteudo);
     respostaEstruturada = JSON.parse(respostaIA.conteudo);
-    
-    // Normalização das chaves para garantir que batem com nosso banco
+
+    // Alguns modelos da cascata, raramente, devolvem um JSON tecnicamente válido mas vazio/degenerado
+    // (ex: {"": ""}) — JSON.parse não detecta isso como erro. Sem essa checagem, o profissional via
+    // "Sem resposta." sem explicação nem orientação para tentar de novo.
+    if (!respostaEstruturada.status || !respostaEstruturada.texto_resposta) {
+      throw new Error(`Resposta do especialista incompleta/vazia: ${respostaIA.conteudo}`);
+    }
+
+    let novoStatus = respostaEstruturada.status || 'PENDENTE';
+    let textoResposta = respostaEstruturada.texto_resposta || "Sem resposta.";
+    let dadosPendentes = respostaEstruturada.dados_pendentes || [];
+    const corRisco: string | null = respostaEstruturada.cor_risco ?? null;
+    const dadosColetados = { ...sessao.dados_coletados, ...(respostaEstruturada.dados_coletados_ate_o_momento || {}) };
+
+    // Urgência: o alerta é sempre o texto fixo do código, nunca a redação do LLM — e só aparece
+    // uma vez por sessão, mesmo que o modelo sinalize urgencia:true de novo em turnos seguintes.
+    if (respostaEstruturada.urgencia && !sessao.dados_coletados?._urgencia_mostrada) {
+      textoResposta = `${AVISO_URGENCIA}\n\n${textoResposta}`;
+      dadosColetados._urgencia_mostrada = true;
+    }
+
+    if (aguardandoCor) {
+      // A mensagem atual já respondeu à pergunta de cor (seja com uma cor válida ou não) — não
+      // perguntar de novo, para não travar o profissional num loop.
+      delete dadosColetados._aguardando_cor;
+    } else if (novoStatus === 'FINALIZADO' && !corRisco && !sessao.dados_coletados?._cor_risco_perguntada) {
+      novoStatus = 'PENDENTE';
+      dadosColetados._aguardando_cor = true;
+      dadosColetados._cor_risco_perguntada = true;
+      textoResposta =
+        'A Nota Técnica não define uma classificação de risco fixa para este critério. Antes de finalizar, ' +
+        'qual a classificação de risco deste caso: Amarela, Verde ou Azul?';
+      dadosPendentes = ['Classificação de risco (Amarela, Verde ou Azul)'];
+    }
+
+    // Reaproveita a tabela encaminhamentos (existia, mas nunca era preenchida) só quando o caso
+    // realmente fecha numa das 3 especialidades clínicas — duvidas_gerais nunca gera encaminhamento.
+    if ((novoStatus === 'FINALIZADO' || novoStatus === 'NAO_ELEGIVEL') && ESPECIALIDADES.includes(agenteAtual)) {
+      await salvarEncaminhamento(sessao.id, agenteAtual, corRisco, textoResposta, dadosColetados, novoStatus === 'FINALIZADO');
+    }
+
     return {
-      texto_resposta: respostaEstruturada.texto_resposta || "Sem resposta.",
-      novo_status: respostaEstruturada.status || 'PENDENTE',
-      dados_coletados: { ...sessao.dados_coletados, ...(respostaEstruturada.dados_coletados_ate_o_momento || {}) },
-      dados_pendentes: respostaEstruturada.dados_pendentes || [],
+      texto_resposta: textoResposta,
+      novo_status: novoStatus,
+      dados_coletados: dadosColetados,
+      dados_pendentes: dadosPendentes,
+      cor_risco: corRisco,
       agente_atual: agenteAtual,
       fontes_rag: fontesRag,
       telemetria: {
@@ -109,6 +168,7 @@ ${JSON.stringify(sessao.dados_coletados || {})}`;
       novo_status: 'PENDENTE',
       dados_coletados: sessao.dados_coletados,
       dados_pendentes: sessao.dados_pendentes,
+      cor_risco: null,
       agente_atual: agenteAtual,
       fontes_rag: fontesRag,
       telemetria: {

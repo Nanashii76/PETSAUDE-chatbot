@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
+import TelaIdentificacao from './TelaIdentificacao.jsx';
 import './App.css';
 
 // 1. Atualize a variável de ambiente para apontar para o seu backend Express
 // Ex: VITE_API_WEBHOOK_URL=http://localhost:3000/api/webhook
 const API_WEBHOOK_URL = import.meta.env.VITE_API_WEBHOOK_URL || 'http://localhost:3000/api/webhook';
+const API_BASE_URL = API_WEBHOOK_URL.replace(/\/webhook\/?$/, '');
 
 export default function ChatBot() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState("");
-  
+  const [perfil, setPerfil] = useState(undefined); // undefined = ainda carregando do localStorage
+
   const messagesEndRef = useRef(null);
 
   // Gera ou recupera ID de sessão do localStorage
@@ -22,7 +25,25 @@ export default function ChatBot() {
       localStorage.setItem("chat_user_id", storedId);
     }
     setUserId(storedId);
+
+    try {
+      const salvo = JSON.parse(localStorage.getItem("perfil") || "null");
+      setPerfil(salvo);
+    } catch {
+      setPerfil(null);
+    }
   }, []);
+
+  async function confirmarIdentificacao({ nome, unidade }) {
+    await fetch(`${API_BASE_URL}/identificacao`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identificador: userId, nome, unidade_cnes: unidade.cnes }),
+    });
+    const novoPerfil = { nome, unidadeCnes: unidade.cnes, unidadeRotulo: unidade.rotulo };
+    localStorage.setItem("perfil", JSON.stringify(novoPerfil));
+    setPerfil(novoPerfil);
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -94,9 +115,17 @@ export default function ChatBot() {
     }
   };
 
+  if (perfil === undefined) {
+    return <div className="app-container" />;
+  }
+
+  if (!perfil) {
+    return <TelaIdentificacao apiBaseUrl={API_BASE_URL} onConfirmar={confirmarIdentificacao} />;
+  }
+
   return (
     <div className="app-container">
-      
+
       {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="sidebar-header">
@@ -123,6 +152,17 @@ export default function ChatBot() {
               <p>Conectado à API SUS</p>
             </div>
           </div>
+        </div>
+        <div className="sidebar-perfil">
+          <p className="sidebar-perfil-nome">{perfil.nome}</p>
+          <p className="sidebar-perfil-unidade">{perfil.unidadeRotulo}</p>
+          <button
+            type="button"
+            className="sidebar-perfil-trocar"
+            onClick={() => { localStorage.removeItem("perfil"); setPerfil(null); }}
+          >
+            Trocar
+          </button>
         </div>
       </aside>
 

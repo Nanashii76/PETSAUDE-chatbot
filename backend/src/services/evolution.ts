@@ -54,7 +54,9 @@ export async function enviarMensagemWhatsapp(numero: string, texto: string) {
  * (evento messages.upsert). Retorna null se não for uma mensagem de texto válida
  * ou se for uma mensagem enviada pelo próprio bot (fromMe).
  */
-export function extrairMensagemDoWebhookEvolution(payload: any): { remetenteId: string; mensagem: string } | null {
+export function extrairMensagemDoWebhookEvolution(
+  payload: any
+): { remetenteId: string; mensagem: string; nomeContato: string | null } | null {
   try {
     const data = payload?.data;
     if (!data) return null;
@@ -70,7 +72,11 @@ export function extrairMensagemDoWebhookEvolution(payload: any): { remetenteId: 
 
     if (!remetenteId || !mensagem) return null;
 
-    return { remetenteId, mensagem };
+    // pushName é o nome de exibição do contato no WhatsApp — usado para identificar o
+    // profissional automaticamente, sem precisar perguntar (diferente do fluxo web).
+    const nomeContato: string | null = typeof data.pushName === 'string' && data.pushName.trim() ? data.pushName.trim() : null;
+
+    return { remetenteId, mensagem, nomeContato };
   } catch (error) {
     console.error('[Evolution] Erro ao extrair mensagem do payload:', error);
     return null;
