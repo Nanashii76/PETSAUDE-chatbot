@@ -12,10 +12,27 @@ import {
 
 const ESPECIALIDADES = ['cardiologia', 'dermatologia', 'endocrinologia'];
 
+// Resumo do que será usado no texto final, montado em código (não pelo LLM) a partir das chaves já
+// extraídas em dados_coletados — é a comparação "o que foi capturado" que o profissional confirma
+// antes de qualquer texto de encaminhamento ser gerado de fato.
+function construirResumoConfirmacao(dadosColetados: Record<string, any>, corRisco: string | null): string {
+  const linhas = Object.entries(dadosColetados)
+    .filter(([chave]) => !chave.startsWith('_'))
+    .map(([chave, valor]) => `- ${chave}: ${typeof valor === 'object' ? JSON.stringify(valor) : valor}`);
+  if (corRisco) {
+    linhas.push(`- Classificação de risco: ${corRisco}`);
+  }
+  return (
+    'Antes de gerar o texto final, confira os dados que serão usados no encaminhamento:\n\n' +
+    linhas.join('\n') +
+    '\n\nEstá tudo certo?'
+  );
+}
+
 export async function processarMensagemLLM(sessao: any, mensagemUsuario: string, interlocutorId: string | null = null) {
   // 1. Definição Dinâmica de Agentes (O equivalente ao nó "Switch")
   let agenteAtual = sessao.agente_atual;
-  
+
   // Se ainda não temos uma especialidade definida, chamamos o Roteador primeiro
   if (agenteAtual === 'orquestrador' || !agenteAtual) {
     const respostaRoteador = await chamarLLMComCascata(
@@ -42,6 +59,50 @@ export async function processarMensagemLLM(sessao: any, mensagemUsuario: string,
       console.error("[Orquestrador] Falha ao fazer parse do Roteador, caindo para dúvidas gerais.");
       agenteAtual = 'duvidas_gerais';
     }
+  }
+
+  // Confirmação final pendente: o turno anterior já tinha tudo pronto (critérios + cor de risco) e
+  // mostrou um resumo pedindo "Confirmar e gerar texto" / "Preciso corrigir algo". A resposta a essa
+  // pergunta é uma decisão de código — não precisa (nem deve) gastar outra chamada ao LLM só pra
+  // interpretar um "sim" ou "não".
+  if (sessao.dados_coletados?._aguardando_confirmacao_final) {
+    const confirmou = /confirmar/i.test(mensagemUsuario);
+    const dadosColetados = { ...sessao.dados_coletados };
+    const textoFinalPendente = dadosColetados._texto_final_pendente;
+    const corFinalPendente: string | null = dadosColetados._cor_final_pendente ?? null;
+    delete dadosColetados._aguardando_confirmacao_final;
+    delete dadosColetados._texto_final_pendente;
+    delete dadosColetados._cor_final_pendente;
+
+    if (confirmou) {
+      if (ESPECIALIDADES.includes(agenteAtual)) {
+        await salvarEncaminhamento(sessao.id, agenteAtual, corFinalPendente, textoFinalPendente, dadosColetados, true);
+        await registrarEvento('texto_gerado', agenteAtual, sessao.id, interlocutorId, { cor_risco: corFinalPendente });
+      }
+      return {
+        texto_resposta: textoFinalPendente,
+        novo_status: 'FINALIZADO',
+        dados_coletados: dadosColetados,
+        dados_pendentes: [],
+        cor_risco: corFinalPendente,
+        agente_atual: agenteAtual,
+        fontes_rag: [],
+        opcoes: [],
+        telemetria: { modelo_usado: 'nenhum (confirmação local)', tokens_prompt: 0, tokens_resposta: 0 }
+      };
+    }
+
+    return {
+      texto_resposta: 'Sem problema — descreva o que você gostaria de corrigir ou adicionar, e eu ajusto antes de gerar o texto final.',
+      novo_status: 'PENDENTE',
+      dados_coletados: dadosColetados,
+      dados_pendentes: sessao.dados_pendentes,
+      cor_risco: null,
+      agente_atual: agenteAtual,
+      fontes_rag: [],
+      opcoes: [],
+      telemetria: { modelo_usado: 'nenhum (correção local)', tokens_prompt: 0, tokens_resposta: 0 }
+    };
   }
 
   // 2. Seleciona o Prompt Especialista correto
@@ -123,6 +184,7 @@ Você perguntou ao profissional a classificação de risco (Amarela, Verde, Azul
     let novoStatus = respostaEstruturada.status || 'PENDENTE';
     let textoResposta = respostaEstruturada.texto_resposta || "Sem resposta.";
     let dadosPendentes = respostaEstruturada.dados_pendentes || [];
+    let opcoes: string[] = [];
     const corRisco: string | null = respostaEstruturada.cor_risco ?? null;
     const dadosColetados = { ...sessao.dados_coletados, ...(respostaEstruturada.dados_coletados_ate_o_momento || {}) };
 
@@ -146,19 +208,27 @@ Você perguntou ao profissional a classificação de risco (Amarela, Verde, Azul
         'A Nota Técnica não define uma classificação de risco fixa para este critério. Antes de finalizar, ' +
         'qual a classificação de risco deste caso: Amarela, Verde ou Azul?';
       dadosPendentes = ['Classificação de risco (Amarela, Verde ou Azul)'];
+      opcoes = ['Amarela', 'Verde', 'Azul', 'Vermelha'];
     }
 
-    // Reaproveita a tabela encaminhamentos (existia, mas nunca era preenchida) só quando o caso
-    // realmente fecha numa das 3 especialidades clínicas — duvidas_gerais nunca gera encaminhamento.
-    if ((novoStatus === 'FINALIZADO' || novoStatus === 'NAO_ELEGIVEL') && ESPECIALIDADES.includes(agenteAtual)) {
-      await salvarEncaminhamento(sessao.id, agenteAtual, corRisco, textoResposta, dadosColetados, novoStatus === 'FINALIZADO');
-      await registrarEvento(
-        novoStatus === 'FINALIZADO' ? 'texto_gerado' : 'nao_elegivel',
-        agenteAtual,
-        sessao.id,
-        interlocutorId,
-        { cor_risco: corRisco }
-      );
+    // O especialista decidiu finalizar (critérios atendidos e cor de risco já resolvida, seja pela
+    // NT ou pela pergunta acima) — mas não finaliza ainda: mostra um resumo do que foi capturado e
+    // pede confirmação antes de gravar o encaminhamento de verdade. O texto que o LLM já gerou aqui
+    // é reaproveitado depois (sem chamar o modelo de novo) se o profissional confirmar.
+    if (novoStatus === 'FINALIZADO' && !dadosColetados._aguardando_cor) {
+      dadosColetados._aguardando_confirmacao_final = true;
+      dadosColetados._texto_final_pendente = textoResposta;
+      dadosColetados._cor_final_pendente = corRisco;
+      novoStatus = 'PENDENTE';
+      textoResposta = construirResumoConfirmacao(dadosColetados, corRisco);
+      dadosPendentes = [];
+      opcoes = ['Confirmar e gerar texto', 'Preciso corrigir algo'];
+    }
+
+    // NAO_ELEGIVEL não passa por confirmação (não gera texto de encaminhamento) — grava direto.
+    if (novoStatus === 'NAO_ELEGIVEL' && ESPECIALIDADES.includes(agenteAtual)) {
+      await salvarEncaminhamento(sessao.id, agenteAtual, corRisco, textoResposta, dadosColetados, false);
+      await registrarEvento('nao_elegivel', agenteAtual, sessao.id, interlocutorId, { cor_risco: corRisco });
     }
 
     return {
@@ -169,6 +239,7 @@ Você perguntou ao profissional a classificação de risco (Amarela, Verde, Azul
       cor_risco: corRisco,
       agente_atual: agenteAtual,
       fontes_rag: fontesRag,
+      opcoes,
       telemetria: {
         modelo_usado: respostaIA.modelo_usado,
         tokens_prompt: respostaIA.tokens_prompt,
@@ -185,6 +256,7 @@ Você perguntou ao profissional a classificação de risco (Amarela, Verde, Azul
       cor_risco: null,
       agente_atual: agenteAtual,
       fontes_rag: fontesRag,
+      opcoes: [],
       telemetria: {
         modelo_usado: respostaIA.modelo_usado,
         tokens_prompt: respostaIA.tokens_prompt,

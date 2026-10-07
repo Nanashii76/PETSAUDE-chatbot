@@ -439,7 +439,7 @@ body {
   opacity: 0.6;
 }
 
-.input-area button {
+.input-area .botao-enviar {
   width: 46px;
   height: 46px;
   flex-shrink: 0;
@@ -454,24 +454,118 @@ body {
   transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
-.input-area button svg {
+.input-area .botao-enviar svg {
   width: 18px;
   height: 18px;
   margin-left: -1px;
 }
 
-.input-area button:hover:not(:disabled) {
+.input-area .botao-enviar:hover:not(:disabled) {
   background-color: var(--accent-hover);
 }
 
-.input-area button:active:not(:disabled) {
+.input-area .botao-enviar:active:not(:disabled) {
   transform: scale(0.94);
 }
 
-.input-area button:disabled {
+.input-area .botao-enviar:disabled {
   background-color: var(--bg-elevated);
   color: var(--text-tertiary);
   cursor: not-allowed;
+}
+
+/* --- BOTÃO "+ OBSERVAÇÃO" --- */
+.botao-observacao {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  background-color: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color-strong);
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.botao-observacao:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+/* --- FORMULÁRIO DE OBSERVAÇÃO ADICIONAL --- */
+.observacao-form {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-color-strong);
+  border-radius: var(--radius-md);
+}
+
+.observacao-form label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+.observacao-linha {
+  display: flex;
+  gap: 8px;
+}
+
+.observacao-linha input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color-strong);
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 13.5px;
+  font-family: inherit;
+  outline: none;
+}
+
+.observacao-linha input:focus {
+  border-color: var(--accent);
+}
+
+.observacao-linha .botao-cheio {
+  width: auto;
+  padding: 10px 16px;
+}
+
+/* --- BOTÕES DE OPÇÃO RÁPIDA (cor de risco, confirmação) --- */
+.opcoes-rapidas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.opcao-botao {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--accent);
+  background-color: var(--accent-soft);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.opcao-botao:hover {
+  background-color: var(--accent);
+  color: white;
 }
 
 /* --- AVATARES --- */

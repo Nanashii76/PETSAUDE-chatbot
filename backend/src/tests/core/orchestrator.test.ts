@@ -127,15 +127,15 @@ describe('processarMensagemLLM', () => {
     const resultado = await processarMensagemLLM(sessao, 'segue mais informação', 'interlocutor-abc');
 
     expect(chamarLLMComCascataMock).toHaveBeenCalledTimes(1);
-    expect(resultado.novo_status).toBe('FINALIZADO');
-    expect(resultado.cor_risco).toBe('Amarela');
-    expect(salvarEncaminhamentoMock).toHaveBeenCalledWith(
-      's3', 'cardiologia', 'Amarela', 'Encaminhamento aprovado.', expect.any(Object), true
-    );
-    // Evento para o painel (fase 3): registra o interlocutor que gerou o caso, sem texto do caso.
-    expect(registrarEventoMock).toHaveBeenCalledWith(
-      'texto_gerado', 'cardiologia', 's3', 'interlocutor-abc', { cor_risco: 'Amarela' }
-    );
+    // FINALIZADO do LLM não finaliza na hora: vira um resumo de confirmação (PENDENTE) com botões —
+    // ver testes dedicados ao gate de confirmação mais abaixo.
+    expect(resultado.novo_status).toBe('PENDENTE');
+    expect(resultado.opcoes).toEqual(['Confirmar e gerar texto', 'Preciso corrigir algo']);
+    expect(resultado.dados_coletados._aguardando_confirmacao_final).toBe(true);
+    expect(resultado.dados_coletados._texto_final_pendente).toBe('Encaminhamento aprovado.');
+    expect(resultado.dados_coletados._cor_final_pendente).toBe('Amarela');
+    expect(salvarEncaminhamentoMock).not.toHaveBeenCalled();
+    expect(registrarEventoMock).not.toHaveBeenCalledWith('texto_gerado', expect.anything(), expect.anything(), expect.anything(), expect.anything());
 
     const [systemPrompt, mensagens] = chamarLLMComCascataMock.mock.calls[0];
     expect(mensagens).toEqual([{ role: 'user', content: 'segue mais informação' }]);
@@ -250,12 +250,13 @@ describe('processarMensagemLLM', () => {
 
     expect(resultado.novo_status).toBe('PENDENTE');
     expect(resultado.texto_resposta).toMatch(/classificação de risco/i);
+    expect(resultado.opcoes).toEqual(['Amarela', 'Verde', 'Azul', 'Vermelha']);
     expect(resultado.dados_coletados._aguardando_cor).toBe(true);
     expect(resultado.dados_coletados._cor_risco_perguntada).toBe(true);
     expect(salvarEncaminhamentoMock).not.toHaveBeenCalled();
   });
 
-  it('cor de risco: resposta à pergunta de cor inclui o contexto [PERGUNTA PENDENTE] e finaliza de verdade', async () => {
+  it('cor de risco: resposta à pergunta de cor inclui o contexto [PERGUNTA PENDENTE] e segue pro resumo de confirmação (não finaliza direto)', async () => {
     const sessao = {
       id: 's8', agente_atual: 'endocrinologia', status: 'PENDENTE',
       dados_coletados: { diagnostico: 'nódulo de tireoide', _aguardando_cor: true, _cor_risco_perguntada: true },
@@ -279,15 +280,16 @@ describe('processarMensagemLLM', () => {
 
     const [systemPrompt] = chamarLLMComCascataMock.mock.calls[0];
     expect(systemPrompt).toContain('[PERGUNTA PENDENTE]');
-    expect(resultado.novo_status).toBe('FINALIZADO');
-    expect(resultado.cor_risco).toBe('Verde');
+    expect(resultado.novo_status).toBe('PENDENTE');
+    expect(resultado.opcoes).toEqual(['Confirmar e gerar texto', 'Preciso corrigir algo']);
     expect(resultado.dados_coletados._aguardando_cor).toBeUndefined();
-    expect(salvarEncaminhamentoMock).toHaveBeenCalledWith(
-      's8', 'endocrinologia', 'Verde', 'Encaminhamento pronto com a cor informada.', expect.any(Object), true
-    );
+    expect(resultado.dados_coletados._aguardando_confirmacao_final).toBe(true);
+    expect(resultado.dados_coletados._texto_final_pendente).toBe('Encaminhamento pronto com a cor informada.');
+    expect(resultado.dados_coletados._cor_final_pendente).toBe('Verde');
+    expect(salvarEncaminhamentoMock).not.toHaveBeenCalled();
   });
 
-  it('cor de risco: não pergunta uma segunda vez na mesma sessão (evita travar o profissional num loop)', async () => {
+  it('cor de risco: não pergunta uma segunda vez na mesma sessão (evita travar o profissional num loop) — segue pro resumo mesmo sem cor', async () => {
     const sessao = {
       id: 's9', agente_atual: 'endocrinologia', status: 'PENDENTE',
       dados_coletados: { _cor_risco_perguntada: true },
@@ -309,10 +311,65 @@ describe('processarMensagemLLM', () => {
 
     const resultado = await processarMensagemLLM(sessao, 'segue o caso');
 
+    expect(resultado.novo_status).toBe('PENDENTE');
+    expect(resultado.dados_coletados._aguardando_confirmacao_final).toBe(true);
+    expect(resultado.dados_coletados._texto_final_pendente).toBe('Encaminhamento pronto.');
+    expect(resultado.dados_coletados._cor_final_pendente).toBeNull();
+    expect(salvarEncaminhamentoMock).not.toHaveBeenCalled();
+  });
+
+  it('confirmação final: "Confirmar e gerar texto" finaliza sem chamar o LLM, usando o texto já gerado', async () => {
+    const sessao = {
+      id: 's12', agente_atual: 'cardiologia', status: 'PENDENTE',
+      dados_coletados: {
+        idade: 70, diagnostico: 'Insuficiência cardíaca',
+        _aguardando_confirmacao_final: true,
+        _texto_final_pendente: 'Texto final já pronto, gerado no turno anterior.',
+        _cor_final_pendente: 'Verde',
+      },
+      dados_pendentes: [],
+    };
+
+    const resultado = await processarMensagemLLM(sessao, 'Confirmar e gerar texto', 'interlocutor-conf');
+
+    expect(chamarLLMComCascataMock).not.toHaveBeenCalled();
     expect(resultado.novo_status).toBe('FINALIZADO');
+    expect(resultado.texto_resposta).toBe('Texto final já pronto, gerado no turno anterior.');
+    expect(resultado.cor_risco).toBe('Verde');
+    expect(resultado.dados_coletados._aguardando_confirmacao_final).toBeUndefined();
+    expect(resultado.dados_coletados._texto_final_pendente).toBeUndefined();
+    expect(resultado.dados_coletados.diagnostico).toBe('Insuficiência cardíaca'); // dados normais preservados
     expect(salvarEncaminhamentoMock).toHaveBeenCalledWith(
-      's9', 'endocrinologia', null, 'Encaminhamento pronto.', expect.any(Object), true
+      's12', 'cardiologia', 'Verde', 'Texto final já pronto, gerado no turno anterior.', expect.any(Object), true
     );
+    expect(registrarEventoMock).toHaveBeenCalledWith(
+      'texto_gerado', 'cardiologia', 's12', 'interlocutor-conf', { cor_risco: 'Verde' }
+    );
+  });
+
+  it('confirmação final: "Preciso corrigir algo" volta pra coleta sem chamar o LLM, sem gravar nada', async () => {
+    const sessao = {
+      id: 's13', agente_atual: 'cardiologia', status: 'PENDENTE',
+      dados_coletados: {
+        diagnostico: 'Insuficiência cardíaca',
+        _aguardando_confirmacao_final: true,
+        _texto_final_pendente: 'Texto que não deveria ser usado.',
+        _cor_final_pendente: 'Verde',
+      },
+      dados_pendentes: [],
+    };
+
+    const resultado = await processarMensagemLLM(sessao, 'Preciso corrigir algo');
+
+    expect(chamarLLMComCascataMock).not.toHaveBeenCalled();
+    expect(resultado.novo_status).toBe('PENDENTE');
+    expect(resultado.texto_resposta).toMatch(/corrigir ou adicionar/i);
+    expect(resultado.dados_coletados._aguardando_confirmacao_final).toBeUndefined();
+    expect(resultado.dados_coletados._texto_final_pendente).toBeUndefined();
+    expect(resultado.dados_coletados._cor_final_pendente).toBeUndefined();
+    expect(resultado.dados_coletados.diagnostico).toBe('Insuficiência cardíaca');
+    expect(salvarEncaminhamentoMock).not.toHaveBeenCalled();
+    expect(registrarEventoMock).not.toHaveBeenCalled();
   });
 
   it('NAO_ELEGIVEL também grava em encaminhamentos, com elegivel=false', async () => {

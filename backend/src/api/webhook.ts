@@ -78,13 +78,15 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
 
     // 6. Retorno Limpo para a Aplicação Cliente — status, cor_risco e relato_profissional só vêm
     // preenchidos quando o caso fecha (FINALIZADO), para o front mostrar o selo de risco e montar o
-    // comparador "Revisar e confirmar".
+    // comparador "Revisar e confirmar". "opcoes" vem preenchido nos pontos em que o código decide
+    // mostrar botões de resposta rápida (cor de risco, confirmação antes de finalizar).
     return res.status(200).json({
       success: true,
       reply: respostaIA.texto_resposta,
       status: respostaIA.novo_status,
       cor_risco: respostaIA.cor_risco,
-      relato_profissional: respostaIA.relato_profissional
+      relato_profissional: respostaIA.relato_profissional,
+      opcoes: respostaIA.opcoes || []
     });
 
   } catch (error) {

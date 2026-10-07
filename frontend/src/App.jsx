@@ -18,6 +18,8 @@ export default function ChatBot() {
   const [perfil, setPerfil] = useState(undefined); // undefined = ainda carregando do localStorage
   const [tela, setTela] = useState('chat'); // 'chat' | 'painel'
   const [revisando, setRevisando] = useState(null); // mensagem FINALIZADA aberta no comparador, ou null
+  const [observacaoAberta, setObservacaoAberta] = useState(false);
+  const [observacaoTexto, setObservacaoTexto] = useState("");
 
   const messagesEndRef = useRef(null);
 
@@ -57,23 +59,25 @@ export default function ChatBot() {
     scrollToBottom();
   }, [messages]);
 
-  // Enviar Mensagem
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
+  // Enviar Mensagem — textoForcado é usado pelos cliques em botões de opção e pelo envio de
+  // observação adicional, que enviam um texto predefinido sem passar pelo campo de digitação.
+  const handleSendMessage = async (e, textoForcado) => {
+    if (e?.preventDefault) e.preventDefault();
+    const texto = textoForcado ?? inputText;
+    if (!texto.trim()) return;
 
     // Adiciona mensagem do usuário na tela
     const userMessage = {
       id: Date.now(),
-      text: inputText,
+      text: texto,
       sender: "me",
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    
-    const contentToSend = inputText;
-    setInputText(""); 
+
+    const contentToSend = texto;
+    if (textoForcado === undefined) setInputText("");
     setIsLoading(true);
 
     // 2. Novo Payload: Mapeado exatamente para o que o webhook.ts espera
@@ -105,7 +109,10 @@ export default function ChatBot() {
         // "Revisar e confirmar" com o comparador relato x texto gerado, e o selo de risco.
         status: data.status,
         corRisco: data.cor_risco,
-        relatoProfissional: data.relato_profissional
+        relatoProfissional: data.relato_profissional,
+        // Botões de resposta rápida (cor de risco, confirmação antes de finalizar) — só ficam
+        // clicáveis enquanto esta for a última mensagem da conversa.
+        opcoes: data.opcoes || []
       };
       
       setMessages((prev) => [...prev, botResponse]);
@@ -218,7 +225,7 @@ export default function ChatBot() {
             </div>
           )}
 
-          {messages.map((msg) => (
+          {messages.map((msg, idx) => (
             <div key={msg.id} className={`message-row ${msg.sender}`}>
               {msg.sender === 'them' && (
                 <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="" className="avatar small" />
@@ -246,6 +253,22 @@ export default function ChatBot() {
                     </button>
                   </div>
                 )}
+                {/* Botões de resposta rápida (cor de risco, confirmar antes de finalizar) — somem
+                    assim que a conversa avança, pra nunca ficar um botão de pergunta velha clicável. */}
+                {msg.opcoes?.length > 0 && idx === messages.length - 1 && !isLoading && (
+                  <div className="opcoes-rapidas">
+                    {msg.opcoes.map((opcao) => (
+                      <button
+                        key={opcao}
+                        type="button"
+                        className="opcao-botao"
+                        onClick={() => handleSendMessage(null, opcao)}
+                      >
+                        {opcao}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 {msg.time && <span className="message-time">{msg.time}</span>}
               </div>
 
@@ -270,7 +293,42 @@ export default function ChatBot() {
         </div>
 
         <div className="input-area">
+          {observacaoAberta && (
+            <form
+              className="observacao-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!observacaoTexto.trim()) return;
+                handleSendMessage(null, `[Observação adicional do profissional, fora das Notas Técnicas]: ${observacaoTexto.trim()}`);
+                setObservacaoTexto("");
+                setObservacaoAberta(false);
+              }}
+            >
+              <label htmlFor="observacao">Observação adicional (não coberta pelas Notas Técnicas)</label>
+              <div className="observacao-linha">
+                <input
+                  id="observacao"
+                  type="text"
+                  placeholder="Ex: paciente também relata histórico familiar de..."
+                  value={observacaoTexto}
+                  onChange={(e) => setObservacaoTexto(e.target.value)}
+                  autoFocus
+                />
+                <button type="submit" className="botao botao-cheio" disabled={!observacaoTexto.trim()}>Adicionar</button>
+                <button type="button" className="botao botao-fantasma" onClick={() => { setObservacaoAberta(false); setObservacaoTexto(""); }}>Cancelar</button>
+              </div>
+            </form>
+          )}
           <form onSubmit={handleSendMessage}>
+            <button
+              type="button"
+              className="botao-observacao"
+              onClick={() => setObservacaoAberta((v) => !v)}
+              aria-label="Adicionar observação adicional"
+              title="Adicionar observação não coberta pelas Notas Técnicas"
+            >
+              +
+            </button>
             <input
               type="text"
               placeholder="Descreva o quadro do paciente..."
@@ -278,7 +336,7 @@ export default function ChatBot() {
               onChange={(e) => setInputText(e.target.value)}
               disabled={isLoading}
             />
-            <button type="submit" disabled={isLoading || !inputText.trim()} aria-label="Enviar mensagem">
+            <button type="submit" className="botao-enviar" disabled={isLoading || !inputText.trim()} aria-label="Enviar mensagem">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <line x1="21" y1="3" x2="10.5" y2="13.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 <path d="M21 3L14 21l-3.5-7.5L3 10l18-7z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
