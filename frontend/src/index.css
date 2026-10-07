@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+/* ===========================================================================
+   Tokens — ver DESIGN.md na raiz do projeto.
+   Cores amostradas da capa do "MINICURSO CHATBOTS | GUIA RAG".
+   Todo valor de texto abaixo foi medido: corpo >= 4.5:1, texto grande >= 3:1.
+   =========================================================================== */
+
+:root {
+  /* Superfícies — derivadas do navy da capa, mesmo matiz (274-276) */
+  --bg: #161a4d;
+  --surface: #1e2359;
+  --surface-2: #272c66;
+  --surface-input: #10143b;
+  --line: #343a73;
+
+  /* Tinta */
+  --ink: #eef0fa;        /* 14.34:1 sobre --bg */
+  --ink-muted: #a8afd4;  /*  7.56:1 sobre --bg */
+  --ink-faint: #7b83ae;  /*  4.42:1 sobre --bg — só texto >= 18px */
+
+  /* Marca — versões legíveis como texto */
+  --gold: #f3c967;       /* 10.37:1 — inalterada da capa */
+  --azure: #7ab3ec;      /*  7.36:1 — clareada de #3175C2 */
+  --indigo: #8e9bea;     /*  6.23:1 — clareada de #3A49AE */
+  --oxblood: #d98ba8;    /*  6.37:1 — clareada de #521339 */
+
+  /* Marca — preenchimento de forma, nunca texto */
+  --indigo-fill: #3a49ae;
+  --oxblood-fill: #521339;
+
+  /* Texto escuro para usar SOBRE superfícies claras da marca */
+  --on-bright: #0e1430;  /* 8.17:1 sobre --azure */
+
+  /* Classificação de risco — paleta separada da marca (DESIGN.md regra 1) */
+  --risco-vermelha: #ff6b6b;
+  --risco-amarela: #ffd93d;
+  --risco-verde: #4ade80;
+  --risco-azul: #60a5fa;
+
+  /* Tipografia — três vozes, uma regra: serifada é o que o sistema diz,
+     sem serifa é o que você digita e os controles, mono é o artefato final. */
+  --font-serif: "Source Serif 4", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --font-ui: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Raio — teto de 14px em cartão (DESIGN.md secção 5) */
+  --radius: 0.875rem;
+
+  /* Motion */
+  --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ---- Mapeamento shadcn ------------------------------------------------
+     A marca é escura, então estes são os valores base (não há bloco .dark
+     separado: o tema claro é uma questão em aberto no DESIGN.md secção 1). */
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--azure);
+  --primary-foreground: var(--on-bright);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--ink-muted);
+  --accent: var(--surface-2);
+  --accent-foreground: var(--ink);
+  --destructive: var(--risco-vermelha);
+  --destructive-foreground: var(--on-bright);
+  --border: var(--line);
+  --input: var(--surface-input);
+  --ring: var(--azure);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Nomes da marca, utilizáveis como bg-surface, text-gold, border-line… */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-gold: var(--gold);
+  --color-azure: var(--azure);
+  --color-indigo: var(--indigo);
+  --color-oxblood: var(--oxblood);
+  --color-indigo-fill: var(--indigo-fill);
+  --color-oxblood-fill: var(--oxblood-fill);
+  --color-on-bright: var(--on-bright);
+
+  --color-risco-vermelha: var(--risco-vermelha);
+  --color-risco-amarela: var(--risco-amarela);
+  --color-risco-verde: var(--risco-verde);
+  --color-risco-azul: var(--risco-azul);
+
+  --font-sans: var(--font-ui);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --ease-brand: var(--ease-brand);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Números que mudam não devem dançar (DESIGN.md secção 4) */
+  .tabular,
+  [data-tabular] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Foco visível em tudo que recebe teclado (DESIGN.md secção 8) */
+  :focus-visible {
+    outline: 2px solid var(--azure);
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion não é opcional (DESIGN.md secção 6) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ===========================================================================
+   Borda em gradiente do campo de entrada (components/ui/liquid-prompt-input).
+   O @property vive aqui, não dentro do componente: no original havia um <style>
+   por instância, o que duplica a regra a cada render.
+   Gira só com o campo em foco — animação em laço permanente está reservada ao
+   indicador de "gerando resposta" (DESIGN.md secção 6).
+   =========================================================================== */
+
+@property --liquid-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.liquid-edge {
+  padding: 1px;
+  background: conic-gradient(
+    from var(--liquid-angle, 0deg),
+    transparent 65%,
+    color-mix(in oklch, var(--azure) 70%, transparent) 80%,
+    var(--gold) 95%,
+    transparent 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.group:focus-within .liquid-edge {
+  animation: liquid-spin 4s linear infinite;
+}
+
+@keyframes liquid-spin {
+  to {
+    --liquid-angle: 360deg;
+  }
+}
