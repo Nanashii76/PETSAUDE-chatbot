@@ -76,12 +76,14 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
 
     const respostaIA = await processarEAuditar('web', remetente_id, mensagem);
 
-    // 6. Retorno Limpo para a Aplicação Cliente — status e relato_profissional só vêm preenchidos
-    // quando o caso fecha (FINALIZADO), para o front montar o comparador "Revisar e confirmar".
+    // 6. Retorno Limpo para a Aplicação Cliente — status, cor_risco e relato_profissional só vêm
+    // preenchidos quando o caso fecha (FINALIZADO), para o front mostrar o selo de risco e montar o
+    // comparador "Revisar e confirmar".
     return res.status(200).json({
       success: true,
       reply: respostaIA.texto_resposta,
       status: respostaIA.novo_status,
+      cor_risco: respostaIA.cor_risco,
       relato_profissional: respostaIA.relato_profissional
     });
 

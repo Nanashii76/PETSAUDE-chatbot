@@ -102,8 +102,9 @@ export default function ChatBot() {
         sender: "them",
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         // Só vêm preenchidos quando o caso fecha (status FINALIZADO) — habilitam o botão
-        // "Revisar e confirmar" com o comparador relato x texto gerado.
+        // "Revisar e confirmar" com o comparador relato x texto gerado, e o selo de risco.
         status: data.status,
+        corRisco: data.cor_risco,
         relatoProfissional: data.relato_profissional
       };
       
@@ -231,9 +232,19 @@ export default function ChatBot() {
                   <ReactMarkdown>{msg.text}</ReactMarkdown>
                 </div>
                 {msg.status === 'FINALIZADO' && (
-                  <button type="button" className="botao-revisar" onClick={() => setRevisando(msg)}>
-                    Revisar e confirmar
-                  </button>
+                  <div className="mensagem-acoes-finalizado">
+                    {msg.corRisco && (
+                      <span className={`selo-risco selo-risco-${msg.corRisco.toLowerCase()}`}>
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <circle cx="12" cy="12" r="12" />
+                        </svg>
+                        Risco: {msg.corRisco}
+                      </span>
+                    )}
+                    <button type="button" className="botao-revisar" onClick={() => setRevisando(msg)}>
+                      Revisar e confirmar
+                    </button>
+                  </div>
                 )}
                 {msg.time && <span className="message-time">{msg.time}</span>}
               </div>

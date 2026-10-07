@@ -320,6 +320,9 @@ body {
 .message-row.them,
 .message-row.system {
   align-self: flex-start;
+  /* Avatar alinhado com a 1ª linha do texto, não com o fundo — sem bolha, uma resposta de vários
+     parágrafos não deve "puxar" o avatar pra baixo. */
+  align-items: flex-start;
 }
 
 .message-row.me {
@@ -336,11 +339,20 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
+/* Resposta do bot: texto corrido, sem bolha — só a mensagem do profissional (.me) tem balão.
+   Evita competir visualmente com o selo de classificação de risco e deixa a leitura mais limpa
+   em respostas longas. Mesma direção do chatbot2 (docs/DESIGN.md do projeto irmão). */
 .them .message-bubble {
-  background-color: var(--bg-elevated);
-  border: 1px solid var(--border-color);
-  border-bottom-left-radius: 4px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 2px 2px 0;
+  border-radius: 0;
   color: var(--text-primary);
+}
+
+.them .message-time {
+  text-align: left;
 }
 
 .me .message-bubble {
@@ -352,7 +364,7 @@ body {
 .system .message-bubble {
   background-color: var(--danger-soft);
   border: 1px solid rgba(248, 113, 113, 0.3);
-  border-bottom-left-radius: 4px;
+  border-radius: var(--radius-lg);
   color: #fecaca;
 }
 
@@ -731,10 +743,17 @@ body {
   background-color: rgba(255, 255, 255, 0.04);
 }
 
-/* --- BOTÃO "REVISAR E CONFIRMAR" --- */
+/* --- AÇÕES DE UMA MENSAGEM FINALIZADA (selo de risco + revisar) --- */
+.mensagem-acoes-finalizado {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
 .botao-revisar {
   display: inline-block;
-  margin-top: 10px;
   padding: 7px 14px;
   border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 20px;
@@ -750,6 +769,40 @@ body {
 .botao-revisar:hover {
   background: rgba(255, 255, 255, 0.16);
 }
+
+/* --- SELO DE CLASSIFICAÇÃO DE RISCO ---
+   Deliberadamente NUNCA um preenchimento sólido como os botões de ação: só contorno + rótulo de
+   texto + ícone, pra nunca ser confundido com um botão clicável (as 4 cores — vermelho, amarelo,
+   verde, azul — são reservadas na interface exclusivamente para risco clínico das NTs). */
+.selo-risco {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--cor-risco, var(--text-secondary));
+  color: var(--cor-risco, var(--text-secondary));
+  background: transparent;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.selo-risco svg {
+  width: 8px;
+  height: 8px;
+}
+
+.selo-risco svg circle {
+  fill: currentColor;
+}
+
+.selo-risco-amarela { --cor-risco: #facc15; }
+.selo-risco-verde { --cor-risco: #34d399; }
+.selo-risco-azul { --cor-risco: #60a5fa; }
+.selo-risco-vermelha { --cor-risco: #f87171; }
 
 /* --- MODAL REVISAR E CONFIRMAR --- */
 .revisar-fundo {
