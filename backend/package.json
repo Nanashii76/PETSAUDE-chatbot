@@ -7,7 +7,7 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "build": "tsc",
+    "build": "tsc && node -e \"require('fs').cpSync('src/dados','dist/dados',{recursive:true})\"",
     "start": "node dist/server.js"
   },
   "keywords": [],
