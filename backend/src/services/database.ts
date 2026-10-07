@@ -26,12 +26,13 @@ export async function buscarOuCriarSessao(profissionalId: string) {
       return result.rows[0];
     }
 
-    // Se não achar, cria uma nova
+    // Se não achar, cria uma nova — marcada com "nova: true" (campo só em memória, não vai pro
+    // banco) pro orquestrador saber que é a 1ª mensagem do caso e registrar o evento caso_iniciado.
     const insertResult = await client.query(
       `INSERT INTO sessoes (profissional_id) VALUES ($1) RETURNING *`,
       [profissionalId]
     );
-    return insertResult.rows[0];
+    return { ...insertResult.rows[0], nova: true };
   } finally {
     client.release();
   }
@@ -170,6 +171,78 @@ export async function atualizarInterlocutor(
       [canal, identificador, dados.nome ?? null, dados.unidade_cnes ?? null]
     );
     return result.rows[0];
+  } finally {
+    client.release();
+  }
+}
+
+// ==========================================
+// 5. EVENTOS DE USO (PARA O PAINEL — SEM TEXTO DE CASO)
+// ==========================================
+
+export async function registrarEvento(
+  tipo: 'caso_iniciado' | 'texto_gerado' | 'nao_elegivel' | 'urgencia',
+  especialidade: string | null,
+  sessaoId: string | null,
+  interlocutorId: string | null,
+  dados: object = {}
+) {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      `INSERT INTO eventos (tipo, especialidade, sessao_id, interlocutor_id, dados)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [tipo, especialidade, sessaoId, interlocutorId, JSON.stringify(dados)]
+    );
+    return result.rows[0];
+  } finally {
+    client.release();
+  }
+}
+
+export type LinhaPainel = {
+  tipo: string;
+  especialidade: string | null;
+  dados: Record<string, any>;
+  unidade_cnes: string | null;
+  criado_em: Date;
+};
+
+// Junta eventos com a unidade do interlocutor (quando houver) — a agregação de verdade (contagens,
+// agrupamentos) acontece em core/painel.ts; aqui só busca as linhas cruas do período.
+export async function buscarEventosParaPainel(desde: Date | null): Promise<LinhaPainel[]> {
+  const client = await pool.connect();
+  try {
+    const condicaoPeriodo = desde ? 'WHERE ev.criado_em >= $1' : '';
+    const params = desde ? [desde] : [];
+    const result = await client.query(
+      `SELECT ev.tipo, ev.especialidade, ev.dados, ev.criado_em, i.unidade_cnes
+       FROM eventos ev
+       LEFT JOIN interlocutores i ON i.id = ev.interlocutor_id
+       ${condicaoPeriodo}
+       ORDER BY ev.criado_em ASC`,
+      params
+    );
+    return result.rows;
+  } finally {
+    client.release();
+  }
+}
+
+// ==========================================
+// 6. REVISÃO DO TEXTO FINAL (COMPARADOR)
+// ==========================================
+
+// Concatena o relato livre do profissional na sessão — usado pra comparar com o texto final gerado
+// pelo modelo antes do profissional confirmar/copiar.
+export async function buscarMensagensProfissional(sessaoId: string): Promise<string> {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      `SELECT conteudo FROM mensagens WHERE sessao_id = $1 AND remetente = 'profissional' ORDER BY criado_em ASC`,
+      [sessaoId]
+    );
+    return result.rows.map((r) => r.conteudo).join('\n\n');
   } finally {
     client.release();
   }

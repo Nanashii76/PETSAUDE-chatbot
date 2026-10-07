@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const { chamarLLMComCascataMock, buscarContextoMock, atualizarSessaoMock, salvarEncaminhamentoMock } = vi.hoisted(() => ({
+const { chamarLLMComCascataMock, buscarContextoMock, atualizarSessaoMock, salvarEncaminhamentoMock, registrarEventoMock } = vi.hoisted(() => ({
   chamarLLMComCascataMock: vi.fn(),
   buscarContextoMock: vi.fn(),
   atualizarSessaoMock: vi.fn(),
   salvarEncaminhamentoMock: vi.fn(),
+  registrarEventoMock: vi.fn(),
 }));
 
 vi.mock('../../services/openrouter.js', () => ({
@@ -18,6 +19,7 @@ vi.mock('../../services/rag.js', () => ({
 vi.mock('../../services/database.js', () => ({
   atualizarSessao: atualizarSessaoMock,
   salvarEncaminhamento: salvarEncaminhamentoMock,
+  registrarEvento: registrarEventoMock,
 }));
 
 const { processarMensagemLLM } = await import('../../core/orchestrator.js');
@@ -37,10 +39,12 @@ describe('processarMensagemLLM', () => {
     buscarContextoMock.mockReset();
     atualizarSessaoMock.mockReset();
     salvarEncaminhamentoMock.mockReset();
+    registrarEventoMock.mockReset();
 
     buscarContextoMock.mockResolvedValue({ contexto: '', fontes: [], camposMinimos: [] });
     atualizarSessaoMock.mockResolvedValue({});
     salvarEncaminhamentoMock.mockResolvedValue({});
+    registrarEventoMock.mockResolvedValue({});
   });
 
   it('sessão nova: chama o roteador, classifica a especialidade e persiste o novo agente', async () => {
@@ -120,7 +124,7 @@ describe('processarMensagemLLM', () => {
       )
     );
 
-    const resultado = await processarMensagemLLM(sessao, 'segue mais informação');
+    const resultado = await processarMensagemLLM(sessao, 'segue mais informação', 'interlocutor-abc');
 
     expect(chamarLLMComCascataMock).toHaveBeenCalledTimes(1);
     expect(resultado.novo_status).toBe('FINALIZADO');
@@ -128,10 +132,54 @@ describe('processarMensagemLLM', () => {
     expect(salvarEncaminhamentoMock).toHaveBeenCalledWith(
       's3', 'cardiologia', 'Amarela', 'Encaminhamento aprovado.', expect.any(Object), true
     );
+    // Evento para o painel (fase 3): registra o interlocutor que gerou o caso, sem texto do caso.
+    expect(registrarEventoMock).toHaveBeenCalledWith(
+      'texto_gerado', 'cardiologia', 's3', 'interlocutor-abc', { cor_risco: 'Amarela' }
+    );
 
     const [systemPrompt, mensagens] = chamarLLMComCascataMock.mock.calls[0];
     expect(mensagens).toEqual([{ role: 'user', content: 'segue mais informação' }]);
     expect(systemPrompt).toContain('"idade":62');
+  });
+
+  it('sessão nova de verdade (sessao.nova === true): registra evento caso_iniciado com o interlocutor', async () => {
+    const sessao = { id: 's-nova', agente_atual: null, status: 'PENDENTE', dados_coletados: {}, dados_pendentes: [], nova: true };
+
+    chamarLLMComCascataMock
+      .mockResolvedValueOnce(respostaLLM('{"intencao":"dermatologia"}'))
+      .mockResolvedValueOnce(
+        respostaLLM(
+          JSON.stringify({
+            status: 'PENDENTE',
+            texto_resposta: 'Descreva a lesão.',
+            dados_coletados_ate_o_momento: {},
+            dados_pendentes: ['lesão'],
+          })
+        )
+      );
+
+    await processarMensagemLLM(sessao, 'tenho uma mancha na pele', 'interlocutor-xyz');
+
+    expect(registrarEventoMock).toHaveBeenCalledWith('caso_iniciado', 'dermatologia', 's-nova', 'interlocutor-xyz');
+  });
+
+  it('sessão existente (sessao.nova ausente): não registra caso_iniciado de novo', async () => {
+    const sessao = { id: 's-existente', agente_atual: 'dermatologia', status: 'PENDENTE', dados_coletados: {}, dados_pendentes: [] };
+
+    chamarLLMComCascataMock.mockResolvedValueOnce(
+      respostaLLM(
+        JSON.stringify({
+          status: 'PENDENTE',
+          texto_resposta: 'Mais um dado.',
+          dados_coletados_ate_o_momento: {},
+          dados_pendentes: [],
+        })
+      )
+    );
+
+    await processarMensagemLLM(sessao, 'segue', 'interlocutor-xyz');
+
+    expect(registrarEventoMock).not.toHaveBeenCalledWith('caso_iniciado', expect.anything(), expect.anything(), expect.anything());
   });
 
   it('urgência: prefixa o aviso fixo do código (não o texto do LLM) e marca a sessão pra não repetir', async () => {
@@ -150,11 +198,12 @@ describe('processarMensagemLLM', () => {
       )
     );
 
-    const resultado = await processarMensagemLLM(sessao, 'paciente com dor torácica intensa agora');
+    const resultado = await processarMensagemLLM(sessao, 'paciente com dor torácica intensa agora', 'interlocutor-urg');
 
     expect(resultado.texto_resposta).toMatch(/^\*\*Atenção:\*\* o relato sugere um quadro agudo/);
     expect(resultado.texto_resposta).toContain('Entendido, vou precisar de mais alguns dados.');
     expect(resultado.dados_coletados._urgencia_mostrada).toBe(true);
+    expect(registrarEventoMock).toHaveBeenCalledWith('urgencia', 'cardiologia', 's5', 'interlocutor-urg');
   });
 
   it('urgência: não repete o aviso se a sessão já mostrou nesta conversa', async () => {
@@ -282,11 +331,14 @@ describe('processarMensagemLLM', () => {
       )
     );
 
-    const resultado = await processarMensagemLLM(sessao, 'segue o caso');
+    const resultado = await processarMensagemLLM(sessao, 'segue o caso', 'interlocutor-ne');
 
     expect(resultado.novo_status).toBe('NAO_ELEGIVEL');
     expect(salvarEncaminhamentoMock).toHaveBeenCalledWith(
       's10', 'dermatologia', null, 'Não atende critério, manejar na APS.', expect.any(Object), false
+    );
+    expect(registrarEventoMock).toHaveBeenCalledWith(
+      'nao_elegivel', 'dermatologia', 's10', 'interlocutor-ne', { cor_risco: null }
     );
   });
 

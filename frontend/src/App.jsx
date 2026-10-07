@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import TelaIdentificacao from './TelaIdentificacao.jsx';
+import Painel from './Painel.jsx';
+import RevisarTexto from './RevisarTexto.jsx';
 import './App.css';
 
 // 1. Atualize a variável de ambiente para apontar para o seu backend Express
@@ -14,6 +16,8 @@ export default function ChatBot() {
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState("");
   const [perfil, setPerfil] = useState(undefined); // undefined = ainda carregando do localStorage
+  const [tela, setTela] = useState('chat'); // 'chat' | 'painel'
+  const [revisando, setRevisando] = useState(null); // mensagem FINALIZADA aberta no comparador, ou null
 
   const messagesEndRef = useRef(null);
 
@@ -96,7 +100,11 @@ export default function ChatBot() {
         // 3. Nova chave de resposta: o backend envia "reply" e não mais "output"
         text: data.reply || "Recebido (sem conteúdo).",
         sender: "them",
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        // Só vêm preenchidos quando o caso fecha (status FINALIZADO) — habilitam o botão
+        // "Revisar e confirmar" com o comparador relato x texto gerado.
+        status: data.status,
+        relatoProfissional: data.relato_profissional
       };
       
       setMessages((prev) => [...prev, botResponse]);
@@ -143,7 +151,7 @@ export default function ChatBot() {
         </div>
         <div className="chat-list">
           <p className="chat-list-label">Conversas</p>
-          <div className="chat-item active">
+          <button type="button" className={`chat-item ${tela === 'chat' ? 'active' : ''}`} onClick={() => setTela('chat')}>
             <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SUSBot" alt="" className="avatar" />
             <div className="chat-info">
               <div className="chat-info-top">
@@ -151,7 +159,20 @@ export default function ChatBot() {
               </div>
               <p>Conectado à API SUS</p>
             </div>
-          </div>
+          </button>
+          <button type="button" className={`chat-item ${tela === 'painel' ? 'active' : ''}`} onClick={() => setTela('painel')}>
+            <div className="avatar chat-item-icone" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 19V10M10 19V5M16 19v-7M4 19h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="chat-info">
+              <div className="chat-info-top">
+                <h3>Painel de uso</h3>
+              </div>
+              <p>Contagens e métricas</p>
+            </div>
+          </button>
         </div>
         <div className="sidebar-perfil">
           <p className="sidebar-perfil-nome">{perfil.nome}</p>
@@ -167,6 +188,9 @@ export default function ChatBot() {
       </aside>
 
       {/* CHAT WINDOW */}
+      {tela === 'painel' ? (
+        <Painel apiBaseUrl={API_BASE_URL} onFechar={() => setTela('chat')} />
+      ) : (
       <main className="chat-window">
         <header className="chat-header">
           <div className="user-profile">
@@ -206,6 +230,11 @@ export default function ChatBot() {
                 <div className="markdown-content">
                   <ReactMarkdown>{msg.text}</ReactMarkdown>
                 </div>
+                {msg.status === 'FINALIZADO' && (
+                  <button type="button" className="botao-revisar" onClick={() => setRevisando(msg)}>
+                    Revisar e confirmar
+                  </button>
+                )}
                 {msg.time && <span className="message-time">{msg.time}</span>}
               </div>
 
@@ -247,6 +276,15 @@ export default function ChatBot() {
           </form>
         </div>
       </main>
+      )}
+
+      {revisando && (
+        <RevisarTexto
+          relato={revisando.relatoProfissional}
+          textoFinal={revisando.text}
+          onFechar={() => setRevisando(null)}
+        />
+      )}
     </div>
   );
 }

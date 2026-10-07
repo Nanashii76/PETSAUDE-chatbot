@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import webhookRoutes from './api/webhook.js';
 import perfilRoutes from './api/perfil.js';
+import painelRoutes from './api/painel.js';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.get('/health', (req, res) => {
 // Montagem do roteador de webhooks
 app.use('/api/webhook', webhookRoutes);
 app.use('/api', perfilRoutes);
+app.use('/api', painelRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);

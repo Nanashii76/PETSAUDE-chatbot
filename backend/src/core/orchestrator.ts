@@ -1,4 +1,4 @@
-import { atualizarSessao, salvarEncaminhamento } from '../services/database.js';
+import { atualizarSessao, salvarEncaminhamento, registrarEvento } from '../services/database.js';
 import { chamarLLMComCascata } from '../services/openrouter.js';
 import { buscarContexto } from '../services/rag.js';
 import {
@@ -12,7 +12,7 @@ import {
 
 const ESPECIALIDADES = ['cardiologia', 'dermatologia', 'endocrinologia'];
 
-export async function processarMensagemLLM(sessao: any, mensagemUsuario: string) {
+export async function processarMensagemLLM(sessao: any, mensagemUsuario: string, interlocutorId: string | null = null) {
   // 1. Definição Dinâmica de Agentes (O equivalente ao nó "Switch")
   let agenteAtual = sessao.agente_atual;
   
@@ -32,6 +32,12 @@ export async function processarMensagemLLM(sessao: any, mensagemUsuario: string)
       sessao.agente_atual = agenteAtual;
 
       console.log(`[Orquestrador] Intenção classificada como: ${agenteAtual}`);
+
+      // Evento para o painel: um "caso" de verdade (não duvidas_gerais), contado uma vez por
+      // sessão nova — sem texto de caso, só o fato de que uma condição começou a ser investigada.
+      if (sessao.nova && ESPECIALIDADES.includes(agenteAtual)) {
+        await registrarEvento('caso_iniciado', agenteAtual, sessao.id, interlocutorId);
+      }
     } catch (error) {
       console.error("[Orquestrador] Falha ao fazer parse do Roteador, caindo para dúvidas gerais.");
       agenteAtual = 'duvidas_gerais';
@@ -125,6 +131,7 @@ Você perguntou ao profissional a classificação de risco (Amarela, Verde, Azul
     if (respostaEstruturada.urgencia && !sessao.dados_coletados?._urgencia_mostrada) {
       textoResposta = `${AVISO_URGENCIA}\n\n${textoResposta}`;
       dadosColetados._urgencia_mostrada = true;
+      await registrarEvento('urgencia', agenteAtual, sessao.id, interlocutorId);
     }
 
     if (aguardandoCor) {
@@ -145,6 +152,13 @@ Você perguntou ao profissional a classificação de risco (Amarela, Verde, Azul
     // realmente fecha numa das 3 especialidades clínicas — duvidas_gerais nunca gera encaminhamento.
     if ((novoStatus === 'FINALIZADO' || novoStatus === 'NAO_ELEGIVEL') && ESPECIALIDADES.includes(agenteAtual)) {
       await salvarEncaminhamento(sessao.id, agenteAtual, corRisco, textoResposta, dadosColetados, novoStatus === 'FINALIZADO');
+      await registrarEvento(
+        novoStatus === 'FINALIZADO' ? 'texto_gerado' : 'nao_elegivel',
+        agenteAtual,
+        sessao.id,
+        interlocutorId,
+        { cor_risco: corRisco }
+      );
     }
 
     return {

@@ -5,6 +5,7 @@ import {
   atualizarSessao,
   buscarOuCriarInterlocutor,
   atualizarInterlocutor,
+  buscarMensagensProfissional,
 } from '../services/database.js';
 import { processarMensagemLLM } from '../core/orchestrator.js'; // Será injetado na próxima etapa
 import { enviarMensagemWhatsapp, extrairMensagemDoWebhookEvolution } from '../services/evolution.js';
@@ -16,15 +17,18 @@ const router = Router();
  * busca/cria sessão, salva a mensagem recebida, chama a IA, salva a resposta e
  * atualiza o estado da sessão. Retorna o objeto de resposta da IA.
  */
-async function processarEAuditar(remetenteId: string, mensagem: string) {
+async function processarEAuditar(canal: 'web' | 'whatsapp', remetenteId: string, mensagem: string) {
   // 2. Gerenciamento de Estado
   const sessao = await buscarOuCriarSessao(remetenteId);
+  // Resolve o interlocutor para anexar aos eventos do painel (fase 3) — no canal web, a tela de
+  // identificação já deve ter criado esse registro antes da 1ª mensagem; a busca aqui só confirma.
+  const interlocutor = await buscarOuCriarInterlocutor(canal, remetenteId);
 
   // 3. Auditoria: Salva a mensagem recebida no PostgreSQL
   await salvarMensagem(sessao.id, 'profissional', mensagem);
 
   // 4. INTEGRAÇÃO COM A INTELIGÊNCIA ARTIFICIAL
-  const respostaIA = await processarMensagemLLM(sessao, mensagem);
+  const respostaIA = await processarMensagemLLM(sessao, mensagem, interlocutor.id);
 
   // 5. Auditoria: Salva a resposta gerada (incluindo quais trechos da Nota Técnica
   // fundamentaram a resposta, para rastreabilidade)
@@ -47,7 +51,12 @@ async function processarEAuditar(remetenteId: string, mensagem: string) {
     respostaIA.agente_atual
   );
 
-  return respostaIA;
+  // Caso fechou de verdade: busca o relato original do profissional para o comparador do front
+  // (botão "Revisar e confirmar") — concatenação das mensagens dele nesta sessão, sem reprocessar nada.
+  const relatoProfissional =
+    respostaIA.novo_status === 'FINALIZADO' ? await buscarMensagensProfissional(sessao.id) : null;
+
+  return { ...respostaIA, relato_profissional: relatoProfissional };
 }
 
 router.post('/', async (req: Request, res: Response): Promise<any> => {
@@ -65,12 +74,15 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
 
     console.log(`[Webhook] Mensagem recebida de ${remetente_id}: ${mensagem}`);
 
-    const respostaIA = await processarEAuditar(remetente_id, mensagem);
+    const respostaIA = await processarEAuditar('web', remetente_id, mensagem);
 
-    // 6. Retorno Limpo para a Aplicação Cliente
-    return res.status(200).json({ 
-      success: true, 
-      reply: respostaIA.texto_resposta
+    // 6. Retorno Limpo para a Aplicação Cliente — status e relato_profissional só vêm preenchidos
+    // quando o caso fecha (FINALIZADO), para o front montar o comparador "Revisar e confirmar".
+    return res.status(200).json({
+      success: true,
+      reply: respostaIA.texto_resposta,
+      status: respostaIA.novo_status,
+      relato_profissional: respostaIA.relato_profissional
     });
 
   } catch (error) {
@@ -109,7 +121,7 @@ router.post('/evolution', async (req: Request, res: Response): Promise<any> => {
       await atualizarInterlocutor('whatsapp', remetenteId, { nome: nomeContato });
     }
 
-    const respostaIA = await processarEAuditar(remetenteId, mensagem);
+    const respostaIA = await processarEAuditar('whatsapp', remetenteId, mensagem);
 
     // Diferente da rota '/', aqui a resposta não vai no corpo do HTTP:
     // ela precisa ser enviada de volta ao usuário via chamada à própria Evolution API.
