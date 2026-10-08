@@ -1,0 +1,57 @@
+name: Validar backend
+
+# Roda o mesmo build que o Render executa (npm run build) e a suíte de testes a cada push/PR que
+# toque o backend — para um erro de TypeScript ou um teste quebrado aparecer aqui, antes do Render
+# tentar (e falhar) o deploy de verdade.
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Build (mesmo comando usado pelo Render)
+        run: npm run build
+
+      - name: Testes
+        run: npm test
+
+      - name: Smoke test — o servidor compilado sobe e responde /health
+        run: |
+          node dist/server.js &
+          SERVER_PID=$!
+          for i in $(seq 1 10); do
+            if curl -sf http://localhost:3000/health > /dev/null; then
+              echo "Servidor respondeu em /health."
+              kill $SERVER_PID
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Servidor não respondeu em /health a tempo."
+          kill $SERVER_PID 2>/dev/null || true
+          exit 1
