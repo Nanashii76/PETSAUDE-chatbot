@@ -31,7 +31,7 @@ type Estabelecimento = {
   endereco_email_estabelecimento: string | null;
 };
 
-type Unidade = { cnes: string; nome: string; ra: string | null; regiao: string | null };
+type Unidade = { cnes: string; nome: string; ra: string | null; regiao: string | null; tipo: string };
 
 // Região administrativa → região de saúde da SES-DF.
 const RA_REGIAO: Record<string, string> = {
@@ -63,17 +63,40 @@ const TERMOS_RA: [string, string][] = [
   ['TAGUATINGA', 'Taguatinga'], ['SAMAMBAIA', 'Samambaia'], ['SAMAMABAIA', 'Samambaia'],
   ['RECANTO DAS EMAS', 'Recanto das Emas'], ['AGUAS CLARAS', 'Águas Claras'], ['VICENTE PIRES', 'Vicente Pires'],
   ['GAMA', 'Gama'], ['SANTA MARIA', 'Santa Maria'],
+  // Hospitais Regionais e Centrais
+  ['HRG', 'Gama'], ['HRT', 'Taguatinga'], ['HRAN', 'Plano Piloto'], ['HRS', 'Sobradinho'],
+  ['HRSM', 'Santa Maria'], ['HRC', 'Ceilândia'], ['HRBZ', 'Brazlândia'], ['HRPA', 'Paranoá'],
+  ['HRSA', 'Samambaia'], ['HSVP', 'Taguatinga'], ['HMIB', 'Plano Piloto'], ['HAB', 'Plano Piloto'],
+  ['COMPLEXO REGULADOR', 'Plano Piloto'], ['CRDF', 'Plano Piloto'], ['SAMU DF', 'Plano Piloto'],
+  ['CENTRO DE ESPECIALIDADE ODONTOLOGICA', 'Plano Piloto'],
+  ['GARDENIA', 'Taguatinga'],
+  ['CER II', 'Plano Piloto'],
+  ['CENTRO MEDICO DA PM', 'Plano Piloto']
 ];
 
-const E_UBS = /\b(UBS|UNIDADE BASICA|UNIDA DE BASICA|UNIDADE BAISCA|CENTRO DE SAUDE|PSF|PSR)\b/;
 // E-mail das unidades: sufixos que indicam a região (conferência cruzada da tabela acima).
 const EMAIL_REGIAO: Record<string, string> = {
   oeste: 'Oeste', sul: 'Sul', srssu: 'Sul', norte: 'Norte', leste: 'Leste',
   central: 'Central', srsso: 'Sudoeste', sudoeste: 'Sudoeste', centrosul: 'Centro-Sul',
 };
+
+// Mapeamento de tipos CNES
+const TIPO_MAP: Record<number, string> = {
+  1: 'UBS', 2: 'UBS',
+  4: 'Policlínica',
+  5: 'Hospital', 7: 'Hospital',
+  36: 'CEO',
+  61: 'Casa de Parto',
+  70: 'CAPS',
+  73: 'UPA',
+  76: 'Regulação', 81: 'Regulação'
+};
+
 const SIGLAS_E_NUMEROS = new Set([
   'UBS', 'PSF', 'PSR', 'CAIC', 'PDF', 'CDP', 'ATP', 'PFDF', 'PADDF', 'DCCP', 'CPP', 'SIA', 'QN', 'QS',
   'CIR', 'II', 'IV', 'T', 'R', 'E',
+  'HRG', 'HRT', 'HRAN', 'HRS', 'HRSM', 'HRC', 'HRBZ', 'HRPA', 'HRSA', 'HSVP', 'HMIB', 'HAB',
+  'CEO', 'UPA', 'CAPS', 'CRDF', 'SAMU', 'I', 'III'
 ]);
 const ARTIGOS = new Set(['DE', 'DA', 'DO', 'DAS', 'DOS']);
 
@@ -118,11 +141,16 @@ async function main() {
   let conferidas = 0;
   const divergentes: [string, string, string][] = [];
 
-  const brutos = [...(await baixar(2)), ...(await baixar(1))];
-  for (const e of brutos) {
-    const texto = semAcento(`${e.nome_fantasia} ${e.nome_razao_social}`);
-    if (e.numero_cnpj_entidade !== CNPJ_SES || !E_UBS.test(texto)) continue;
+  const brutos: (Estabelecimento & { _tipo_cod: number })[] = [];
+  for (const t of Object.keys(TIPO_MAP).map(Number)) {
+    const baixados = await baixar(t);
+    brutos.push(...baixados.map(b => ({ ...b, _tipo_cod: t })));
+  }
 
+  for (const e of brutos) {
+    if (e.numero_cnpj_entidade !== CNPJ_SES) continue;
+
+    const texto = semAcento(`${e.nome_fantasia} ${e.nome_razao_social}`);
     const busca = `${texto} ${semAcento(e.bairro_estabelecimento || '')}`;
     const achado = TERMOS_RA.find(([termo]) => new RegExp(`\\b${termo}\\b`).test(busca));
     const ra = achado ? achado[1] : null;
@@ -137,7 +165,13 @@ async function main() {
       if (pista !== regiao) divergentes.push([e.nome_fantasia, regiao, pista]);
     }
 
-    unidades.push({ cnes: String(e.codigo_cnes), nome: nomeLegivel(e.nome_fantasia), ra, regiao });
+    unidades.push({
+      cnes: String(e.codigo_cnes),
+      nome: nomeLegivel(e.nome_fantasia),
+      ra,
+      regiao,
+      tipo: TIPO_MAP[e._tipo_cod] || 'Outro'
+    });
   }
 
   unidades.sort((a, b) => {
@@ -146,7 +180,7 @@ async function main() {
   });
 
   const saida = {
-    fonte: `${API} (codigo_municipio=530010, codigo_tipo_unidade=2 e 1, CNPJ da SES-DF)`,
+    fonte: `${API} (codigo_municipio=530010, codigo_tipo_unidade = ${Object.keys(TIPO_MAP).join(', ')}, CNPJ da SES-DF)`,
     atualizado_em: new Date().toISOString().slice(0, 10),
     regiao_derivada_da_ra: 'a região de saúde não vem no CNES; derivada da RA, a confirmar com a SES-DF',
     unidades,
