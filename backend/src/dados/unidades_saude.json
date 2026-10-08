@@ -1,1207 +1,2198 @@
 {
- "fonte": "https://apidadosabertos.saude.gov.br/cnes/estabelecimentos (codigo_municipio=530010, codigo_tipo_unidade=2 e 1, CNPJ da SES-DF)",
- "atualizado_em": "2026-10-06",
+ "fonte": "https://apidadosabertos.saude.gov.br/cnes/estabelecimentos (codigo_municipio=530010, codigo_tipo_unidade = 1, 2, 4, 5, 7, 36, 61, 70, 73, 76, 81, CNPJ da SES-DF)",
+ "atualizado_em": "2026-10-08",
  "regiao_derivada_da_ra": "a região de saúde não vem no CNES; derivada da RA, a confirmar com a SES-DF",
  "unidades": [
   {
    "cnes": "10731",
    "nome": "UBS 1 Cruzeiro",
    "ra": "Cruzeiro",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
   },
   {
    "cnes": "10758",
    "nome": "UBS 2 Cruzeiro",
    "ra": "Cruzeiro",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
   },
   {
    "cnes": "11177",
    "nome": "UBS 1 Lago Norte",
    "ra": "Lago Norte",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "9578277",
+   "nome": "Policlinica Lago Sul",
+   "ra": "Lago Sul",
+   "regiao": "Central",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "10812",
    "nome": "UBS 01 Lago Sul",
    "ra": "Lago Sul",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
   },
   {
    "cnes": "4431618",
    "nome": "UBS 1 Lago Sul",
    "ra": "Lago Sul",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "11347",
+   "nome": "Adolescentro Brasilia",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "7219695",
+   "nome": "CAPS Ad Candango",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "7379110",
+   "nome": "CAPS Brasilia Unidade II",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "7740794",
+   "nome": "Capsi Asa Norte",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "10596",
+   "nome": "Cedin",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "10715",
+   "nome": "Cedoh Asa Norte",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "Policlínica"
+  },
+  {
+   "cnes": "9499725",
+   "nome": "Cedoh Asa Norte",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "9764860",
+   "nome": "Centro de Especialidade Odontologica",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "11142",
+   "nome": "Centro de Orientacao Medico Psicopedagogico Compp",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "10766",
+   "nome": "CEO 712 912 Sul",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "9778136",
+   "nome": "CEO Asa Norte",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "874523",
+   "nome": "Cepav Flores da Central",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "7948824",
+   "nome": "Cer II",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "9580816",
+   "nome": "Cesmu",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "3044432",
+   "nome": "Complexo Regulador Em Saude do Distrito Federal CRDF",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "Regulação"
+  },
+  {
+   "cnes": "8060959",
+   "nome": "Cretea",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "4815688",
+   "nome": "Crisdown",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "2649527",
+   "nome": "Hospital de Apoio de Brasilia HAB",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "174971",
+   "nome": "Hospital de Campanha Covid 19",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "755834",
+   "nome": "Hospital de Campanha Covid 19 Autodromo",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "252492",
+   "nome": "Hospital de Campanha do Centro Medico da Pm",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "10537",
+   "nome": "Hospital Materno Infantil Dr Antonio Lisboa",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "10464",
+   "nome": "HRAN",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "4705130",
+   "nome": "Nucleo de Atendimento Ambulatorial de Diversidade de Genero",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "9778144",
+   "nome": "Policlinica Asa Norte",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "Policlínica"
+  },
+  {
+   "cnes": "7049188",
+   "nome": "Tratamento Fora de Domicilio Tfd",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "Regulação"
   },
   {
    "cnes": "10693",
    "nome": "UBS 01 Asa Sul",
    "ra": "Plano Piloto",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
   },
   {
    "cnes": "263680",
    "nome": "UBS 01 DCCP",
    "ra": "Plano Piloto",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
   },
   {
    "cnes": "10707",
    "nome": "UBS 1 Asa Norte",
    "ra": "Plano Piloto",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
   },
   {
    "cnes": "11150",
    "nome": "UBS 1 Asa Sul",
    "ra": "Plano Piloto",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
   },
   {
    "cnes": "10723",
    "nome": "UBS 2 Asa Norte",
    "ra": "Plano Piloto",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
   },
   {
    "cnes": "11355",
    "nome": "UBS 3 Asa Norte Vila Planalto",
    "ra": "Plano Piloto",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
   },
   {
    "cnes": "5117666",
    "nome": "UBS 5 Granja do Torto",
    "ra": "Plano Piloto",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
   },
   {
    "cnes": "7153368",
    "nome": "UBS Consultorio Na Rua de Brasilia Asa Norte",
    "ra": "Plano Piloto",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "5082323",
+   "nome": "Uipp",
+   "ra": "Plano Piloto",
+   "regiao": "Central",
+   "tipo": "UBS"
   },
   {
    "cnes": "2617358",
    "nome": "UBS 1 Varjao",
    "ra": "Varjão",
-   "regiao": "Central"
+   "regiao": "Central",
+   "tipo": "UBS"
   },
   {
    "cnes": "11185",
    "nome": "UBS 01 Candangolandia",
    "ra": "Candangolândia",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "3372375",
+   "nome": "CAPS Guara",
+   "ra": "Guará",
+   "regiao": "Centro-Sul",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "511501",
+   "nome": "Cedhic Guara",
+   "ra": "Guará",
+   "regiao": "Centro-Sul",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "7765916",
+   "nome": "Central de Regulacao do SAMU Distrito Federal",
+   "ra": "Guará",
+   "regiao": "Centro-Sul",
+   "tipo": "Regulação"
+  },
+  {
+   "cnes": "9494901",
+   "nome": "Centro de Informacao E Assistencia Toxicologica Ciatox",
+   "ra": "Guará",
+   "regiao": "Centro-Sul",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "9715797",
+   "nome": "Centro Especializado de Odontologia do Guara",
+   "ra": "Guará",
+   "regiao": "Centro-Sul",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "659398",
+   "nome": "Cepav Primavera",
+   "ra": "Guará",
+   "regiao": "Centro-Sul",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "2814897",
+   "nome": "Hospital Regional do Guara I",
+   "ra": "Guará",
+   "regiao": "Centro-Sul",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "9620311",
+   "nome": "Policlinica Guara I",
+   "ra": "Guará",
+   "regiao": "Centro-Sul",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "11118",
    "nome": "UBS 01 Guara",
    "ra": "Guará",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "3027651",
    "nome": "UBS 01 SIA CPP",
    "ra": "Guará",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "11266",
    "nome": "UBS 02 Guara",
    "ra": "Guará",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "11274",
    "nome": "UBS 03 Guara",
    "ra": "Guará",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "11657",
    "nome": "UBS 04 Guara",
    "ra": "Guará",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "9263632",
    "nome": "UBS 05 Guara",
    "ra": "Guará",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "659274",
+   "nome": "Cepav Alfazema",
+   "ra": "Núcleo Bandeirante",
+   "regiao": "Centro-Sul",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "9548858",
+   "nome": "Policlinica Nucleo Bandeirante",
+   "ra": "Núcleo Bandeirante",
+   "regiao": "Centro-Sul",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "11126",
    "nome": "UBS 01 Nucleo Bandeirante",
    "ra": "Núcleo Bandeirante",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "7236778",
    "nome": "UBS 02 Nucleo Bandeirante",
    "ra": "Núcleo Bandeirante",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "7111924",
+   "nome": "UPA Nucleo Bandeirante",
+   "ra": "Núcleo Bandeirante",
+   "regiao": "Centro-Sul",
+   "tipo": "UPA"
   },
   {
    "cnes": "11681",
    "nome": "UBS 01 Park Way",
    "ra": "Park Way",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "5038669",
    "nome": "UBS 01 Riacho Fundo II",
    "ra": "Riacho Fundo II",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "3410196",
    "nome": "UBS 02 Riacho Fundo II",
    "ra": "Riacho Fundo II",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "2660199",
    "nome": "UBS 03 Riacho Fundo II",
    "ra": "Riacho Fundo II",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "2673924",
    "nome": "UBS 04 Riacho Fundo II",
    "ra": "Riacho Fundo II",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "7526504",
    "nome": "UBS 05 Riacho Fundo II",
    "ra": "Riacho Fundo II",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "7060343",
    "nome": "Unidade Basica de Saude QN 08 C Riacho Fundo II",
    "ra": "Riacho Fundo II",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "945595",
+   "nome": "Unidade de Pronto Atendimento UPA Riacho Fundo",
+   "ra": "Riacho Fundo II",
+   "regiao": "Centro-Sul",
+   "tipo": "UPA"
+  },
+  {
+   "cnes": "2649535",
+   "nome": "CAPS Riacho Fundo",
+   "ra": "Riacho Fundo",
+   "regiao": "Centro-Sul",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "9548866",
+   "nome": "Policlinica Riacho Fundo I Unidade I",
+   "ra": "Riacho Fundo",
+   "regiao": "Centro-Sul",
+   "tipo": "Policlínica"
+  },
+  {
+   "cnes": "9620338",
+   "nome": "Policlinica Riacho Fundo I Unidade II",
+   "ra": "Riacho Fundo",
+   "regiao": "Centro-Sul",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "11169",
    "nome": "UBS 01 Riacho Fundo I",
    "ra": "Riacho Fundo",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "3781437",
    "nome": "UBS 02 Riacho Fundo I",
    "ra": "Riacho Fundo",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "5295033",
    "nome": "UBS QS 04 Riacho Fundo I",
    "ra": "Riacho Fundo",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "2779374",
    "nome": "UBS 01 Estrutural",
    "ra": "SCIA/Estrutural",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "3513564",
    "nome": "UBS 02 Estrutural",
    "ra": "SCIA/Estrutural",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "7694733",
    "nome": "UBS 03 Estrutural",
    "ra": "SCIA/Estrutural",
-   "regiao": "Centro-Sul"
+   "regiao": "Centro-Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "4986792",
    "nome": "UBS 04 Itapoa",
    "ra": "Itapoã",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "6268269",
    "nome": "UBS 1 Itapoa",
    "ra": "Itapoã",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3286959",
    "nome": "UBS 2 Itapoa",
    "ra": "Itapoã",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "9572481",
    "nome": "UBS 3 Itapoa",
    "ra": "Itapoã",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "8554277",
    "nome": "UBS 5 Itapoa Parque",
    "ra": "Itapoã",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "4986725",
    "nome": "UBS 03 Jardim Botanico",
    "ra": "Jardim Botânico",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "736260",
    "nome": "UBS 1 Jardins Mangueiral",
    "ra": "Jardim Botânico",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "727377",
+   "nome": "Cadh Regiao Leste",
+   "ra": "Paranoá",
+   "regiao": "Leste",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "7094116",
+   "nome": "CAPS Ad Itapoa",
+   "ra": "Paranoá",
+   "regiao": "Leste",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "5167892",
+   "nome": "CAPS II Paranoa",
+   "ra": "Paranoá",
+   "regiao": "Leste",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "9772243",
+   "nome": "CEO Paranoa",
+   "ra": "Paranoá",
+   "regiao": "Leste",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "253804",
+   "nome": "Cepav Girassol",
+   "ra": "Paranoá",
+   "regiao": "Leste",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "2645157",
+   "nome": "Hrl",
+   "ra": "Paranoá",
+   "regiao": "Leste",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "9516212",
+   "nome": "Policlinica da Atencao Secundaria Paranoa",
+   "ra": "Paranoá",
+   "regiao": "Leste",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "10634",
    "nome": "UBS 1 Paranoa",
    "ra": "Paranoá",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3286975",
    "nome": "UBS 2 Quadra 18 Paranoa",
    "ra": "Paranoá",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "9572511",
    "nome": "UBS 3 Paranoa Parque",
    "ra": "Paranoá",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11606",
    "nome": "UBS 4 Jardim II Paranoa",
    "ra": "Paranoá",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11614",
    "nome": "UBS 5 Quebrada dos Neres",
    "ra": "Paranoá",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "2804107",
    "nome": "UBS 6 Cariru Paranoa",
    "ra": "Paranoá",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7075596",
    "nome": "UBS 7 Cafe Sem Troco Paranoa",
    "ra": "Paranoá",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11630",
    "nome": "UBS 8 PADDF Paranoa",
    "ra": "Paranoá",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "935514",
+   "nome": "Unidade de Pronto Atendimento UPA Paranoa",
+   "ra": "Paranoá",
+   "regiao": "Leste",
+   "tipo": "UPA"
+  },
+  {
+   "cnes": "2650355",
+   "nome": "Casa de Parto de Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste",
+   "tipo": "Casa de Parto"
+  },
+  {
+   "cnes": "253812",
+   "nome": "Cepav Tulipa",
+   "ra": "São Sebastião",
+   "regiao": "Leste",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "9516204",
+   "nome": "Policlinica da Atencao Secundaria de Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "10790",
    "nome": "UBS 1 Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3286932",
    "nome": "UBS 10 Joao Candido Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3212025",
    "nome": "UBS 11 Residencial do Bosque 2 Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7423489",
    "nome": "UBS 12 Sao Jose Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3212076",
    "nome": "UBS 13 Vila Nova Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3028003",
    "nome": "UBS 14 Sao Sebastiao PDF IV",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3028011",
    "nome": "UBS 15 CIR Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7566530",
    "nome": "UBS 16 PDF I Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3027643",
    "nome": "UBS 17 PDF II Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3254909",
    "nome": "UBS 19 Vila do Boa Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3254887",
    "nome": "UBS 2 T R E Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "207225",
    "nome": "UBS 20 Sao Sebastiao CDP",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "207306",
    "nome": "UBS 21 CDP II Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3212068",
    "nome": "UBS 3 Residencial Oeste Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3212033",
    "nome": "UBS 4 Morro Azul Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11363",
    "nome": "UBS 5 Nova Betania Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3212017",
    "nome": "UBS 6 Sao Francisco Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3781402",
    "nome": "UBS 7 Morro da Cruz Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7975295",
    "nome": "UBS 8 Cavas de Baixo Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3742873",
    "nome": "UBS 9 Residencial do Bosque 1 Sao Sebastiao",
    "ra": "São Sebastião",
-   "regiao": "Leste"
+   "regiao": "Leste",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "7116756",
+   "nome": "UPA Unidade de Pronto Atendimento de Sao Sebastiao",
+   "ra": "São Sebastião",
+   "regiao": "Leste",
+   "tipo": "UPA"
   },
   {
    "cnes": "11541",
    "nome": "PSR 1 Rua do Mato Fercal",
    "ra": "Fercal",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "11525",
    "nome": "PSR 2 Corrego do Ouro Fercal",
    "ra": "Fercal",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "2804360",
    "nome": "UBS 1 Engenho Velho Fercal",
    "ra": "Fercal",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "11517",
    "nome": "UBS 2 Catingueiro Fercal",
    "ra": "Fercal",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "161616",
    "nome": "UBS 3 Lobeiral Fercal",
    "ra": "Fercal",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "6666701",
+   "nome": "CAPS II Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "9690735",
+   "nome": "CEO Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "658359",
+   "nome": "Cepav Flor de Lis",
+   "ra": "Planaltina",
+   "regiao": "Norte",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "6736602",
+   "nome": "Cerpis",
+   "ra": "Planaltina",
+   "regiao": "Norte",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "10529",
+   "nome": "Hrpl",
+   "ra": "Planaltina",
+   "regiao": "Norte",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "11088",
+   "nome": "Policlinica de Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte",
+   "tipo": "Policlínica"
+  },
+  {
+   "cnes": "9505709",
+   "nome": "Policlinica de Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "5167817",
    "nome": "UBS 1 Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "2804174",
    "nome": "UBS 10 Taquara Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "11576",
    "nome": "UBS 11 Rajadinha Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "2804123",
    "nome": "UBS 12 Bica do Der Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "11622",
    "nome": "UBS 13 Sao Jose Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "11584",
    "nome": "UBS 14 Tabatinga Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "2672227",
    "nome": "UBS 15 Rio Preto Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "11592",
    "nome": "UBS 16 Pipiripau Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "3144666",
    "nome": "UBS 17 Jardim Morumbi Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "9566961",
    "nome": "UBS 18 Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "9566988",
    "nome": "UBS 19 Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "10650",
    "nome": "UBS 2 Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "9768637",
    "nome": "UBS 20 Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "11096",
    "nome": "UBS 3 Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "6216013",
    "nome": "UBS 4 Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "6216021",
    "nome": "UBS 5 Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "5050340",
    "nome": "UBS 6 Arapoanga Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "2360233",
    "nome": "UBS 7 Jardim Roriz Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "5050359",
    "nome": "UBS 8 Vale do Amanhecer Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "2672235",
    "nome": "UBS 9 Santos Dumont Planaltina",
    "ra": "Planaltina",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "969877",
+   "nome": "Unidade de Pronto Atendimento UPA Planaltina",
+   "ra": "Planaltina",
+   "regiao": "Norte",
+   "tipo": "UPA"
+  },
+  {
+   "cnes": "5554349",
+   "nome": "CAPS Ad Sobradinho",
+   "ra": "Sobradinho II",
+   "regiao": "Norte",
+   "tipo": "CAPS"
   },
   {
    "cnes": "11258",
    "nome": "UBS 1 Sobradinho II",
    "ra": "Sobradinho II",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "7368895",
    "nome": "UBS 2 Sobradinho II",
    "ra": "Sobradinho II",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "6770681",
    "nome": "UBS 3 Vale dos Pinheiros Sobradinho II",
    "ra": "Sobradinho II",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "6770665",
    "nome": "UBS 4 Setor de Mansoes Sobradinho II",
    "ra": "Sobradinho II",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "7686730",
    "nome": "UBS 5 Setor de Mansoes Sobradinho II",
    "ra": "Sobradinho II",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "7041594",
    "nome": "UBS 6 Vale das Acacias Sobradinho II",
    "ra": "Sobradinho II",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "957755",
    "nome": "UBS 7 Buritizinho Sobradinho II",
    "ra": "Sobradinho II",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "7592477",
+   "nome": "UPA Sobradinho",
+   "ra": "Sobradinho II",
+   "regiao": "Norte",
+   "tipo": "UPA"
+  },
+  {
+   "cnes": "9031340",
+   "nome": "Asf Sobradinho",
+   "ra": "Sobradinho",
+   "regiao": "Norte",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "7552270",
+   "nome": "CAPS I Sobradinho",
+   "ra": "Sobradinho",
+   "regiao": "Norte",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "9690719",
+   "nome": "CEO Sobradinho",
+   "ra": "Sobradinho",
+   "regiao": "Norte",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "658286",
+   "nome": "Cepav Sempre Viva",
+   "ra": "Sobradinho",
+   "regiao": "Norte",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "10502",
+   "nome": "HRS",
+   "ra": "Sobradinho",
+   "regiao": "Norte",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "9414754",
+   "nome": "Policlinica de Sobradinho",
+   "ra": "Sobradinho",
+   "regiao": "Norte",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "11223",
    "nome": "UBS 1 Sobradinho",
    "ra": "Sobradinho",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "11231",
    "nome": "UBS 2 Sobradinho",
    "ra": "Sobradinho",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "11568",
    "nome": "UBS 3 Nova Colina Sobradinho",
    "ra": "Sobradinho",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "7687079",
    "nome": "UBS 4 Rota do Cavalo Sobradinho",
    "ra": "Sobradinho",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "6770657",
    "nome": "UBS 5 Basevi Sobradinho",
    "ra": "Sobradinho",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
   },
   {
    "cnes": "2804387",
    "nome": "UBS 6 Lago Oeste Sobradinho",
    "ra": "Sobradinho",
-   "regiao": "Norte"
+   "regiao": "Norte",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "9589724",
+   "nome": "Centro de Atencao Psicossocial I Brazlandia",
+   "ra": "Brazlândia",
+   "regiao": "Oeste",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "10545",
+   "nome": "HRBZ",
+   "ra": "Brazlândia",
+   "regiao": "Oeste",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "9578536",
+   "nome": "Policlinica da Regiao Oeste Unidade Brazlandia",
+   "ra": "Brazlândia",
+   "regiao": "Oeste",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "2673908",
    "nome": "PSF Brazlandia",
    "ra": "Brazlândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11215",
    "nome": "UBS 1 Brazlandia",
    "ra": "Brazlândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "6662358",
    "nome": "UBS 2 Brazlandia",
    "ra": "Brazlândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3144658",
    "nome": "UBS 3 Veredas I Brazlandia",
    "ra": "Brazlândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3742865",
    "nome": "UBS 4 Veredas II Brazlandia",
    "ra": "Brazlândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3144631",
    "nome": "UBS 5 Chapadinha Brazlandia",
    "ra": "Brazlândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11495",
    "nome": "UBS 6 Almecegas Brazlandia",
    "ra": "Brazlândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11509",
    "nome": "UBS 7 Incra 08 Brazlandia",
    "ra": "Brazlândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "9571280",
    "nome": "UBS 8 Torre de Brazlandia",
    "ra": "Brazlândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "9548203",
    "nome": "UBS 9 Zona Rural de Brazlandia",
    "ra": "Brazlândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "2840499",
+   "nome": "Unidade de Pronto Atendimento UPA Brazlandia",
+   "ra": "Brazlândia",
+   "regiao": "Oeste",
+   "tipo": "UPA"
+  },
+  {
+   "cnes": "6585760",
+   "nome": "Centro de Atencao Psicossocial Ad III Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "9676473",
+   "nome": "Centro de Especialidades Odontologicas Ceilandia Unidade I",
+   "ra": "Ceilândia",
+   "regiao": "Oeste",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "9578560",
+   "nome": "Centro de Especialidades Odontologicas CEO 11",
+   "ra": "Ceilândia",
+   "regiao": "Oeste",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "904716",
+   "nome": "Cepav Flor de Lotus",
+   "ra": "Ceilândia",
+   "regiao": "Oeste",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "766216",
+   "nome": "Hospital de Campanha Covid 19 Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "10480",
+   "nome": "Hospital Regional de Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "9578544",
+   "nome": "Policlinica da Regiao Oeste Unidade Ceilandia I",
+   "ra": "Ceilândia",
+   "regiao": "Oeste",
+   "tipo": "Policlínica"
+  },
+  {
+   "cnes": "9578501",
+   "nome": "Policlinica da Regiao Oeste Unidade Ceilandia II",
+   "ra": "Ceilândia",
+   "regiao": "Oeste",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "7347715",
    "nome": "UBS 1 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11207",
    "nome": "UBS 10 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11061",
    "nome": "UBS 11 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "2617293",
    "nome": "UBS 12 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3144542",
    "nome": "UBS 13 Boa Esperanca Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3677044",
    "nome": "UBS 14 Condominio Prive Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7347723",
    "nome": "UBS 15 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "9475931",
    "nome": "UBS 16 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "9509356",
    "nome": "UBS 17 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "9643338",
    "nome": "UBS 18 CAIC Bernardo Sayao",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "4986768",
    "nome": "UBS 19 Vista Bela",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "10987",
    "nome": "UBS 2 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "10995",
    "nome": "UBS 3 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11002",
    "nome": "UBS 4 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11010",
    "nome": "UBS 5 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11029",
    "nome": "UBS 6 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11037",
    "nome": "UBS 7 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11045",
    "nome": "UBS 8 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11053",
    "nome": "UBS 9 Ceilandia",
    "ra": "Ceilândia",
-   "regiao": "Oeste"
+   "regiao": "Oeste",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "7465157",
+   "nome": "Unidade de Pronto Atendimento Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste",
+   "tipo": "UPA"
+  },
+  {
+   "cnes": "924857",
+   "nome": "Unidade de Pronto Atendimento UPA II Ceilandia",
+   "ra": "Ceilândia",
+   "regiao": "Oeste",
+   "tipo": "UPA"
   },
   {
    "cnes": "7108923",
    "nome": "UBS 01 Aguas Claras",
    "ra": "Águas Claras",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3742822",
    "nome": "UBS 02 Aguas Claras",
    "ra": "Águas Claras",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "7698437",
+   "nome": "CAPS I Recanto das Emas",
+   "ra": "Recanto das Emas",
+   "regiao": "Sudoeste",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "4369440",
+   "nome": "Cepav Amarilis",
+   "ra": "Recanto das Emas",
+   "regiao": "Sudoeste",
+   "tipo": "CEO"
   },
   {
    "cnes": "10804",
    "nome": "UBS 01 Recanto das Emas",
    "ra": "Recanto das Emas",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "11134",
    "nome": "UBS 02 Recanto das Emas",
    "ra": "Recanto das Emas",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7170939",
    "nome": "UBS 03 Recanto das Emas",
    "ra": "Recanto das Emas",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7417632",
    "nome": "UBS 04 Recanto das Emas",
    "ra": "Recanto das Emas",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7059892",
    "nome": "UBS 05 Recanto das Emas",
    "ra": "Recanto das Emas",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7059965",
    "nome": "UBS 06 Recanto das Emas",
    "ra": "Recanto das Emas",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "2804247",
    "nome": "UBS 08 Recanto das Emas Sao Francisco",
    "ra": "Recanto das Emas",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7059957",
    "nome": "UBS 09 Recanto das Emas",
    "ra": "Recanto das Emas",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3144623",
    "nome": "UBS 10 Recanto das Emas",
    "ra": "Recanto das Emas",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "9543945",
    "nome": "UBS 11 Recanto das Emas",
    "ra": "Recanto das Emas",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "7078730",
+   "nome": "UPA Recanto das Emas",
+   "ra": "Recanto das Emas",
+   "regiao": "Sudoeste",
+   "tipo": "UPA"
+  },
+  {
+   "cnes": "7282494",
+   "nome": "CAPS Ad III Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "6665098",
+   "nome": "CAPS III Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "769045",
+   "nome": "Cepav Orquidea",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "2672197",
+   "nome": "Hrsam Hospital Regional de Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "9561579",
+   "nome": "Policlinica de Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "10642",
    "nome": "UBS 01 Samambaia",
    "ra": "Samambaia",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "10774",
    "nome": "UBS 02 Samambaia",
    "ra": "Samambaia",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "10677",
    "nome": "UBS 03 Samambaia",
    "ra": "Samambaia",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "10685",
    "nome": "UBS 04 Samambaia",
    "ra": "Samambaia",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "6921736",
    "nome": "UBS 05 Samambaia",
    "ra": "Samambaia",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7053754",
    "nome": "UBS 06 Samambaia",
    "ra": "Samambaia",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7299877",
    "nome": "UBS 07 Samambaia",
    "ra": "Samambaia",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7114397",
    "nome": "UBS 08 Samambaia",
    "ra": "Samambaia",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3742857",
    "nome": "UBS 09 Samambaia",
    "ra": "Samambaia",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "3633845",
    "nome": "UBS 10 Samambaia",
    "ra": "Samambaia",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "7771479",
    "nome": "UBS 11 Samambaia",
    "ra": "Samambaia",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "9480587",
    "nome": "UBS 12 Samambaia",
    "ra": "Samambaia",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "9647597",
    "nome": "UBS 13 Samambaia",
    "ra": "Samambaia",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "6708714",
+   "nome": "UPA Tipo III Samambaia",
+   "ra": "Samambaia",
+   "regiao": "Sudoeste",
+   "tipo": "UPA"
+  },
+  {
+   "cnes": "5447410",
+   "nome": "CAPS II Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "7238703",
+   "nome": "CAPS Infanto Juvenil Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "7988303",
+   "nome": "Centro Especializado Em Reabilitacao Cer II Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "9622845",
+   "nome": "CEO Policlinica de Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "9622918",
+   "nome": "CEO Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "769002",
+   "nome": "Cepav Azaleia",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "877220",
+   "nome": "Cepav Gardenia",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste",
+   "tipo": "CEO"
+  },
+  {
+   "cnes": "10618",
+   "nome": "Hospital Sao Vicente de Paulo HSVP",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "10499",
+   "nome": "HRT Hospital Regional de Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "10588",
+   "nome": "Policlinica de Taguatinga",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste",
+   "tipo": "Policlínica"
+  },
+  {
+   "cnes": "9621709",
+   "nome": "Policlinica de Taguatinga Unidade II",
+   "ra": "Taguatinga",
+   "regiao": "Sudoeste",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "10901",
    "nome": "UBS 01 Taguatinga",
    "ra": "Taguatinga",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "10928",
    "nome": "UBS 02 Taguatinga",
    "ra": "Taguatinga",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "10936",
    "nome": "UBS 03 Taguatinga",
    "ra": "Taguatinga",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "10626",
    "nome": "UBS 05 Taguatinga",
    "ra": "Taguatinga",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "10952",
    "nome": "UBS 06 Taguatinga",
    "ra": "Taguatinga",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "10960",
    "nome": "UBS 07 Taguatinga",
    "ra": "Taguatinga",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "2617269",
    "nome": "UBS 08 Taguatinga",
    "ra": "Taguatinga",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
   },
   {
    "cnes": "9056963",
    "nome": "UBS 01 Vicente Pires",
    "ra": "Vicente Pires",
-   "regiao": "Sudoeste"
+   "regiao": "Sudoeste",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "996068",
+   "nome": "Unidade de Pronto Atendimento UPA Vicente Pires",
+   "ra": "Vicente Pires",
+   "regiao": "Sudoeste",
+   "tipo": "UPA"
+  },
+  {
+   "cnes": "8479704",
+   "nome": "CAPS III Gama",
+   "ra": "Gama",
+   "regiao": "Sul",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "734403",
+   "nome": "Hospital de Campanha Covid 19 Gama",
+   "ra": "Gama",
+   "regiao": "Sul",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "10472",
+   "nome": "HRG",
+   "ra": "Gama",
+   "regiao": "Sul",
+   "tipo": "Hospital"
+  },
+  {
+   "cnes": "5598575",
+   "nome": "Policlinica do Gama",
+   "ra": "Gama",
+   "regiao": "Sul",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "10820",
    "nome": "UBS 1 Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "7360568",
    "nome": "UBS 10 Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "4979656",
    "nome": "UBS 10 Gama Zona Rural Ponte Alta",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "3144577",
    "nome": "UBS 11 Ponte Alta Norte Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "3144615",
    "nome": "UBS 12 Ponte Alta Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "7360592",
    "nome": "UBS 13 Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "2779331",
    "nome": "UBS 13 Gama Casa Grande",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "3027635",
    "nome": "UBS 15 PFDF Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "7843135",
    "nome": "UBS 16 ATP Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "10839",
    "nome": "UBS 2 Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "10847",
    "nome": "UBS 3 Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "10855",
    "nome": "UBS 4 Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "10863",
    "nome": "UBS 5 Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "10871",
    "nome": "UBS 6 Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "10898",
    "nome": "UBS 7 Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "2779404",
    "nome": "UBS 9 Engenho das Lages Gama",
    "ra": "Gama",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
+  },
+  {
+   "cnes": "939145",
+   "nome": "Unidade de Pronto Atendimento UPA Gama",
+   "ra": "Gama",
+   "regiao": "Sul",
+   "tipo": "UPA"
+  },
+  {
+   "cnes": "7055919",
+   "nome": "CAPS Ad Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul",
+   "tipo": "CAPS"
+  },
+  {
+   "cnes": "9595058",
+   "nome": "Policlinica de Santa Maria",
+   "ra": "Santa Maria",
+   "regiao": "Sul",
+   "tipo": "Policlínica"
   },
   {
    "cnes": "10782",
    "nome": "UBS 1 Santa Maria",
    "ra": "Santa Maria",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "2673894",
    "nome": "UBS 10 Santa Maria",
    "ra": "Santa Maria",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "8192650",
    "nome": "UBS 11 Santa Maria",
    "ra": "Santa Maria",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "10669",
    "nome": "UBS 2 Santa Maria",
    "ra": "Santa Maria",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "3144550",
    "nome": "UBS 3 Santa Maria",
    "ra": "Santa Maria",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "4979699",
    "nome": "UBS 4 de Santa Maria",
    "ra": "Santa Maria",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "7493576",
    "nome": "UBS 4 Santa Maria",
    "ra": "Santa Maria",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "3144593",
    "nome": "UBS 5 Santa Maria",
    "ra": "Santa Maria",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "3144607",
    "nome": "UBS 6 Santa Maria",
    "ra": "Santa Maria",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "3144569",
    "nome": "UBS 7 Santa Maria",
    "ra": "Santa Maria",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "7559194",
    "nome": "UBS 8 Santa Maria",
    "ra": "Santa Maria",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "5789494",
    "nome": "UBS 9 Santa Maria",
    "ra": "Santa Maria",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   },
   {
    "cnes": "7740581",
    "nome": "UBS 9 Santa Maria",
    "ra": "Santa Maria",
-   "regiao": "Sul"
+   "regiao": "Sul",
+   "tipo": "UBS"
   }
  ]
 }
