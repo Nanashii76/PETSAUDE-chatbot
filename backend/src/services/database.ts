@@ -38,6 +38,26 @@ export async function buscarOuCriarSessao(profissionalId: string) {
   }
 }
 
+// Chamado pelo botão "Nova triagem" do front: encerra a sessão PENDENTE do profissional, se houver
+// uma em andamento. Sem isso, uma triagem abandonada no meio da coleta seria retomada em silêncio
+// na próxima mensagem — buscarOuCriarSessao só abre uma sessão nova quando não encontra nenhuma
+// PENDENTE. "ABANDONADA" é só mais um status terminal (como FINALIZADO/NAO_ELEGIVEL): não gera
+// evento nem encaminhamento, porque nada foi de fato produzido nessa sessão.
+export async function encerrarSessaoAtiva(profissionalId: string): Promise<boolean> {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      `UPDATE sessoes SET status = 'ABANDONADA', atualizado_em = CURRENT_TIMESTAMP
+       WHERE profissional_id = $1 AND status = 'PENDENTE'
+       RETURNING id`,
+      [profissionalId]
+    );
+    return (result.rowCount ?? 0) > 0;
+  } finally {
+    client.release();
+  }
+}
+
 export async function atualizarSessao(
   sessaoId: string, 
   status: string, 

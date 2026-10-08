@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { CopyIcon, RefreshCcwIcon, CheckIcon } from 'lucide-react'
+import { CopyIcon, RefreshCcwIcon, CheckIcon, PlusIcon } from 'lucide-react'
 
 import { Action, Actions } from '@/components/ui/actions'
 import {
@@ -186,6 +186,26 @@ export default function ChatBot() {
     void enviarMensagem(ultima.text)
   }
 
+  /** Encerra a sessão ativa no backend (se houver uma PENDENTE) e limpa a conversa exibida — tanto
+   *  para o botão "Nova triagem" quanto para o atalho que aparece junto do resultado de um caso
+   *  finalizado. Sem o encerramento no backend, uma triagem abandonada no meio da coleta seria
+   *  retomada em silêncio assim que a próxima mensagem fosse enviada. */
+  async function novaTriagem() {
+    if (isLoading) return
+    setMessages([])
+    setEntrada('')
+    setRevisando(null)
+    try {
+      await fetch(`${API_BASE_URL}/sessao/nova`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ remetente_id: userId }),
+      })
+    } catch (error) {
+      console.error('Erro ao iniciar nova triagem:', error)
+    }
+  }
+
   async function copiar(msg: Mensagem) {
     try {
       await navigator.clipboard.writeText(msg.text)
@@ -227,6 +247,19 @@ export default function ChatBot() {
             por enquanto existe só a atual — mas a lista já tem a forma certa
             para receber as outras quando a API existir. */}
         <nav aria-label="Conversas" className="flex-1 overflow-y-auto px-2 max-lg:hidden">
+          <button
+            type="button"
+            onClick={() => {
+              setTela('chat')
+              void novaTriagem()
+            }}
+            disabled={isLoading}
+            className="mb-2 flex w-full items-center gap-2.5 rounded-md border border-line px-2 py-2 text-left text-[0.8125rem] font-medium text-ink transition-colors duration-[120ms] ease-brand hover:border-azure/50 hover:bg-surface-2/60 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <PlusIcon className="size-4 shrink-0" />
+            Nova triagem
+          </button>
+
           <p className="px-2 pb-1.5 pt-1 text-[0.6875rem] font-semibold uppercase tracking-[0.06em] text-ink-faint">
             Conversas
           </p>
@@ -415,11 +448,18 @@ export default function ChatBot() {
                               <ReactMarkdown>{msg.text}</ReactMarkdown>
                             </div>
 
-                            {msg.status === 'FINALIZADO' && (
+                            {(msg.status === 'FINALIZADO' || msg.status === 'NAO_ELEGIVEL') && (
                               <div className="mt-1 flex flex-wrap items-center gap-2 border-t border-line/60 pt-2.5">
-                                {msg.corRisco && <RiskBadge cor={msg.corRisco} />}
-                                <Button size="sm" onClick={() => setRevisando(msg)}>
-                                  Revisar encaminhamento
+                                {msg.status === 'FINALIZADO' && msg.corRisco && (
+                                  <RiskBadge cor={msg.corRisco} />
+                                )}
+                                {msg.status === 'FINALIZADO' && (
+                                  <Button size="sm" onClick={() => setRevisando(msg)}>
+                                    Revisar encaminhamento
+                                  </Button>
+                                )}
+                                <Button size="sm" variant="outline" onClick={() => void novaTriagem()}>
+                                  Nova triagem
                                 </Button>
                               </div>
                             )}
