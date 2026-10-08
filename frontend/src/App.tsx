@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils'
 
 import TelaIdentificacao from './TelaIdentificacao'
 import Painel from './Painel'
+import Regulacao from './Regulacao'
 import RevisarTexto from './RevisarTexto'
 import type { Mensagem, Perfil, Tela, Unidade } from './types'
 import './App.css'
@@ -247,6 +248,31 @@ export default function ChatBot() {
         <div className="mt-auto flex flex-col gap-1 border-t border-line p-2">
           <button
             type="button"
+            onClick={() => setTela('regulacao')}
+            aria-current={tela === 'regulacao' ? 'page' : undefined}
+            title="Modo Regulação"
+            className={cn(
+              'flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-[0.8125rem] transition-colors duration-[120ms] ease-brand',
+              'max-lg:justify-center max-lg:px-0',
+              tela === 'regulacao'
+                ? 'bg-surface-2 text-ink'
+                : 'text-ink-muted hover:bg-surface-2/60 hover:text-ink'
+            )}
+          >
+            <svg viewBox="0 0 24 24" fill="none" className="size-[18px] shrink-0">
+              <path
+                d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span className="max-lg:hidden">Modo Regulação</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setTela('painel')}
             aria-current={tela === 'painel' ? 'page' : undefined}
             title="Painel de uso"
@@ -298,6 +324,8 @@ export default function ChatBot() {
       {/* ----------------------------------------------------------------- main */}
       {tela === 'painel' ? (
         <Painel apiBaseUrl={API_BASE_URL} onFechar={() => setTela('chat')} />
+      ) : tela === 'regulacao' ? (
+        <Regulacao apiBaseUrl={API_BASE_URL} userId={userId} />
       ) : (
         <main className="flex min-w-0 flex-1 flex-col">
 

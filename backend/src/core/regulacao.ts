@@ -6,6 +6,7 @@ import {
   PROMPT_REGULACAO_ANALISE_DERMATOLOGIA,
   PROMPT_REGULACAO_ANALISE_ENDOCRINOLOGIA,
 } from './prompts.js';
+import { valorVazio } from './dadosColetados.js';
 
 // Assistente do regulador: analisa um pedido de encaminhamento já recebido (ou responde uma
 // consulta sobre critérios) — o inverso do fluxo de encaminhamento da APS em orchestrator.ts, que
@@ -52,9 +53,12 @@ function construirRelatorio(especialidade: string, analise: any, camposFaltantes
     '',
   ];
   const presentes: Record<string, any> = analise.campos_presentes || {};
-  if (Object.keys(presentes).length > 0) {
+  // O prompt já instrui o modelo a omitir a chave quando o campo não aparece no pedido — este
+  // filtro é a rede de segurança para quando ele preenche com null/"" mesmo assim.
+  const presentesPreenchidos = Object.entries(presentes).filter(([, valor]) => !valorVazio(valor));
+  if (presentesPreenchidos.length > 0) {
     linhas.push('**Conteúdo mínimo presente no pedido:**');
-    for (const [campo, valor] of Object.entries(presentes)) linhas.push(`- ${campo}: ${valor}`);
+    for (const [campo, valor] of presentesPreenchidos) linhas.push(`- ${campo}: ${valor}`);
     linhas.push('');
   }
   if (camposFaltantes.length > 0) {
@@ -69,7 +73,7 @@ function construirRelatorio(especialidade: string, analise: any, camposFaltantes
         ? 'pelos dados enviados, o pedido não parece atender aos critérios da NT'
         : 'os dados enviados não permitem confirmar um critério da NT';
   linhas.push(`**Avaliação:** ${situacao}.`);
-  if (analise.observacoes) linhas.push(analise.observacoes);
+  if (!valorVazio(analise.observacoes)) linhas.push(analise.observacoes);
   linhas.push('', 'A decisão é do regulador.');
   return linhas.join('\n');
 }
@@ -205,7 +209,7 @@ export async function processarMensagemRegulacao(sessao: any, mensagemUsuario: s
     };
   }
 
-  const camposFaltantes: string[] = analise.campos_faltantes || [];
+  const camposFaltantes: string[] = (analise.campos_faltantes || []).filter((c: unknown) => !valorVazio(c));
   const relatorio = construirRelatorio(especialidade, analise, camposFaltantes);
 
   return {

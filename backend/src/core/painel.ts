@@ -1,5 +1,6 @@
 import { buscarEventosParaPainel, type LinhaPainel } from '../services/database.js';
 import { porCnes } from './unidades.js';
+import { valorVazio } from './dadosColetados.js';
 
 export type PeriodoPainel = '7' | '30' | 'tudo';
 
@@ -29,6 +30,15 @@ export type Painel = {
 
 function periodoValido(periodo: string): PeriodoPainel {
   return periodo === '7' || periodo === '30' ? periodo : 'tudo';
+}
+
+// Compartilhado com core/encaminhamentos.ts — mesmo recorte de período do painel, para o período
+// escolhido na UI valer tanto para as métricas quanto para a lista de encaminhamentos.
+export function periodoParaDesde(periodoBruto: string): { periodo: PeriodoPainel; desde: Date | null } {
+  const periodo = periodoValido(periodoBruto);
+  const dias = DIAS_POR_PERIODO[periodo];
+  const desde = dias ? new Date(Date.now() - dias * 24 * 60 * 60 * 1000) : null;
+  return { periodo, desde };
 }
 
 export function agregar(linhas: LinhaPainel[], periodo: PeriodoPainel): Painel {
@@ -62,8 +72,11 @@ export function agregar(linhas: LinhaPainel[], periodo: PeriodoPainel): Painel {
     } else if (ev.tipo === 'texto_gerado' && ev.especialidade) {
       p.textos += 1;
       especialidade(ev.especialidade).textos += 1;
+      // Registros antigos já guardaram a string literal "null" em vez do JSON null de verdade (o
+      // mesmo problema que dadosColetados.ts existe para evitar) — sem este filtro, ela aparece
+      // como se fosse uma cor de risco de verdade no gráfico do painel.
       const cor = ev.dados?.cor_risco;
-      if (cor) {
+      if (!valorVazio(cor)) {
         p.cores[cor] = (p.cores[cor] || 0) + 1;
         especialidade(ev.especialidade).cores[cor] = (especialidade(ev.especialidade).cores[cor] || 0) + 1;
       }
@@ -101,10 +114,7 @@ export function agregar(linhas: LinhaPainel[], periodo: PeriodoPainel): Painel {
 }
 
 export async function montarPainel(periodoBruto: string): Promise<Painel> {
-  const periodo = periodoValido(periodoBruto);
-  const dias = DIAS_POR_PERIODO[periodo];
-  const desde = dias ? new Date(Date.now() - dias * 24 * 60 * 60 * 1000) : null;
-
+  const { periodo, desde } = periodoParaDesde(periodoBruto);
   const linhas = await buscarEventosParaPainel(desde);
   return agregar(linhas, periodo);
 }

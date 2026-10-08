@@ -58,6 +58,20 @@ describe('painel: agregar', () => {
     expect(endo.textos).toBe(2);
   });
 
+  it('ignora cor_risco vazia/null/"null" (achado em produção: a string literal "null" não pode virar uma cor no gráfico)', () => {
+    const p = agregar(
+      [
+        linha({ tipo: 'texto_gerado', especialidade: 'cardiologia', dados: { cor_risco: 'Amarela' } }),
+        linha({ tipo: 'texto_gerado', especialidade: 'cardiologia', dados: { cor_risco: 'null' } }),
+        linha({ tipo: 'texto_gerado', especialidade: 'cardiologia', dados: { cor_risco: null } }),
+        linha({ tipo: 'texto_gerado', especialidade: 'cardiologia', dados: { cor_risco: '' } }),
+      ],
+      'tudo'
+    );
+
+    expect(p.cores).toEqual({ Amarela: 1 });
+  });
+
   it('agrupa por especialidade e ordena por número de casos (maior primeiro)', () => {
     const p = agregar(
       [

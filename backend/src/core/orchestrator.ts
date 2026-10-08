@@ -9,6 +9,7 @@ import {
   PROMPT_GERAL,
   AVISO_URGENCIA
 } from './prompts.js';
+import { limparDadosColetados, valorVazio } from './dadosColetados.js';
 
 const ESPECIALIDADES = ['cardiologia', 'dermatologia', 'endocrinologia'];
 
@@ -17,7 +18,7 @@ const ESPECIALIDADES = ['cardiologia', 'dermatologia', 'endocrinologia'];
 // antes de qualquer texto de encaminhamento ser gerado de fato.
 function construirResumoConfirmacao(dadosColetados: Record<string, any>, corRisco: string | null): string {
   const linhas = Object.entries(dadosColetados)
-    .filter(([chave]) => !chave.startsWith('_'))
+    .filter(([chave, valor]) => !chave.startsWith('_') && !valorVazio(valor))
     .map(([chave, valor]) => `- ${chave}: ${typeof valor === 'object' ? JSON.stringify(valor) : valor}`);
   if (corRisco) {
     linhas.push(`- Classificação de risco: ${corRisco}`);
@@ -185,8 +186,11 @@ Você perguntou ao profissional a classificação de risco (Amarela, Verde, Azul
     let textoResposta = respostaEstruturada.texto_resposta || "Sem resposta.";
     let dadosPendentes = respostaEstruturada.dados_pendentes || [];
     let opcoes: string[] = [];
-    const corRisco: string | null = respostaEstruturada.cor_risco ?? null;
-    const dadosColetados = { ...sessao.dados_coletados, ...(respostaEstruturada.dados_coletados_ate_o_momento || {}) };
+    const corRisco: string | null = valorVazio(respostaEstruturada.cor_risco) ? null : respostaEstruturada.cor_risco;
+    const dadosColetados = limparDadosColetados({
+      ...sessao.dados_coletados,
+      ...(respostaEstruturada.dados_coletados_ate_o_momento || {}),
+    });
 
     // Urgência: o alerta é sempre o texto fixo do código, nunca a redação do LLM — e só aparece
     // uma vez por sessão, mesmo que o modelo sinalize urgencia:true de novo em turnos seguintes.

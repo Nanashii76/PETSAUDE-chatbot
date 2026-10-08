@@ -5,6 +5,7 @@ import webhookRoutes from './api/webhook.js';
 import perfilRoutes from './api/perfil.js';
 import painelRoutes from './api/painel.js';
 import regulacaoRoutes from './api/regulacao.js';
+import encaminhamentosRoutes from './api/encaminhamentos.js';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use('/api/webhook', webhookRoutes);
 app.use('/api', perfilRoutes);
 app.use('/api', painelRoutes);
 app.use('/api', regulacaoRoutes);
+app.use('/api', encaminhamentosRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);

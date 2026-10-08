@@ -230,6 +230,72 @@ export async function buscarEventosParaPainel(desde: Date | null): Promise<Linha
 }
 
 // ==========================================
+// 5b. ENCAMINHAMENTOS GERADOS (DRILL-DOWN DO PAINEL)
+// ==========================================
+
+export type LinhaEncaminhamentoLista = {
+  id: string;
+  sessao_id: string;
+  especialidade: string;
+  classificacao_risco: string | null;
+  elegivel: boolean;
+  criado_em: Date;
+  unidade_cnes: string | null;
+  profissional_nome: string | null;
+};
+
+// Lista leve (sem o texto do encaminhamento) para a tabela do painel — o texto completo só é
+// buscado quando o regulador abre um item específico (buscarEncaminhamentoPorId).
+export async function buscarEncaminhamentosRecentes(
+  desde: Date | null,
+  limite = 50
+): Promise<LinhaEncaminhamentoLista[]> {
+  const client = await pool.connect();
+  try {
+    const condicaoPeriodo = desde ? 'WHERE e.criado_em >= $2' : '';
+    const params: any[] = desde ? [limite, desde] : [limite];
+    const result = await client.query(
+      `SELECT e.id, e.sessao_id, e.especialidade, e.classificacao_risco, e.elegivel, e.criado_em,
+              i.unidade_cnes, i.nome AS profissional_nome
+       FROM encaminhamentos e
+       JOIN sessoes s ON s.id = e.sessao_id
+       LEFT JOIN interlocutores i ON i.identificador = s.profissional_id
+       ${condicaoPeriodo}
+       ORDER BY e.criado_em DESC
+       LIMIT $1`,
+      params
+    );
+    return result.rows;
+  } finally {
+    client.release();
+  }
+}
+
+export type LinhaEncaminhamentoDetalhe = {
+  id: string;
+  sessao_id: string;
+  especialidade: string;
+  classificacao_risco: string | null;
+  resumo_sisreg: string | null;
+  elegivel: boolean;
+  criado_em: Date;
+};
+
+export async function buscarEncaminhamentoPorId(id: string): Promise<LinhaEncaminhamentoDetalhe | null> {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      `SELECT id, sessao_id, especialidade, classificacao_risco, resumo_sisreg, elegivel, criado_em
+       FROM encaminhamentos WHERE id = $1`,
+      [id]
+    );
+    return result.rows[0] || null;
+  } finally {
+    client.release();
+  }
+}
+
+// ==========================================
 // 6. REVISÃO DO TEXTO FINAL (COMPARADOR)
 // ==========================================
 

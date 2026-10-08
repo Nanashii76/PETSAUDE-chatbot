@@ -142,6 +142,37 @@ describe('processarMensagemLLM', () => {
     expect(systemPrompt).toContain('"idade":62');
   });
 
+  it('campos null/vazios/"undefined" que o LLM devolver não aparecem em dados_coletados nem no resumo de confirmação', async () => {
+    const sessao = { id: 's3b', agente_atual: 'cardiologia', status: 'PENDENTE', dados_coletados: { idade: 62 }, dados_pendentes: [] };
+
+    chamarLLMComCascataMock.mockResolvedValueOnce(
+      respostaLLM(
+        JSON.stringify({
+          status: 'FINALIZADO',
+          texto_resposta: 'Encaminhamento aprovado.',
+          dados_coletados_ate_o_momento: {
+            exames: null,
+            medicacoes: '',
+            tratamento_previo: 'undefined',
+            diagnostico: 'Angina estável',
+          },
+          dados_pendentes: [],
+          cor_risco: 'Amarela',
+          urgencia: false,
+        })
+      )
+    );
+
+    const resultado = await processarMensagemLLM(sessao, 'segue mais informação');
+
+    expect(resultado.dados_coletados.exames).toBeUndefined();
+    expect(resultado.dados_coletados.medicacoes).toBeUndefined();
+    expect(resultado.dados_coletados.tratamento_previo).toBeUndefined();
+    expect(resultado.dados_coletados.diagnostico).toBe('Angina estável');
+    expect(resultado.texto_resposta).not.toMatch(/null|undefined/i);
+    expect(resultado.texto_resposta).toContain('- diagnostico: Angina estável');
+  });
+
   it('sessão nova de verdade (sessao.nova === true): registra evento caso_iniciado com o interlocutor', async () => {
     const sessao = { id: 's-nova', agente_atual: null, status: 'PENDENTE', dados_coletados: {}, dados_pendentes: [], nova: true };
 
