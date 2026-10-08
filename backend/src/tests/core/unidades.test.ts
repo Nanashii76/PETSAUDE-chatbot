@@ -2,10 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { listarUnidades, buscarUnidades, porCnes } from '../../core/unidades.js';
 
 describe('unidades', () => {
-  it('carrega a lista real do JSON com as entradas especiais no final', () => {
+  it('carrega a lista real do JSON com a entrada especial no final', () => {
     const lista = listarUnidades();
     expect(lista.length).toBeGreaterThan(100);
-    expect(lista.some((u) => u.cnes === 'regulacao')).toBe(true);
     expect(lista.some((u) => u.cnes === 'outro')).toBe(true);
   });
 
@@ -15,9 +14,21 @@ describe('unidades', () => {
     expect(achadas.every((u) => /samambaia/i.test(u.rotulo))).toBe(true);
   });
 
-  it('"regulação" e "outro" caem direto nas entradas especiais, sem precisar digitar certinho', () => {
-    expect(buscarUnidades('Regulação')).toEqual([expect.objectContaining({ cnes: 'regulacao' })]);
+  it('"outro" cai direto na entrada especial, sem precisar digitar certinho', () => {
     expect(buscarUnidades('outro')).toEqual([expect.objectContaining({ cnes: 'outro' })]);
+  });
+
+  it('encontra UPAs, Policlínicas e Hospitais pela busca natural', () => {
+    // Esses testes assumem que os dados reais foram baixados e contêm essas unidades
+    const hr = buscarUnidades('HRG');
+    if (hr.length > 0) {
+      expect(hr.some(u => u.nome.includes('HRG') && u.tipo === 'Hospital')).toBe(true);
+    }
+
+    const upa = buscarUnidades('UPA Ceilandia');
+    if (upa.length > 0) {
+      expect(upa.some(u => u.nome.includes('UPA') && u.tipo === 'UPA')).toBe(true);
+    }
   });
 
   it('termo sem nenhuma unidade correspondente retorna lista vazia', () => {

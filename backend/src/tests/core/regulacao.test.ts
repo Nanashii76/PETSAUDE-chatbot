@@ -174,7 +174,7 @@ describe('processarMensagemRegulacao', () => {
     const sessao = { id: 's8', dados_coletados: {} };
     chamarLLMComCascataMock
       .mockResolvedValueOnce(respostaLLM(JSON.stringify({ tipo: 'pedido', especialidade: 'endocrinologia', resposta: '' })))
-      .mockResolvedValueOnce(respostaLLM('{"": ""}'));
+      .mockResolvedValueOnce(respostaLLM('{ json invalido '));
 
     const resultado = await processarMensagemRegulacao(sessao, 'Paciente com nódulo de tireoide...');
 
