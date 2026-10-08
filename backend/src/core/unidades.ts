@@ -10,12 +10,11 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ARQUIVO = path.join(__dirname, '..', 'dados', 'unidades_saude.json');
 
-export type Unidade = { cnes: string; nome: string; ra: string | null; regiao: string | null; rotulo: string };
+export type Unidade = { cnes: string; nome: string; ra: string | null; regiao: string | null; tipo: string; rotulo: string };
 
-// Quem não atua numa UBS também usa o sistema (regulação, ensino, outros serviços).
+// Quem não encontra sua unidade na lista, como profissionais de ensino ou outros serviços.
 const ESPECIAIS: Record<string, Omit<Unidade, 'rotulo'>> = {
-  regulacao: { cnes: 'regulacao', nome: 'Regulação (não atuo em UBS)', ra: null, regiao: null },
-  outro: { cnes: 'outro', nome: 'Outro serviço ou ensino', ra: null, regiao: null },
+  outro: { cnes: 'outro', nome: 'Outro serviço ou ensino', ra: null, regiao: null, tipo: 'Outro' },
 };
 
 function semAcento(texto: string): string {
@@ -61,10 +60,6 @@ export function buscarUnidades(texto: string): Unidade[] {
   if (termos.length === 0) return [];
 
   const chave = texto.trim().toLowerCase();
-  if (chave.includes('regula')) {
-    const r = ESPECIAIS.regulacao;
-    return [{ ...r, rotulo: r.nome }];
-  }
   if (['outro', 'outra', 'ensino', 'outro servico', 'outro serviço'].includes(chave)) {
     const o = ESPECIAIS.outro;
     return [{ ...o, rotulo: o.nome }];
