@@ -7,8 +7,10 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "build": "tsc && node -e \"require('fs').cpSync('src/dados','dist/dados',{recursive:true})\"",
-    "start": "node dist/server.js"
+    "build": "tsc && node -e \"require('fs').cpSync('src/dados','dist/dados',{recursive:true})\" && node -e \"require('fs').cpSync('src/database/migrations','dist/database/migrations',{recursive:true})\"",
+    "start": "node dist/server.js",
+    "db:migrate": "tsx src/scripts/migrate.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "keywords": [],
   "author": "",

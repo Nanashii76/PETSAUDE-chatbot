@@ -1,6 +1,8 @@
 # Banco de Dados
 
-PostgreSQL no Supabase, acessado via `pg.Pool` direto (sem ORM) em `backend/src/services/database.ts`.
+A infraestrutura Docker e a nova modelagem estão detalhadas no arquivo `docs/postgresql.md` do repositório. O deploy existente permanece no Supabase até o corte operacional.
+
+PostgreSQL, acessado via `pg.Pool` direto (sem ORM) em `backend/src/services/database.ts`.
 Quatro tabelas, definidas em `backend/src/database/init.sql`:
 
 ```mermaid

@@ -1,0 +1,72 @@
+name: petsaude
+x-database-environment: &database-environment
+  PGHOST: postgres
+  PGPORT: 5432
+  PGDATABASE: petsaude
+  PGUSER: petsaude
+  PGPASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.2-pg16-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: petsaude
+      POSTGRES_USER: petsaude
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U petsaude -d petsaude"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    # Sem publicação da porta 5432 no host.
+  migrate:
+    build: ./backend
+    environment:
+      <<: *database-environment
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Defina APP_DB_PASSWORD no .env}
+      DB_BASELINE_EXISTING: ${DB_BASELINE_EXISTING:-false}
+    command: ["node", "dist/scripts/migrate.js"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      <<: *database-environment
+      PGUSER: petsaude_app
+      PGPASSWORD: ${APP_DB_PASSWORD:?Defina APP_DB_PASSWORD no .env}
+      PORT: 3000
+      DB_POOL_MAX: ${DB_POOL_MAX:-10}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      EVOLUTION_API_URL: ${EVOLUTION_API_URL:-}
+      EVOLUTION_API_KEY: ${EVOLUTION_API_KEY:-}
+      EVOLUTION_INSTANCE: ${EVOLUTION_INSTANCE:-}
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-3000}:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  backup:
+    image: pgvector/pgvector:0.8.2-pg16-bookworm
+    restart: unless-stopped
+    environment:
+      <<: *database-environment
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
+    entrypoint: ["/bin/sh", "-c", "while true; do /bin/sh /ops/backup.sh || exit 1; sleep 86400; done"]
+    volumes:
+      - ./ops:/ops:ro
+      - ./backups:/backups
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+volumes:
+  postgres_data:
