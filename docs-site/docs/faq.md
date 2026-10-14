@@ -4,7 +4,7 @@
 Nós evoluímos a arquitetura. O n8n foi um excelente MVP (Produto Mínimo Viável) para validar os
 fluxos e a lógica de múltiplos agentes. No entanto, para escalar com mais controle de estado,
 latência reduzida e tratamento rigoroso de JSON, migramos todo o fluxo para um backend Node.js
-(TypeScript) no Render. Todo o histórico do n8n foi preservado na aba
+(TypeScript), com infraestrutura Docker implementada para a migração. Todo o histórico do n8n foi preservado na aba
 [Histórico Legado](/legado-n8n/index).
 
 ### Quais modelos o OpenRouter utiliza?
@@ -19,14 +19,27 @@ OpenAI. Veja o detalhamento completo em [RAG vetorial](/rag).
 
 ### Como as chaves de API estão protegidas?
 O frontend (React SPA) **nunca** possui as chaves de API. Toda requisição é enviada ao webhook do
-backend, que lê as chaves de variáveis de ambiente (`.env`) no Render: `DATABASE_URL`,
+backend, que lê as chaves de variáveis de ambiente: conexão PostgreSQL (`DATABASE_URL` ou `PG*`),
 `OPENROUTER_API_KEY`, `GEMINI_API_KEY`, e as credenciais da Evolution API para o canal WhatsApp.
 
 ### O RAG é lento?
-Não. A busca vetorial é otimizada pela extensão `pgvector` e índice `hnsw` no PostgreSQL
-(Supabase), permitindo encontrar os trechos corretos em milissegundos antes de invocar o LLM.
+A busca usa pgvector e HNSW com filtro por especialidade. A latência depende do corpus,
+do host e da chamada ao Gemini; deve ser medida no ambiente de destino.
 
 ### O sistema tem testes automatizados?
-Sim — 27 testes via Vitest cobrindo a lógica pura (chunking, parsing de webhook, cascata de
-fallback, orquestrador), mais um checklist manual para os fluxos que dependem do LLM/RAG de
-verdade. Veja [Testes](/testes).
+Sim. A migração foi validada com 93 testes unitários e 8 testes de integração em banco
+real. Os fluxos com LLM também têm checklist manual. Veja [Testes](/testes).
+
+
+### O Supabase já foi desligado?
+A documentação descreve a implementação PostgreSQL em Docker; não confirma um corte
+operacional. Preservar os dados e validar o destino antes de trocar o tráfego.
+Veja [Migração e backup](/migracao-postgresql).
+
+### Preciso gerar todos os embeddings novamente?
+Não, se `documentos_rag` for incluída no dump/restore e o modelo de embeddings for
+mantido. A reingestão é manual, apaga a base atual e consome a API do Gemini.
+
+### Onde estão as tabelas e seus relacionamentos?
+No [dicionário de dados](/banco-de-dados), com as seis tabelas da aplicação,
+`schema_migrations`, tipos, nulabilidade, chaves e índices.

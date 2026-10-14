@@ -1,27 +1,73 @@
 # Testes
 
-Duas camadas, com propósitos diferentes: testes automatizados para lógica pura, e um checklist
-manual para os fluxos que dependem do LLM/RAG de verdade.
+A validação da nova infraestrutura aprovou **93 testes unitários em 11 arquivos e
+8 testes de integração em PostgreSQL 16 com pgvector 0.8.2**, além do build TypeScript.
+Esses números registram a validação da implementação, não uma contagem atualizada automaticamente.
 
-## Automatizados — Vitest
+## Testes unitários
 
-27 testes em 5 suítes, em `backend/src/tests/`:
+Cobrem chunking, dados coletados, encaminhamentos, regulação, unidades, painel,
+orquestrador, Evolution, OpenRouter, RAG e configuração/acesso ao banco. Nos testes
+unitários, chamadas externas e acesso ao banco são substituídos por mocks.
 
-| Suíte | Cobre |
-|---|---|
-| `tests/core/chunking.test.ts` | Divisão em chunks — inclui regressão do bug de cabeçalhos "soltos" (Micoses/Prurido) |
-| `tests/core/orchestrator.test.ts` | Máquina de estados — inclui regressão do especialista devolvendo texto não-JSON |
-| `tests/services/evolution.test.ts` | Parsing do webhook do WhatsApp (eco, mídia, payload malformado) |
-| `tests/services/openrouter.test.ts` | Cascata de fallback — inclui regressão de "todos os modelos falham" |
-| `tests/services/rag.test.ts` | Busca vetorial com embeddings e Postgres mockados |
-
-Nenhum teste automatizado bate em API real (Gemini/OpenRouter/Postgres) — toda fronteira de rede é
-mockada com `vi.mock`. Rodar com:
-
-```bash
+```sh
 cd backend
+npm ci
+npm run build
 npm test
 ```
+
+Usar Node 22.12 ou superior compatível com as dependências; Docker e CI usam Node 22.
+`npm test` exclui `dist` e a pasta de integração. A suíte de banco verifica limites
+do pool, rejeição de configuração inválida, checksum, rollback/liberação de conexão
+e preservação de zero na contagem de tokens.
+
+## Integração real com PostgreSQL
+
+Na raiz do repositório da branch de implementação:
+
+```sh
+docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from tests
+docker compose -f docker-compose.test.yml down -v
+```
+
+Este Compose usa um projeto separado, banco `petsaude_test` e armazenamento tmpfs.
+Executa unitários e integração, sem chamadas ao Gemini ou OpenRouter.
+
+| Cenário | Verificação |
+|---|---|
+| Bootstrap | Reexecução, migradores concorrentes e detecção de checksum alterado |
+| Concorrência | 20 chamadas criam uma identidade e uma sessão, com um marcador `nova` |
+| Canais | Mesmo identificador em web/WhatsApp não compartilha sessão ou perfil no painel |
+| Perfil tardio | Sessão existente recebe o vínculo do perfil cadastrado posteriormente |
+| Integridade | Histórico, estados, tokens negativos, FK órfã, trigger e exclusões |
+| RAG | Vetor 768d, filtro, limite, similaridade e checklist |
+| Privilégios | Conta da API não altera schema, documentos RAG ou ledger |
+| Migração legada | Adoção explícita, rollback em duplicatas e preservação dos embeddings |
+
+Execução contra banco externo dedicado:
+
+```sh
+cd backend
+TEST_DATABASE_URL=postgres://usuario:senha@localhost:5432/petsaude_test npm run test:integration
+```
+
+::: danger Banco descartável obrigatório
+A suíte recria o schema `public`. Exige nome de banco terminado em `_test`, mas o
+operador ainda deve conferir a conexão e usar exclusivamente dados descartáveis.
+:::
+
+## Validação operacional
+
+O Compose completo foi iniciado em ambiente isolado. `/health` respondeu, a conta
+restrita gravou uma sessão e mensagem sintéticas, e um dump produzido por
+`ops/backup.sh` foi restaurado em outro banco, confirmando a mensagem.
+Isso não substitui o ensaio com uma cópia dos dados de produção, comparação de
+contagens e testes de consulta descritos em [Migração e backup](/migracao-postgresql).
+
+O workflow `backend-ci.yml` da branch de implementação executa build, unitários,
+smoke HTTP e integração Docker. Publicar somente os documentos na `main` não leva
+esse código junto; a integração da implementação segue revisão própria.
 
 ## Manual — `backend/TESTING.md`
 
