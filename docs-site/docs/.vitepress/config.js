@@ -31,6 +31,7 @@ export default withMermaid(defineConfig({
             { text: 'Integrações (WhatsApp e Frontend)', link: '/integracoes' },
             { text: 'Testes', link: '/testes' },
             { text: 'Infraestrutura', link: '/infraestrutura' },
+            { text: 'Migração e Backup PostgreSQL', link: '/migracao-postgresql' },
             { text: 'Histórico de Incidentes', link: '/incidentes' },
             { text: 'Manutenção Futura', link: '/manutencao' },
             { text: 'FAQ', link: '/faq' },

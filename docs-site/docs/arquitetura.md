@@ -19,15 +19,17 @@ inteira no prompt" por um [RAG vetorial de verdade](/rag).
 ## Visão geral da arquitetura
 
 Dois canais de entrada (chat web e WhatsApp) convergem no mesmo backend Express, que orquestra
-três dependências externas — todas no tier gratuito: o LLM de conversação ([OpenRouter](/modelos-ia)),
-o modelo de embeddings ([Gemini](/rag)) e o banco vetorial (Postgres/pgvector no Supabase).
+o LLM de conversação ([OpenRouter](/modelos-ia)) e o modelo de embeddings
+([Gemini](/rag)). Na infraestrutura implementada, PostgreSQL com pgvector roda em
+Docker no mesmo host do backend. O corte do ambiente anterior é separado da
+publicação desta documentação; veja [Migração e backup](/migracao-postgresql).
 
 ```mermaid
 flowchart LR
   FE["Frontend<br/>React + Vite"] -->|"POST /api/webhook"| WH
   WA["WhatsApp"] -->|"Evolution API"| WHE
 
-  subgraph BACKEND["Backend · Express (Render free)"]
+  subgraph BACKEND["Backend · Express (Docker)"]
     WH["webhook.ts"]
     WHE["webhook.ts /evolution"]
     ORC["orchestrator.ts"]
@@ -45,28 +47,28 @@ flowchart LR
 
   OR -->|"chat completion"| ORT[["OpenRouter<br/>modelos :free"]]
   EMB -->|"embedContent"| GEM[["Gemini<br/>gemini-embedding-001"]]
-  DBS --> PG[("PostgreSQL + pgvector<br/>(Supabase free)")]
+  DBS --> PG[("PostgreSQL 16 + pgvector<br/>(Docker)")]
   RAG --> PG
   WHE -->|"sendText"| EVO[["Evolution API<br/>(WhatsApp)"]]
 ```
 
-Cada seta para fora do backend é uma dependência de rede gratuita — e, como o
-[histórico de incidentes](/incidentes) mostra, cada uma delas já quebrou o sistema ao menos uma vez.
+O banco é acessado pela rede interna do Compose. Os provedores de IA e a integração
+WhatsApp continuam sendo dependências externas.
 
 ## Stack tecnológica
 
 | Camada | Tecnologia | Observação |
 |---|---|---|
-| Backend | Node.js + TypeScript 7 (ESM, `NodeNext`) | TS 7 usa o novo compilador nativo (Go); exige o pacote de binário da plataforma |
+| Backend | Node.js 22 + TypeScript 7 (ESM, `NodeNext`) | TS 7 usa o novo compilador nativo (Go); exige o pacote de binário da plataforma |
 | Servidor HTTP | Express 5 | Sem middleware de autenticação/rate-limit nas rotas hoje |
-| Acesso a dados | `pg` (driver cru) | Sem ORM — SQL parametrizado direto, pool único em `database.ts` |
-| Banco | PostgreSQL + `pgvector` (Supabase) | Índice HNSW, distância de cosseno |
+| Acesso a dados | `pg` (driver cru) | Sem ORM — SQL parametrizado direto, pool compartilhado em `services/pool.ts` |
+| Banco | PostgreSQL 16 + `pgvector` 0.8.2 (Docker) | Índice HNSW, distância de cosseno |
 | LLM de conversação | OpenRouter, cascata de 4 modelos `:free` | Ver [Modelos de IA](/modelos-ia) |
 | Embeddings | Gemini `gemini-embedding-001` (768d) | Chamado via `fetch` puro, sem SDK |
 | WhatsApp | Evolution API (self-hosted) | Webhook `messages.upsert` + envio assíncrono |
 | Frontend | React 19 + Vite 7 + `react-markdown` | SPA de página única, sem roteamento |
-| Testes | Vitest 5 | 27 testes, mockando toda chamada de rede/DB |
-| Deploy | Render (backend, free) + GitHub Pages (docs) | Sem Docker, sem CI de código |
+| Testes | Vitest 5 | 93 testes unitários + 8 de integração com PostgreSQL real na validação da migração |
+| Deploy | Docker Compose (backend/banco) + GitHub Pages (docs) | CI de build, testes unitários e integração |
 
 ## Estrutura de diretórios
 
@@ -85,17 +87,21 @@ src/
 │   ├── openrouter.ts       # cascata de modelos de chat
 │   ├── embeddings.ts       # embeddings via Gemini
 │   ├── rag.ts              # busca vetorial (match_documentos)
-│   ├── database.ts         # sessões, mensagens, encaminhamentos
+│   ├── pool.ts             # pool compartilhado e limites de conexão
+│   ├── database.ts         # sessões, mensagens, perfis, eventos e encaminhamentos
 │   └── evolution.ts        # integração WhatsApp
 ├── database/
-│   ├── init.sql              # schema completo (setup do zero)
-│   ├── migration_rag.sql     # migração do schema fragmentado antigo
-│   └── functions_match.sql   # função match_documentos
+│   ├── migrations/          # 001_baseline.sql e 002_integridade_indices.sql
+│   ├── migrate.ts           # runner transacional com lock e checksum
+│   ├── poolConfig.ts        # limites e timeouts
+│   └── appRole.ts           # conta restrita da API
 ├── scripts/
+│   ├── migrate.ts             # entrada CLI para migrações
 │   └── ingestDocumentosRag.ts  # popula a base vetorial (manual)
 └── tests/
     ├── core/       # chunking, orchestrator
-    └── services/   # evolution, openrouter, rag
+    ├── services/   # serviços e configuração de banco
+    └── integration/ # PostgreSQL e pgvector reais
 ```
 
 ## Fluxo de uma mensagem
@@ -115,7 +121,8 @@ sequenceDiagram
   participant LLM as openrouter.ts
 
   Prof->>WH: mensagem
-  WH->>DB: buscarOuCriarSessao(profissionalId)
+  WH->>DB: buscarOuCriarInterlocutor(canal, profissionalId)
+  WH->>DB: buscarOuCriarSessao(profissionalId, canal)
   WH->>DB: salvarMensagem(profissional)
   WH->>OR: processarMensagemLLM(sessao, mensagem)
 
@@ -126,7 +133,7 @@ sequenceDiagram
   end
 
   OR->>RAG: buscarContexto(mensagem, especialidade)
-  RAG-->>OR: 4 trechos relevantes + fontes
+  RAG-->>OR: até 3 trechos + fontes + campos mínimos
 
   OR->>LLM: chamarLLMComCascata(prompt especialista + contexto)
   LLM-->>OR: JSON {status, texto_resposta, dados...}
@@ -142,7 +149,7 @@ direto ao especialista.
 
 ::: warning Sessões e reaproveitamento
 Uma sessão só é reaproveitada enquanto `status = 'PENDENTE'`. Assim que um caso fecha
-(`FINALIZADO` ou `NAO_ELEGIVEL`), a próxima mensagem do mesmo profissional cria uma sessão nova
+(`FINALIZADO` ou `NAO_ELEGIVEL`), a próxima mensagem da mesma identidade e canal cria uma sessão nova
 automaticamente e passa pelo roteador de novo.
 :::
 
@@ -155,8 +162,8 @@ dividida em 5 passos dentro de `processarMensagemLLM`:
    LLM com `PROMPT_ROTEADOR`, que classifica a mensagem em `cardiologia`, `dermatologia`,
    `endocrinologia` ou `duvidas_gerais` — e nada mais. Esse agente não conversa com o usuário, só
    devolve `{"intencao": "..."}`.
-2. **Montagem do histórico** — busca as mensagens anteriores da sessão (`buscarHistoricoSessao`) e
-   as formata como histórico de chat (`role: 'user' | 'assistant'`).
+2. **Estado da sessão** — utiliza os dados coletados e os marcadores do fluxo salvos na
+   sessão. As mensagens ficam armazenadas para auditoria e revisão do relato.
 3. **Seleção do especialista** — um `switch` simples troca o system prompt (`PROMPT_CARDIOLOGIA`,
    `PROMPT_DERMATOLOGIA`, `PROMPT_ENDOCRINOLOGIA` ou `PROMPT_GERAL`). Cada prompt segue o mesmo
    template: papel, siglas oficiais, regras de diálogo ("uma pergunta por vez"), regra de
@@ -170,3 +177,7 @@ dividida em 5 passos dentro de `processarMensagemLLM`:
    — cai num fallback amigável em vez de propagar o erro: *"Houve uma falha na estruturação
    clínica. Poderia repetir a última informação, por favor?"*, mantendo `status: PENDENTE` e
    preservando os dados já coletados.
+
+O estado `ABANDONADA` encerra uma triagem descartada pelo profissional. A unicidade
+da sessão pendente é garantida por canal e identificador no banco; veja
+[Banco de Dados](/banco-de-dados).
