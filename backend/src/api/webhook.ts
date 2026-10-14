@@ -19,10 +19,10 @@ const router = Router();
  */
 async function processarEAuditar(canal: 'web' | 'whatsapp', remetenteId: string, mensagem: string) {
   // 2. Gerenciamento de Estado
-  const sessao = await buscarOuCriarSessao(remetenteId);
   // Resolve o interlocutor para anexar aos eventos do painel (fase 3) — no canal web, a tela de
   // identificação já deve ter criado esse registro antes da 1ª mensagem; a busca aqui só confirma.
   const interlocutor = await buscarOuCriarInterlocutor(canal, remetenteId);
+  const sessao = await buscarOuCriarSessao(remetenteId, canal);
 
   // 3. Auditoria: Salva a mensagem recebida no PostgreSQL
   await salvarMensagem(sessao.id, 'profissional', mensagem);

@@ -1,38 +1,44 @@
-import { Pool } from 'pg';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-// console.log('DB URL:', process.env.DATABASE_URL);
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+import { pool } from './pool.js';
 
 // ==========================================
 // 1. GERENCIAMENTO DE SESSÕES
 // ==========================================
 
-export async function buscarOuCriarSessao(profissionalId: string) {
+export async function buscarOuCriarSessao(profissionalId: string, canal: 'web' | 'whatsapp' = 'web') {
   const client = await pool.connect();
   try {
-    // Tenta encontrar uma sessão ativa (PENDENTE)
-    const result = await client.query(
-      `SELECT * FROM sessoes WHERE profissional_id = $1 AND status = 'PENDENTE' LIMIT 1`,
-      [profissionalId]
+    await client.query('BEGIN');
+    // Serializa apenas a criação/encerramento da mesma identidade. O índice único é a
+    // garantia final, inclusive para escritores externos ao backend.
+    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [JSON.stringify([canal, profissionalId])]);
+    const existing = await client.query(
+      `SELECT * FROM sessoes WHERE canal = $1 AND profissional_id = $2 AND status = 'PENDENTE'`,
+      [canal, profissionalId]
     );
-
-    if (result.rows.length > 0) {
-      return result.rows[0];
+    if (existing.rowCount) {
+      let sessao = existing.rows[0];
+      // Um perfil pode ter sido cadastrado depois da sessão histórica.
+      if (!sessao.interlocutor_id) {
+        const linked = await client.query(
+          `UPDATE sessoes s SET interlocutor_id = i.id FROM interlocutores i
+           WHERE s.id = $1 AND i.canal = s.canal AND i.identificador = s.profissional_id
+           RETURNING s.*`, [sessao.id]
+        );
+        sessao = linked.rows[0] ?? sessao;
+      }
+      await client.query('COMMIT');
+      return sessao;
     }
-
-    // Se não achar, cria uma nova — marcada com "nova: true" (campo só em memória, não vai pro
-    // banco) pro orquestrador saber que é a 1ª mensagem do caso e registrar o evento caso_iniciado.
-    const insertResult = await client.query(
-      `INSERT INTO sessoes (profissional_id) VALUES ($1) RETURNING *`,
-      [profissionalId]
+    const result = await client.query(
+      `INSERT INTO sessoes (profissional_id, canal, interlocutor_id)
+       VALUES ($1::varchar, $2::varchar, (SELECT id FROM interlocutores WHERE canal = $2 AND identificador = $1)) RETURNING *`,
+      [profissionalId, canal]
     );
-    return { ...insertResult.rows[0], nova: true };
+    await client.query('COMMIT');
+    return { ...result.rows[0], nova: true };
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
   } finally {
     client.release();
   }
@@ -43,25 +49,30 @@ export async function buscarOuCriarSessao(profissionalId: string) {
 // na próxima mensagem — buscarOuCriarSessao só abre uma sessão nova quando não encontra nenhuma
 // PENDENTE. "ABANDONADA" é só mais um status terminal (como FINALIZADO/NAO_ELEGIVEL): não gera
 // evento nem encaminhamento, porque nada foi de fato produzido nessa sessão.
-export async function encerrarSessaoAtiva(profissionalId: string): Promise<boolean> {
+export async function encerrarSessaoAtiva(profissionalId: string, canal: 'web' | 'whatsapp' = 'web'): Promise<boolean> {
   const client = await pool.connect();
   try {
+    await client.query('BEGIN');
+    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [JSON.stringify([canal, profissionalId])]);
     const result = await client.query(
-      `UPDATE sessoes SET status = 'ABANDONADA', atualizado_em = CURRENT_TIMESTAMP
-       WHERE profissional_id = $1 AND status = 'PENDENTE'
-       RETURNING id`,
-      [profissionalId]
+      `UPDATE sessoes SET status = 'ABANDONADA'
+       WHERE profissional_id = $1 AND canal = $2 AND status = 'PENDENTE' RETURNING id`,
+      [profissionalId, canal]
     );
+    await client.query('COMMIT');
     return (result.rowCount ?? 0) > 0;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
   } finally {
     client.release();
   }
 }
 
 export async function atualizarSessao(
-  sessaoId: string, 
-  status: string, 
-  dadosColetados: object, 
+  sessaoId: string,
+  status: string,
+  dadosColetados: object,
   dadosPendentes: string[],
   agenteAtual: string // <-- Seu parâmetro está certinho aqui
 ) {
@@ -69,18 +80,18 @@ export async function atualizarSessao(
   try {
     const result = await client.query(
       // Adicionamos o "agente_atual = $5" na instrução SQL
-      `UPDATE sessoes 
-       SET status = $1, 
-           dados_coletados = $2, 
-           dados_pendentes = $3, 
+      `UPDATE sessoes
+       SET status = $1,
+           dados_coletados = $2,
+           dados_pendentes = $3,
            agente_atual = $5,
            atualizado_em = CURRENT_TIMESTAMP
        WHERE id = $4 RETURNING *`,
       [
-        status, 
-        JSON.stringify(dadosColetados), 
-        JSON.stringify(dadosPendentes), 
-        sessaoId, 
+        status,
+        JSON.stringify(dadosColetados),
+        JSON.stringify(dadosPendentes),
+        sessaoId,
         agenteAtual // <-- Repassando a variável para a posição $5 do SQL
       ]
     );
@@ -106,16 +117,16 @@ export async function salvarMensagem(
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `INSERT INTO mensagens 
-       (sessao_id, remetente, conteudo, modelo_usado, tokens_prompt, tokens_resposta, fontes_rag) 
+      `INSERT INTO mensagens
+       (sessao_id, remetente, conteudo, modelo_usado, tokens_prompt, tokens_resposta, fontes_rag)
        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
       [
-        sessaoId, 
-        remetente, 
-        conteudo, 
-        modeloUsado || null, 
-        tokensPrompt || null, 
-        tokensResposta || null, 
+        sessaoId,
+        remetente,
+        conteudo,
+        modeloUsado || null,
+        tokensPrompt ?? null,
+        tokensResposta ?? null,
         fontesRag ? JSON.stringify(fontesRag) : null
       ]
     );
@@ -158,15 +169,10 @@ export async function salvarEncaminhamento(
 export async function buscarOuCriarInterlocutor(canal: 'web' | 'whatsapp', identificador: string) {
   const client = await pool.connect();
   try {
-    const existente = await client.query(
-      `SELECT * FROM interlocutores WHERE canal = $1 AND identificador = $2 LIMIT 1`,
-      [canal, identificador]
-    );
-    if (existente.rows.length > 0) {
-      return existente.rows[0];
-    }
     const criado = await client.query(
-      `INSERT INTO interlocutores (canal, identificador) VALUES ($1, $2) RETURNING *`,
+      `INSERT INTO interlocutores (canal, identificador) VALUES ($1, $2)
+       ON CONFLICT (canal, identificador) DO UPDATE SET identificador = EXCLUDED.identificador
+       RETURNING *`,
       [canal, identificador]
     );
     return criado.rows[0];
@@ -279,9 +285,9 @@ export async function buscarEncaminhamentosRecentes(
               i.unidade_cnes, i.nome AS profissional_nome
        FROM encaminhamentos e
        JOIN sessoes s ON s.id = e.sessao_id
-       LEFT JOIN interlocutores i ON i.identificador = s.profissional_id
+       LEFT JOIN interlocutores i ON i.id = s.interlocutor_id
        ${condicaoPeriodo}
-       ORDER BY e.criado_em DESC
+       ORDER BY e.criado_em DESC, e.id DESC
        LIMIT $1`,
       params
     );
@@ -325,7 +331,7 @@ export async function buscarMensagensProfissional(sessaoId: string): Promise<str
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `SELECT conteudo FROM mensagens WHERE sessao_id = $1 AND remetente = 'profissional' ORDER BY criado_em ASC`,
+      `SELECT conteudo FROM mensagens WHERE sessao_id = $1 AND remetente = 'profissional' ORDER BY criado_em ASC, id ASC`,
       [sessaoId]
     );
     return result.rows.map((r) => r.conteudo).join('\n\n');

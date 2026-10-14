@@ -9,11 +9,7 @@ vi.mock('../../services/embeddings.js', () => ({
   gerarEmbedding: gerarEmbeddingMock,
 }));
 
-vi.mock('pg', () => ({
-  Pool: vi.fn().mockImplementation(function PoolMock() {
-    return { query: queryMock };
-  }),
-}));
+vi.mock('../../services/pool.js', () => ({ pool: { query: queryMock } }));
 
 const { buscarContexto } = await import('../../services/rag.js');
 
