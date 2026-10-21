@@ -5,6 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "tsx watch src/server.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "build": "tsc && node -e \"require('fs').cpSync('src/dados','dist/dados',{recursive:true})\"",
