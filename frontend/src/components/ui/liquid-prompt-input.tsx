@@ -6,10 +6,12 @@ import {
   IconPlayerStop,
   IconX,
   IconLoader2,
+  IconPaperclip,
 } from "@tabler/icons-react"
 
 import { cn } from "@/lib/utils"
 import { useAudioRecorder } from "@/lib/useAudioRecorder"
+import { useDocumentUpload } from "@/lib/useDocumentUpload"
 
 export interface LiquidPromptInputProps {
   /** Texto atual do campo (controlado pelo componente pai) */
@@ -107,9 +109,42 @@ export function LiquidPromptInput({
     onTranscriptionSuccess: handleTranscriptionSuccess,
   })
 
+  const handleDocumentExtractionSuccess = React.useCallback(
+    (texto: string, nomeArquivo: string, truncado: boolean) => {
+      const aviso = truncado ? ' (texto longo — só o início foi aproveitado)' : ''
+      const bloco = `[Conteúdo extraído do documento anexado "${nomeArquivo}"${aviso}]:\n${texto}`
+      const textoFinal = value.trim() ? `${value.trim()}\n\n${bloco}` : bloco
+      onValueChange(textoFinal)
+
+      setTimeout(() => {
+        if (taRef.current) {
+          taRef.current.focus()
+          taRef.current.setSelectionRange(textoFinal.length, textoFinal.length)
+        }
+      }, 50)
+    },
+    [onValueChange, taRef, value]
+  )
+
+  const {
+    state: docState,
+    errorMessage: docErrorMessage,
+    pickFile,
+    clearError: clearDocError,
+    inputProps: docInputProps,
+  } = useDocumentUpload({
+    apiBaseUrl,
+    onExtractionSuccess: handleDocumentExtractionSuccess,
+  })
+
+  const isGravando = audioState === "recording"
+  const isTranscrevendo = audioState === "transcribing"
+  const isExtraindoDoc = docState === "uploading"
+  const ocupado = isGravando || isTranscrevendo || isExtraindoDoc
+
   function submit() {
     const texto = value.trim()
-    if (!texto || disabled || audioState === "recording" || audioState === "transcribing") return
+    if (!texto || disabled || ocupado) return
     onSubmit(texto)
   }
 
@@ -120,10 +155,9 @@ export function LiquidPromptInput({
     }
   }
 
-  const podeEnviar =
-    value.trim().length > 0 && !disabled && audioState === "idle"
-  const isGravando = audioState === "recording"
-  const isTranscrevendo = audioState === "transcribing"
+  const podeEnviar = value.trim().length > 0 && !disabled && !ocupado
+  const erroExibido = errorMessage || docErrorMessage
+  const fecharErro = errorMessage ? clearError : clearDocError
 
   return (
     <div className={cn("w-full", className)}>
@@ -146,12 +180,12 @@ export function LiquidPromptInput({
         />
 
         {/* Notificação/Alerta de erro com botão de fechar */}
-        {errorMessage && (
+        {erroExibido && (
           <div className="relative z-20 mb-1 flex items-center justify-between rounded-md border border-line bg-surface-2/90 px-3 py-1.5 text-xs text-ink">
-            <span className="truncate pr-2">{errorMessage}</span>
+            <span className="truncate pr-2">{erroExibido}</span>
             <button
               type="button"
-              onClick={clearError}
+              onClick={fecharErro}
               className="text-ink-muted hover:text-ink focus:outline-none"
               aria-label="Fechar aviso de erro"
             >
@@ -159,6 +193,9 @@ export function LiquidPromptInput({
             </button>
           </div>
         )}
+
+        {/* Input de arquivo oculto — acionado pelo botão de anexo abaixo */}
+        <input {...docInputProps} />
 
         {/* Textarea de edição de texto */}
         <div className="relative z-20 w-full min-w-0">
@@ -172,10 +209,12 @@ export function LiquidPromptInput({
                 ? "Gravando áudio... O texto transcrito entrará aqui como rascunho."
                 : isTranscrevendo
                 ? "Transcrevendo áudio via Whisper..."
+                : isExtraindoDoc
+                ? "Lendo o documento anexado..."
                 : placeholder
             }
             aria-label={ariaLabel}
-            disabled={disabled || isTranscrevendo}
+            disabled={disabled || isTranscrevendo || isExtraindoDoc}
             rows={1}
             className={cn(
               "w-full resize-none bg-transparent px-2 py-1.5 text-[0.9375rem] leading-relaxed",
@@ -269,10 +308,16 @@ export function LiquidPromptInput({
               <IconLoader2 size={16} className="animate-spin" />
               <span>Transcrevendo áudio com Whisper...</span>
             </div>
+          ) : isExtraindoDoc ? (
+            /* Estado de extração de documento ativa */
+            <div className="flex w-full items-center justify-center gap-2 py-1.5 text-xs text-azure">
+              <IconLoader2 size={16} className="animate-spin" />
+              <span>Lendo o documento anexado...</span>
+            </div>
           ) : (
             /* Estado padrão (repouso) */
             <>
-              {/* Botão Microfone no canto esquerdo */}
+              {/* Botões de Microfone e Anexar documento no canto esquerdo */}
               <div className="flex items-center gap-1">
                 <button
                   type="button"
@@ -288,6 +333,21 @@ export function LiquidPromptInput({
                   )}
                 >
                   <IconMicrophone size={18} stroke={2} />
+                </button>
+                <button
+                  type="button"
+                  onClick={pickFile}
+                  disabled={disabled}
+                  aria-label="Anexar documento (PDF)"
+                  title="Anexar documento (PDF)"
+                  className={cn(
+                    "grid size-8 shrink-0 place-items-center rounded-full transition-colors duration-[120ms] ease-brand",
+                    "text-ink-muted hover:bg-surface-2 hover:text-azure",
+                    "disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-ink-muted",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure"
+                  )}
+                >
+                  <IconPaperclip size={18} stroke={2} />
                 </button>
               </div>
 

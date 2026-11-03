@@ -8,6 +8,7 @@ import regulacaoRoutes from './api/regulacao.js';
 import encaminhamentosRoutes from './api/encaminhamentos.js';
 import sessaoRoutes from './api/sessao.js';
 import audioRoutes from './api/audio.js';
+import documentoRoutes from './api/documento.js';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use('/api', regulacaoRoutes);
 app.use('/api', encaminhamentosRoutes);
 app.use('/api', sessaoRoutes);
 app.use('/api', audioRoutes);
+app.use('/api', documentoRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
