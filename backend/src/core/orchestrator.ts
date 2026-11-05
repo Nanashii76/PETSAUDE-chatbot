@@ -78,7 +78,12 @@ export async function processarMensagemLLM(sessao: any, mensagemUsuario: string,
     if (confirmou) {
       if (ESPECIALIDADES.includes(agenteAtual)) {
         await salvarEncaminhamento(sessao.id, agenteAtual, corFinalPendente, textoFinalPendente, dadosColetados, true);
-        await registrarEvento('texto_gerado', agenteAtual, sessao.id, interlocutorId, { cor_risco: corFinalPendente });
+        // A cor veio da NT (via RAG) ou da pergunta ao profissional quando a NT não define uma.
+        const origemCor = corFinalPendente ? (dadosColetados._cor_risco_perguntada ? 'manual' : 'rag') : null;
+        await registrarEvento('texto_gerado', agenteAtual, sessao.id, interlocutorId, {
+          cor_risco: corFinalPendente,
+          origem_cor: origemCor,
+        });
       }
       return {
         texto_resposta: textoFinalPendente,
@@ -148,6 +153,7 @@ Você é estritamente obrigado a utilizar estas informações para validar os cr
 ${notaTecnica}`;
   } else if (agenteAtual !== 'duvidas_gerais') {
     console.warn(`[Orquestrador] Nenhum trecho de Nota Técnica recuperado para o agente "${agenteAtual}".`);
+    await registrarEvento('rag_vazio', agenteAtual, sessao.id, interlocutorId);
   }
 
   if (camposMinimos.length > 0) {

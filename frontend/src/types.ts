@@ -40,6 +40,10 @@ export type LinhaEspecialidade = {
 
 export type LinhaLugar = { nome: string; casos: number }
 
+export type PontoSerie = { dia: string; casos: number; textos: number; naoElegiveis: number }
+
+export type LinhaModelo = { modelo: string; respostas: number; tokensPrompt: number; tokensResposta: number }
+
 export type DadosPainel = {
   periodo: string
   casos: number
@@ -50,6 +54,33 @@ export type DadosPainel = {
   especialidades: LinhaEspecialidade[]
   unidades: LinhaLugar[]
   regioes: LinhaLugar[]
+  serie: PontoSerie[]
+  uso: {
+    respostasLLM: number
+    respostasFallback: number
+    tokensPrompt: number
+    tokensResposta: number
+    tokensPorEncaminhamento: number | null
+    modelos: LinhaModelo[]
+  }
+  fluxo: {
+    minutosMedioAteFinalizar: number | null
+    turnosMedioPorCaso: number | null
+    emAndamento: number
+    abandonados: number
+  }
+  qualidade: {
+    coresPorOrigem: { rag: number; manual: number }
+    ragComNota: number
+    ragVazio: number
+  }
+  regulacao: {
+    pedidosAnalisados: number
+    devolucoes: number
+    consultas: number
+    pareceAtender: { sim: number; nao: number; indefinido: number }
+    camposFaltantes: { campo: string; vezes: number }[]
+  }
 }
 
 /** Mensagem do Modo Regulação — fluxo independente do chat de encaminhamento (sem bolha

@@ -206,8 +206,18 @@ export async function atualizarInterlocutor(
 // 5. EVENTOS DE USO (PARA O PAINEL — SEM TEXTO DE CASO)
 // ==========================================
 
+export type TipoEvento =
+  | 'caso_iniciado'
+  | 'texto_gerado'
+  | 'nao_elegivel'
+  | 'urgencia'
+  | 'rag_vazio'
+  | 'pedido_analisado'
+  | 'devolucao_redigida'
+  | 'consulta_criterio';
+
 export async function registrarEvento(
-  tipo: 'caso_iniciado' | 'texto_gerado' | 'nao_elegivel' | 'urgencia',
+  tipo: TipoEvento,
   especialidade: string | null,
   sessaoId: string | null,
   interlocutorId: string | null,
@@ -229,6 +239,7 @@ export async function registrarEvento(
 export type LinhaPainel = {
   tipo: string;
   especialidade: string | null;
+  sessao_id: string | null;
   dados: Record<string, any>;
   unidade_cnes: string | null;
   criado_em: Date;
@@ -242,12 +253,71 @@ export async function buscarEventosParaPainel(desde: Date | null): Promise<Linha
     const condicaoPeriodo = desde ? 'WHERE ev.criado_em >= $1' : '';
     const params = desde ? [desde] : [];
     const result = await client.query(
-      `SELECT ev.tipo, ev.especialidade, ev.dados, ev.criado_em, i.unidade_cnes
+      `SELECT ev.tipo, ev.especialidade, ev.sessao_id, ev.dados, ev.criado_em, i.unidade_cnes
        FROM eventos ev
        LEFT JOIN interlocutores i ON i.id = ev.interlocutor_id
        ${condicaoPeriodo}
        ORDER BY ev.criado_em ASC`,
       params
+    );
+    return result.rows;
+  } finally {
+    client.release();
+  }
+}
+
+export type LinhaTelemetriaModelo = {
+  modelo_usado: string | null;
+  respostas: number;
+  tokens_prompt: number;
+  tokens_resposta: number;
+  com_fontes_rag: number;
+};
+
+// Telemetria das respostas do bot agrupada por modelo — só contagens e somas, nunca o conteúdo.
+export async function buscarTelemetriaModelos(desde: Date | null): Promise<LinhaTelemetriaModelo[]> {
+  const client = await pool.connect();
+  try {
+    const condicaoPeriodo = desde ? 'AND criado_em >= $1' : '';
+    const params = desde ? [desde] : [];
+    const result = await client.query(
+      `SELECT modelo_usado,
+              COUNT(*)::int AS respostas,
+              COALESCE(SUM(tokens_prompt), 0)::int AS tokens_prompt,
+              COALESCE(SUM(tokens_resposta), 0)::int AS tokens_resposta,
+              COUNT(*) FILTER (WHERE fontes_rag IS NOT NULL)::int AS com_fontes_rag
+       FROM mensagens
+       WHERE remetente = 'bot' ${condicaoPeriodo}
+       GROUP BY modelo_usado`,
+      params
+    );
+    return result.rows;
+  } finally {
+    client.release();
+  }
+}
+
+export type LinhaSessaoPainel = {
+  sessao_id: string;
+  status: string;
+  atualizado_em: Date;
+  turnos: number;
+};
+
+// Situação atual e nº de mensagens do profissional de cada sessão que aparece nos eventos do
+// período — para tempo/atrito por caso e para separar "em andamento" de "abandonado".
+export async function buscarSessoesParaPainel(sessaoIds: string[]): Promise<LinhaSessaoPainel[]> {
+  if (sessaoIds.length === 0) return [];
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      `SELECT s.id AS sessao_id, s.status, s.atualizado_em,
+              COUNT(m.id) FILTER (WHERE m.remetente = 'profissional')::int AS turnos
+       FROM sessoes s
+       LEFT JOIN mensagens m ON m.sessao_id = s.id
+       WHERE s.id = ANY($1::uuid[])
+       GROUP BY s.id, s.status, s.atualizado_em`,
+      [sessaoIds]
     );
     return result.rows;
   } finally {
