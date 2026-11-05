@@ -1,3 +1,6 @@
 n8n.json
+
+.env
+backups/
 .maestri/
 PETSAUDE-chatbot/

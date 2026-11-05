@@ -2,7 +2,9 @@
 
 Sistema inteligente de triagem e regulação de pacientes baseado em múltiplos agentes de IA e RAG, focado na validação de encaminhamentos médicos de acordo com as Notas Técnicas oficiais da SES-DF.
 
-> **NOVA ARQUITETURA**: O sistema não utiliza mais o n8n. Todo o fluxo foi migrado para um backend nativo (TypeScript/Node.js) integrado com Supabase (pgvector) e OpenRouter.
+> **NOVA ARQUITETURA**: O sistema não utiliza mais o n8n. Todo o fluxo foi migrado para um backend nativo (TypeScript/Node.js) integrado com PostgreSQL (pgvector) e OpenRouter.
+
+A migração para PostgreSQL em Docker está documentada em [Modelagem e operação](docs/postgresql.md), com diagrama, preservação dos dados, testes e backup.
 
 ---
 ## Modelagem do Banco (supabase)

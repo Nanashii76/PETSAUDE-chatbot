@@ -5,13 +5,17 @@ name: Validar backend
 # tentar (e falhar) o deploy de verdade.
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "9-substituir-o-supabase-por-um-postgres-dockerizado-no-servidor-do-backend"]
     paths:
       - "backend/**"
+      - "docker-compose*.yml"
+      - "ops/**"
       - ".github/workflows/backend-ci.yml"
   pull_request:
     paths:
       - "backend/**"
+      - "docker-compose*.yml"
+      - "ops/**"
       - ".github/workflows/backend-ci.yml"
 
 jobs:
@@ -27,7 +31,7 @@ jobs:
       - name: Configurar Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
@@ -55,3 +59,13 @@ jobs:
           echo "Servidor não respondeu em /health a tempo."
           kill $SERVER_PID 2>/dev/null || true
           exit 1
+
+  database-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PostgreSQL com pgvector — testes unitários e de integração
+        run: docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from tests
+      - name: Limpar ambiente de testes
+        if: always()
+        run: docker compose -f docker-compose.test.yml down -v
