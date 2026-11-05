@@ -121,6 +121,7 @@ export default function Regulacao({
               maxHeight={260}
               inputRef={campoRef}
               ariaLabel="Mensagem para o Modo Regulação"
+              apiBaseUrl={apiBaseUrl}
             />
           </div>
         </div>
@@ -231,6 +232,7 @@ export default function Regulacao({
                 maxHeight={220}
                 inputRef={campoRef}
                 ariaLabel="Mensagem para o Modo Regulação"
+                apiBaseUrl={apiBaseUrl}
               />
             </div>
           </div>
