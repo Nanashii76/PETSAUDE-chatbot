@@ -41,6 +41,9 @@ type ResultadoRegulacao = {
   opcoes: string[];
   copiavel: string | null;
   telemetria: { modelo_usado: string; tokens_prompt: number; tokens_resposta: number };
+  // Fato de uso para o painel (registrado pela rota) — só especialidade e nomes de campos da NT,
+  // nunca o texto do pedido.
+  evento?: { tipo: 'pedido_analisado' | 'devolucao_redigida' | 'consulta_criterio'; especialidade: string; dados?: object };
 };
 
 function telemetriaLocal(etiqueta: string): ResultadoRegulacao['telemetria'] {
@@ -119,6 +122,7 @@ export async function processarMensagemRegulacao(sessao: any, mensagemUsuario: s
       opcoes: ['Novo pedido'],
       copiavel: construirDevolucao(especialidade, campos_faltantes),
       telemetria: telemetriaLocal('devolução local'),
+      evento: { tipo: 'devolucao_redigida', especialidade },
     };
   }
 
@@ -175,6 +179,7 @@ export async function processarMensagemRegulacao(sessao: any, mensagemUsuario: s
       opcoes: ['Novo pedido'],
       copiavel: null,
       telemetria: telemetriaIdentificar,
+      evento: { tipo: 'consulta_criterio', especialidade },
     };
   }
 
@@ -221,6 +226,15 @@ export async function processarMensagemRegulacao(sessao: any, mensagemUsuario: s
       modelo_usado: respostaAnalise.modelo_usado,
       tokens_prompt: respostaAnalise.tokens_prompt,
       tokens_resposta: respostaAnalise.tokens_resposta,
+    },
+    evento: {
+      tipo: 'pedido_analisado',
+      especialidade,
+      dados: {
+        campos_faltantes: camposFaltantes,
+        parece_atender_criterio:
+          typeof analise.parece_atender_criterio === 'boolean' ? analise.parece_atender_criterio : null,
+      },
     },
   };
 }

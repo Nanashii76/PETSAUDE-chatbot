@@ -1,5 +1,11 @@
 import { Router, type Request, type Response } from 'express';
-import { buscarOuCriarSessao, salvarMensagem, atualizarSessao } from '../services/database.js';
+import {
+  buscarOuCriarSessao,
+  salvarMensagem,
+  atualizarSessao,
+  buscarOuCriarInterlocutor,
+  registrarEvento,
+} from '../services/database.js';
 import { processarMensagemRegulacao } from '../core/regulacao.js';
 
 const router = Router();
@@ -36,6 +42,12 @@ router.post('/regulacao/mensagem', async (req: Request, res: Response): Promise<
       resultado.telemetria.tokens_resposta
     );
     await atualizarSessao(sessao.id, 'PENDENTE', resultado.dados_coletados, [], 'regulacao');
+
+    if (resultado.evento) {
+      const interlocutor = await buscarOuCriarInterlocutor('web', remetente_id);
+      const { tipo, especialidade, dados } = resultado.evento;
+      await registrarEvento(tipo, especialidade, sessao.id, interlocutor.id, dados);
+    }
 
     return res.status(200).json({
       success: true,

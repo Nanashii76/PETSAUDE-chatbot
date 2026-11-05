@@ -4,7 +4,7 @@ import { XIcon, CopyIcon, CheckIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { RiskBadge } from '@/components/ui/risk-badge'
 import { cn } from '@/lib/utils'
-import type { CorRisco, DadosPainel, DetalheEncaminhamento, ResumoEncaminhamento } from './types'
+import type { CorRisco, DadosPainel, DetalheEncaminhamento, PontoSerie, ResumoEncaminhamento } from './types'
 
 function formatarData(iso: string) {
   return new Date(iso).toLocaleString('pt-BR', {
@@ -20,6 +20,18 @@ const CORES_RISCO: Record<string, string> = {
   Amarela: 'var(--risco-amarela)',
   Verde: 'var(--risco-verde)',
   Azul: 'var(--risco-azul)',
+}
+
+const numero = new Intl.NumberFormat('pt-BR')
+
+function porcentagem(parte: number, total: number): string {
+  return total > 0 ? `${Math.round((100 * parte) / total)}%` : '–'
+}
+
+function formatarMinutos(minutos: number | null): string {
+  if (minutos === null) return '–'
+  if (minutos < 60) return `${Math.round(minutos)} min`
+  return `${Math.floor(minutos / 60)}h${String(Math.round(minutos % 60)).padStart(2, '0')}`
 }
 
 const PERIODOS: [string, string][] = [
@@ -124,7 +136,13 @@ export default function Painel({
     }
   }, [apiBaseUrl, idAberto])
 
-  const vazio = dados && !dados.casos && !dados.textos && !dados.naoElegiveis
+  const vazio =
+    dados &&
+    !dados.casos &&
+    !dados.textos &&
+    !dados.naoElegiveis &&
+    !dados.regulacao.pedidosAnalisados &&
+    !dados.regulacao.consultas
   // "casos" e "textos" vêm de dois tipos de evento contados independentemente dentro da janela do
   // período (caso_iniciado e texto_gerado) — um caso aberto antes do período, mas finalizado dentro
   // dele, soma em "textos" sem um "caso" correspondente na mesma janela, o que pode empurrar a
@@ -203,6 +221,12 @@ export default function Painel({
               <Metrica valor={dados.urgencias} rotulo="Alertas de urgência" alerta />
             )}
           </section>
+
+          {dados.serie.length > 1 && (
+            <Bloco titulo="Casos por dia">
+              <GraficoSerie serie={dados.serie} />
+            </Bloco>
+          )}
 
           <div className="grid gap-6 lg:grid-cols-2">
             <Bloco titulo="Por especialidade">
@@ -284,6 +308,105 @@ export default function Painel({
                 <ListaSimples itens={dados.unidades} />
               </Bloco>
             )}
+          </div>
+
+          <TituloSecao>Fluxo dos casos</TituloSecao>
+          <section className="-mt-4 flex flex-wrap gap-y-6">
+            <Metrica
+              valor={formatarMinutos(dados.fluxo.minutosMedioAteFinalizar)}
+              rotulo="Tempo médio até o texto final"
+            />
+            <Metrica
+              valor={
+                dados.fluxo.turnosMedioPorCaso !== null
+                  ? dados.fluxo.turnosMedioPorCaso.toLocaleString('pt-BR')
+                  : '–'
+              }
+              rotulo="Mensagens do profissional por caso"
+            />
+            <Metrica valor={dados.fluxo.emAndamento} rotulo="Em andamento" />
+            <Metrica valor={dados.fluxo.abandonados} rotulo="Abandonados" />
+          </section>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Bloco titulo="Custo e modelos">
+              <dl className="mb-5 grid grid-cols-2 gap-x-4 gap-y-3 text-[0.875rem]">
+                <Par rotulo="Tokens enviados" valor={numero.format(dados.uso.tokensPrompt)} />
+                <Par rotulo="Tokens recebidos" valor={numero.format(dados.uso.tokensResposta)} />
+                <Par
+                  rotulo="Tokens por encaminhamento"
+                  valor={
+                    dados.uso.tokensPorEncaminhamento !== null
+                      ? numero.format(dados.uso.tokensPorEncaminhamento)
+                      : '–'
+                  }
+                />
+                <Par
+                  rotulo="Respostas fora do modelo principal"
+                  valor={porcentagem(dados.uso.respostasFallback, dados.uso.respostasLLM)}
+                />
+              </dl>
+              {dados.uso.modelos.length === 0 ? (
+                <p className="text-[0.875rem] text-ink-muted">Nenhuma resposta de modelo neste período.</p>
+              ) : (
+                <Barras
+                  itens={dados.uso.modelos.map((m) => ({ rotulo: m.modelo, valor: m.respostas }))}
+                  larguraRotulo="w-44"
+                  mono
+                />
+              )}
+            </Bloco>
+
+            <Bloco titulo="Qualidade">
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-[0.875rem]">
+                <Par
+                  rotulo="Cor de risco definida pela NT"
+                  valor={numero.format(dados.qualidade.coresPorOrigem.rag)}
+                />
+                <Par
+                  rotulo="Cor escolhida pelo profissional"
+                  valor={numero.format(dados.qualidade.coresPorOrigem.manual)}
+                />
+                <Par
+                  rotulo="Respostas com trecho de NT"
+                  valor={numero.format(dados.qualidade.ragComNota)}
+                />
+                <Par
+                  rotulo="Buscas sem trecho de NT"
+                  valor={`${numero.format(dados.qualidade.ragVazio)} (${porcentagem(
+                    dados.qualidade.ragVazio,
+                    dados.qualidade.ragVazio + dados.qualidade.ragComNota
+                  )})`}
+                />
+              </dl>
+            </Bloco>
+          </div>
+
+          <TituloSecao>Regulação</TituloSecao>
+          <div className="-mt-4 grid gap-6 lg:grid-cols-2">
+            <Bloco titulo="Pedidos analisados">
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-[0.875rem]">
+                <Par rotulo="Pedidos analisados" valor={numero.format(dados.regulacao.pedidosAnalisados)} />
+                <Par rotulo="Devoluções redigidas" valor={numero.format(dados.regulacao.devolucoes)} />
+                <Par rotulo="Consultas a critérios" valor={numero.format(dados.regulacao.consultas)} />
+                <Par
+                  rotulo="Parecem atender um critério"
+                  valor={porcentagem(dados.regulacao.pareceAtender.sim, dados.regulacao.pedidosAnalisados)}
+                />
+              </dl>
+            </Bloco>
+
+            <Bloco titulo="O que mais falta nos pedidos">
+              {dados.regulacao.camposFaltantes.length === 0 ? (
+                <p className="text-[0.875rem] text-ink-muted">
+                  Nenhum campo faltante registrado nas análises deste período.
+                </p>
+              ) : (
+                <ListaSimples
+                  itens={dados.regulacao.camposFaltantes.map((c) => ({ nome: c.campo, casos: c.vezes }))}
+                />
+              )}
+            </Bloco>
           </div>
 
           <Bloco titulo="Encaminhamentos gerados">
@@ -511,5 +634,144 @@ function ListaSimples({ itens }: { itens: { nome: string; casos: number }[] }) {
         </li>
       ))}
     </ul>
+  )
+}
+
+function TituloSecao({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="border-b border-line pb-2 text-[0.6875rem] font-semibold uppercase tracking-[0.06em] text-ink-faint">
+      {children}
+    </h2>
+  )
+}
+
+function Par({ rotulo, valor }: { rotulo: string; valor: string }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-[0.8125rem] text-ink-muted">{rotulo}</dt>
+      <dd className="mt-0.5 text-[1.125rem] font-semibold tabular-nums text-ink">{valor}</dd>
+    </div>
+  )
+}
+
+function Barras({
+  itens,
+  larguraRotulo = 'w-20',
+  mono = false,
+}: {
+  itens: { rotulo: string; valor: number }[]
+  larguraRotulo?: string
+  mono?: boolean
+}) {
+  const maximo = Math.max(...itens.map((i) => i.valor))
+  return (
+    <ul className="flex flex-col gap-3">
+      {itens.map((item) => (
+        <li key={item.rotulo} className="flex items-center gap-3">
+          <span
+            title={item.rotulo}
+            className={cn(
+              'shrink-0 truncate text-[0.8125rem] text-ink',
+              larguraRotulo,
+              mono && 'font-mono text-[0.75rem]'
+            )}
+          >
+            {item.rotulo}
+          </span>
+          <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-2">
+            <div
+              className="h-full rounded-full bg-[var(--indigo-fill)]"
+              style={{ width: `${Math.max(6, (100 * item.valor) / maximo)}%` }}
+            />
+          </div>
+          <span className="w-10 shrink-0 text-right text-[0.8125rem] tabular-nums text-ink-muted">
+            {item.valor}
+          </span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+const SERIES_GRAFICO: { chave: keyof Omit<PontoSerie, 'dia'>; rotulo: string; cor: string }[] = [
+  { chave: 'casos', rotulo: 'Casos iniciados', cor: 'var(--azure)' },
+  { chave: 'textos', rotulo: 'Encaminhamentos gerados', cor: 'var(--gold)' },
+]
+
+function formatarDia(dia: string) {
+  const [, m, d] = dia.split('-')
+  return `${d}/${m}`
+}
+
+// Linha simples em SVG inline — sem biblioteca de gráficos. O viewBox estica na largura do bloco;
+// vector-effect mantém a espessura da linha constante apesar da escala não uniforme.
+function GraficoSerie({ serie }: { serie: PontoSerie[] }) {
+  const largura = 100
+  const altura = 40
+  const maximo = Math.max(1, ...serie.flatMap((p) => SERIES_GRAFICO.map((s) => p[s.chave])))
+  const x = (i: number) => (i / (serie.length - 1)) * largura
+  const y = (v: number) => altura - (v / maximo) * altura
+
+  const resumo = SERIES_GRAFICO.map(
+    (s) => `${s.rotulo}: ${serie.reduce((a, p) => a + p[s.chave], 0)}`
+  ).join(', ')
+
+  return (
+    <figure>
+      <div className="flex gap-3">
+        <div className="flex h-40 flex-col justify-between text-right text-[0.6875rem] tabular-nums text-ink-faint">
+          <span>{maximo}</span>
+          <span>0</span>
+        </div>
+        <svg
+          viewBox={`0 0 ${largura} ${altura}`}
+          preserveAspectRatio="none"
+          role="img"
+          aria-label={`Casos por dia de ${formatarDia(serie[0].dia)} a ${formatarDia(serie[serie.length - 1].dia)}. ${resumo}.`}
+          className="h-40 w-full overflow-visible"
+        >
+          <line x1={0} x2={largura} y1={altura} y2={altura} stroke="var(--line)" vectorEffect="non-scaling-stroke" />
+          {SERIES_GRAFICO.map((s) => (
+            <polyline
+              key={s.chave}
+              fill="none"
+              stroke={s.cor}
+              strokeWidth={2}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              points={serie.map((p, i) => `${x(i)},${y(p[s.chave])}`).join(' ')}
+            />
+          ))}
+          {/* Faixas invisíveis por dia: o title vira o tooltip nativo com os números do dia. */}
+          {serie.map((p, i) => (
+            <rect
+              key={p.dia}
+              x={x(i) - largura / (serie.length - 1) / 2}
+              y={0}
+              width={largura / (serie.length - 1)}
+              height={altura}
+              fill="transparent"
+            >
+              <title>
+                {`${formatarDia(p.dia)} — ${p.casos} casos, ${p.textos} encaminhamentos, ${p.naoElegiveis} não elegíveis`}
+              </title>
+            </rect>
+          ))}
+        </svg>
+      </div>
+      <div className="mt-2 flex justify-between pl-8 text-[0.6875rem] tabular-nums text-ink-faint">
+        <span>{formatarDia(serie[0].dia)}</span>
+        <span>{formatarDia(serie[serie.length - 1].dia)}</span>
+      </div>
+      <figcaption className="mt-3 flex flex-wrap gap-4 text-[0.8125rem] text-ink-muted">
+        {SERIES_GRAFICO.map((s) => (
+          <span key={s.chave} className="flex items-center gap-2">
+            <span className="h-0.5 w-4 rounded-full" style={{ backgroundColor: s.cor }} />
+            {s.rotulo}
+          </span>
+        ))}
+      </figcaption>
+    </figure>
   )
 }

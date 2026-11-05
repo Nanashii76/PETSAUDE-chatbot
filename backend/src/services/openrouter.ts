@@ -31,7 +31,7 @@ function respostaDegenerada(conteudo: string): boolean {
 // mais rápido e confiável, passou a devolver JSON vazio/degenerado ({"": ""}) em boa parte das
 // chamadas numa re-checagem posterior — por isso foi rebaixado, não removido (ainda funciona às
 // vezes e tem bom raciocínio quando funciona).
-const FALLBACK_CASCADE = [
+export const FALLBACK_CASCADE = [
   'google/gemma-4-26b-a4b-it:free',          // Rápido quando disponível, mas historicamente o mais rate-limited (429)
   'apodex/apodex-1.1-mini:free',             // Novo no catálogo — rápido e confiável nos testes ao vivo
   'dots-studio/dots-3-note-preview:free',    // Provider diferente (AtlasCloud) — confiável e rápido nos testes mais recentes

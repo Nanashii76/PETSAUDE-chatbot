@@ -35,6 +35,7 @@ describe('processarMensagemRegulacao', () => {
     expect(resultado.dados_coletados).toEqual({});
     expect(resultado.opcoes).toEqual([]);
     expect(resultado.texto_resposta).toMatch(/Modo Regulação/);
+    expect(resultado.evento).toBeUndefined();
   });
 
   it('mensagem "outro" (saudação) usa a resposta do identificador, sem RAG nem 2ª chamada', async () => {
@@ -81,6 +82,7 @@ describe('processarMensagemRegulacao', () => {
     expect(resultado.texto_resposta).toContain('Critério X da NT 04/2018.');
     expect(resultado.texto_resposta).toContain('Sinais e sintomas');
     expect(resultado.opcoes).toEqual(['Novo pedido']);
+    expect(resultado.evento).toEqual({ tipo: 'consulta_criterio', especialidade: 'cardiologia' });
   });
 
   it('"pedido" completo (sem campos faltantes): relatório sem seção de faltantes, só "Novo pedido" como opção', async () => {
@@ -143,6 +145,13 @@ describe('processarMensagemRegulacao', () => {
       especialidade: 'dermatologia',
       campos_faltantes: ['Localização da lesão', 'Tempo de evolução'],
     });
+    // Evento do painel: só nomes de campos da NT e o veredito, nunca o texto do pedido.
+    expect(resultado.evento).toEqual({
+      tipo: 'pedido_analisado',
+      especialidade: 'dermatologia',
+      dados: { campos_faltantes: ['Localização da lesão', 'Tempo de evolução'], parece_atender_criterio: null },
+    });
+    expect(JSON.stringify(resultado.evento)).not.toContain('lesão suspeita');
   });
 
   it('"Redigir devolução" usa a última análise guardada, sem chamar o LLM', async () => {
@@ -157,6 +166,7 @@ describe('processarMensagemRegulacao', () => {
     expect(resultado.copiavel).toContain('Devolução do encaminhamento — Dermatologia');
     expect(resultado.copiavel).toContain('Localização da lesão');
     expect(resultado.opcoes).toEqual(['Novo pedido']);
+    expect(resultado.evento).toEqual({ tipo: 'devolucao_redigida', especialidade: 'dermatologia' });
   });
 
   it('regressão: identificador retorna JSON inválido — fallback de erro, sem RAG', async () => {
