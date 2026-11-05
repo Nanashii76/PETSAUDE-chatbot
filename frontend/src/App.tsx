@@ -396,6 +396,7 @@ export default function ChatBot() {
                   minHeight={96}
                   maxHeight={260}
                   inputRef={campoRef}
+                  apiBaseUrl={API_BASE_URL}
                 />
 
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -547,6 +548,7 @@ export default function ChatBot() {
                     minHeight={56}
                     maxHeight={220}
                     inputRef={campoRef}
+                    apiBaseUrl={API_BASE_URL}
                   />
                 </div>
               </div>
