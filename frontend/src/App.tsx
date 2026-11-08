@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { CopyIcon, RefreshCcwIcon, CheckIcon, PlusIcon } from 'lucide-react'
+import { CopyIcon, RefreshCcwIcon, CheckIcon, PlusIcon, XIcon } from 'lucide-react'
 
 import { Action, Actions } from '@/components/ui/actions'
 import {
@@ -14,6 +14,15 @@ import { RiskBadge } from '@/components/ui/risk-badge'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/ui/logo'
 import { cn } from '@/lib/utils'
+import {
+  LIMITE_CONVERSAS,
+  carregarHistorico,
+  formatarDataConversa,
+  novoIdConversa,
+  salvarHistorico,
+  tituloDaConversa,
+  type Conversa,
+} from '@/lib/historico'
 
 import TelaIdentificacao from './TelaIdentificacao'
 import Painel from './Painel'
@@ -65,18 +74,16 @@ function iniciaisDe(nome: string) {
   return (primeira + ultima).toUpperCase()
 }
 
-/** Título da conversa na lista. Sem histórico no backend, o rótulo vem do que o
- *  profissional escreveu primeiro — mesma lógica que valerá quando a API
- *  devolver conversas antigas. */
-function tituloDaConversa(messages: Mensagem[]) {
-  const primeira = messages.find((m) => m.sender === 'me')
-  if (!primeira) return 'Nova triagem'
-  const limpo = primeira.text.replace(/\s+/g, ' ').trim()
-  return limpo.length > 38 ? limpo.slice(0, 38).trimEnd() + '…' : limpo
-}
-
 export default function ChatBot() {
-  const [messages, setMessages] = useState<Mensagem[]>([])
+  // Histórico no localStorage: a conversa atual volta depois de recarregar a página (o backend
+  // continua a mesma sessão PENDENTE de qualquer jeito) e as anteriores ficam para consulta.
+  const [historicoInicial] = useState(carregarHistorico)
+  const [conversaAtualId, setConversaAtualId] = useState(historicoInicial.atual.id)
+  const [messages, setMessages] = useState<Mensagem[]>(historicoInicial.atual.mensagens)
+  const [anteriores, setAnteriores] = useState<Conversa[]>(historicoInicial.anteriores)
+  // Conversa anterior aberta só para leitura — o backend tem uma única sessão ativa por
+  // profissional, então uma conversa encerrada não pode ser retomada, só relida.
+  const [visualizandoId, setVisualizandoId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [tela, setTela] = useState<Tela>('chat')
   const [revisando, setRevisando] = useState<Mensagem | null>(null)
@@ -95,6 +102,10 @@ export default function ChatBot() {
     }
     return armazenado
   })
+
+  useEffect(() => {
+    salvarHistorico({ id: conversaAtualId, mensagens: messages }, anteriores)
+  }, [conversaAtualId, messages, anteriores])
 
   const [perfil, setPerfil] = useState<Perfil | null>(() => {
     try {
@@ -192,6 +203,14 @@ export default function ChatBot() {
    *  retomada em silêncio assim que a próxima mensagem fosse enviada. */
   async function novaTriagem() {
     if (isLoading) return
+    // A conversa que acabou vai para "Anteriores" em vez de sumir.
+    if (messages.length > 0) {
+      setAnteriores((prev) =>
+        [{ id: conversaAtualId, mensagens: messages }, ...prev].slice(0, LIMITE_CONVERSAS)
+      )
+    }
+    setConversaAtualId(novoIdConversa())
+    setVisualizandoId(null)
     setMessages([])
     setEntrada('')
     setRevisando(null)
@@ -204,6 +223,17 @@ export default function ChatBot() {
     } catch (error) {
       console.error('Erro ao iniciar nova triagem:', error)
     }
+  }
+
+  function apagarConversa(id: string) {
+    setAnteriores((prev) => prev.filter((c) => c.id !== id))
+    if (visualizandoId === id) setVisualizandoId(null)
+  }
+
+  function apagarAnteriores() {
+    if (!window.confirm('Apagar todas as conversas anteriores deste navegador?')) return
+    setAnteriores([])
+    setVisualizandoId(null)
   }
 
   async function copiar(msg: Mensagem) {
@@ -230,8 +260,11 @@ export default function ChatBot() {
     return <TelaIdentificacao apiBaseUrl={API_BASE_URL} onConfirmar={confirmarIdentificacao} />
   }
 
-  const conversaVazia = messages.length === 0 && !isLoading
+  const visualizada = visualizandoId ? (anteriores.find((c) => c.id === visualizandoId) ?? null) : null
+  const exibidas = visualizada ? visualizada.mensagens : messages
+  const conversaVazia = !visualizada && messages.length === 0 && !isLoading
   const tituloConversa = tituloDaConversa(messages)
+  const naConversaAtual = tela === 'chat' && !visualizada
   const iniciais = iniciaisDe(perfil.nome)
 
   return (
@@ -243,9 +276,8 @@ export default function ChatBot() {
           <Logo altura={18} className="hidden text-ink max-lg:block" />
         </div>
 
-        {/* Histórico. O backend ainda não persiste conversas anteriores, então
-            por enquanto existe só a atual — mas a lista já tem a forma certa
-            para receber as outras quando a API existir. */}
+        {/* Histórico salvo só neste navegador: a conversa atual e as anteriores,
+            que abrem só para leitura. */}
         <nav aria-label="Conversas" className="flex-1 overflow-y-auto px-2 max-lg:hidden">
           <button
             type="button"
@@ -265,17 +297,79 @@ export default function ChatBot() {
           </p>
           <button
             type="button"
-            onClick={() => setTela('chat')}
-            aria-current={tela === 'chat' ? 'page' : undefined}
+            onClick={() => {
+              setTela('chat')
+              setVisualizandoId(null)
+            }}
+            aria-current={naConversaAtual ? 'page' : undefined}
             className={cn(
               'w-full truncate rounded-md px-2 py-1.5 text-left text-[0.8125rem] transition-colors duration-[120ms] ease-brand',
-              tela === 'chat'
+              naConversaAtual
                 ? 'bg-surface-2 text-ink'
                 : 'text-ink-muted hover:bg-surface-2/60 hover:text-ink'
             )}
           >
             {tituloConversa}
           </button>
+
+          {anteriores.length > 0 && (
+            <>
+              <div className="flex items-baseline justify-between px-2 pb-1.5 pt-4">
+                <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.06em] text-ink-faint">
+                  Anteriores
+                </p>
+                <button
+                  type="button"
+                  onClick={apagarAnteriores}
+                  className="text-[0.6875rem] text-ink-faint transition-colors duration-[120ms] ease-brand hover:text-azure"
+                >
+                  Apagar todas
+                </button>
+              </div>
+              <ul className="flex flex-col">
+                {anteriores.map((c) => {
+                  const aberta = tela === 'chat' && visualizandoId === c.id
+                  return (
+                    <li key={c.id} className="group relative">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTela('chat')
+                          setVisualizandoId(c.id)
+                        }}
+                        aria-current={aberta ? 'page' : undefined}
+                        className={cn(
+                          'w-full rounded-md px-2 py-1.5 pr-8 text-left transition-colors duration-[120ms] ease-brand',
+                          aberta
+                            ? 'bg-surface-2 text-ink'
+                            : 'text-ink-muted hover:bg-surface-2/60 hover:text-ink'
+                        )}
+                      >
+                        <span className="block truncate text-[0.8125rem]">
+                          {tituloDaConversa(c.mensagens)}
+                        </span>
+                        <span className="block text-[0.6875rem] tabular-nums text-ink-faint">
+                          {formatarDataConversa(c)}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => apagarConversa(c.id)}
+                        aria-label={`Apagar conversa "${tituloDaConversa(c.mensagens)}"`}
+                        title="Apagar conversa"
+                        className="absolute right-1 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-sm text-ink-faint opacity-0 transition-opacity duration-[120ms] ease-brand hover:text-ink focus-visible:opacity-100 group-hover:opacity-100"
+                      >
+                        <XIcon className="size-3.5" />
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+              <p className="px-2 pb-3 pt-2 text-[0.6875rem] leading-snug text-ink-faint">
+                Salvas só neste navegador.
+              </p>
+            </>
+          )}
         </nav>
 
         <div className="mt-auto flex flex-col gap-1 border-t border-line p-2">
@@ -418,8 +512,8 @@ export default function ChatBot() {
             <>
               <Conversation>
                 <ConversationContent>
-                  {messages.map((msg, idx) => {
-                    const ehUltima = idx === messages.length - 1
+                  {exibidas.map((msg, idx) => {
+                    const ehUltima = idx === exibidas.length - 1
                     const from =
                       msg.sender === 'me' ? 'user' : msg.sender === 'system' ? 'system' : 'assistant'
 
@@ -459,9 +553,11 @@ export default function ChatBot() {
                                     Revisar encaminhamento
                                   </Button>
                                 )}
-                                <Button size="sm" variant="outline" onClick={() => void novaTriagem()}>
-                                  Nova triagem
-                                </Button>
+                                {!visualizada && (
+                                  <Button size="sm" variant="outline" onClick={() => void novaTriagem()}>
+                                    Nova triagem
+                                  </Button>
+                                )}
                               </div>
                             )}
 
@@ -485,7 +581,7 @@ export default function ChatBot() {
                                 <CopyIcon />
                               )}
                             </Action>
-                            {ehUltima && (
+                            {ehUltima && !visualizada && (
                               <Action
                                 label="Refazer resposta"
                                 onClick={refazer}
@@ -499,7 +595,7 @@ export default function ChatBot() {
 
                         {/* Respostas rápidas: somem assim que a conversa avança, para
                             nunca deixar clicável o botão de uma pergunta velha. */}
-                        {msg.opcoes && msg.opcoes.length > 0 && ehUltima && !isLoading && (
+                        {msg.opcoes && msg.opcoes.length > 0 && ehUltima && !isLoading && !visualizada && (
                           <div className="flex flex-wrap gap-2 pl-1 pt-0.5">
                             {msg.opcoes.map((opcao) => (
                               <Button
@@ -517,7 +613,7 @@ export default function ChatBot() {
                     )
                   })}
 
-                  {isLoading && (
+                  {isLoading && !visualizada && (
                     <Message from="assistant">
                       <MessageContent className="flex-row items-center gap-2 text-ink-muted">
                         <span className="text-[0.875rem]">Gerando resposta</span>
@@ -537,21 +633,34 @@ export default function ChatBot() {
                 <ConversationScrollButton />
               </Conversation>
 
-              <div className="shrink-0 px-5 pb-4">
-                <div className="mx-auto w-full max-w-3xl">
-                  <LiquidPromptInput
-                    value={entrada}
-                    onValueChange={setEntrada}
-                    onSubmit={(texto) => void enviarMensagem(texto)}
-                    placeholder="Responda ou complemente o quadro…"
-                    disabled={isLoading}
-                    minHeight={56}
-                    maxHeight={220}
-                    inputRef={campoRef}
-                    apiBaseUrl={API_BASE_URL}
-                  />
+              {visualizada ? (
+                <div className="shrink-0 px-5 pb-4">
+                  <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface px-4 py-3">
+                    <p className="text-[0.8125rem] text-ink-muted">
+                      Conversa anterior, só para leitura. Ela não pode ser retomada.
+                    </p>
+                    <Button size="sm" variant="outline" onClick={() => setVisualizandoId(null)}>
+                      Voltar à triagem atual
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="shrink-0 px-5 pb-4">
+                  <div className="mx-auto w-full max-w-3xl">
+                    <LiquidPromptInput
+                      value={entrada}
+                      onValueChange={setEntrada}
+                      onSubmit={(texto) => void enviarMensagem(texto)}
+                      placeholder="Responda ou complemente o quadro…"
+                      disabled={isLoading}
+                      minHeight={56}
+                      maxHeight={220}
+                      inputRef={campoRef}
+                      apiBaseUrl={API_BASE_URL}
+                    />
+                  </div>
+                </div>
+              )}
             </>
           )}
         </main>
