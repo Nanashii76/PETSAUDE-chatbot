@@ -181,4 +181,39 @@ describe('processarMensagemRegulacao', () => {
     expect(resultado.texto_resposta).toMatch(/falha ao estruturar a análise/i);
     expect(resultado.opcoes).toEqual([]);
   });
+
+  // Issue #6: JSON sintaticamente válido mas sem análise não pode virar um relatório "concluído".
+  it.each([
+    ['objeto com chave vazia', '{"": ""}'],
+    ['objeto vazio', '{}'],
+    ['array', '[]'],
+    ['null', 'null'],
+    [
+      'chaves esperadas mas todas vazias',
+      JSON.stringify({ campos_presentes: { Sintomas: null }, campos_faltantes: [''], parece_atender_criterio: null, observacoes: '' }),
+    ],
+  ])('regressão: análise em JSON válido sem conteúdo (%s) — fallback de erro', async (_, conteudo) => {
+    const sessao = { id: 's9', dados_coletados: {} };
+    chamarLLMComCascataMock
+      .mockResolvedValueOnce(respostaLLM(JSON.stringify({ tipo: 'pedido', especialidade: 'endocrinologia', resposta: '' })))
+      .mockResolvedValueOnce(respostaLLM(conteudo));
+
+    const resultado = await processarMensagemRegulacao(sessao, 'Paciente com nódulo de tireoide...');
+
+    expect(resultado.texto_resposta).toMatch(/falha ao estruturar a análise/i);
+    expect(resultado.texto_resposta).not.toContain('Análise do pedido');
+    expect(resultado.opcoes).toEqual([]);
+  });
+
+  it('análise só com veredito (sem campos) ainda gera relatório', async () => {
+    const sessao = { id: 's10', dados_coletados: {} };
+    chamarLLMComCascataMock
+      .mockResolvedValueOnce(respostaLLM(JSON.stringify({ tipo: 'pedido', especialidade: 'cardiologia', resposta: '' })))
+      .mockResolvedValueOnce(respostaLLM(JSON.stringify({ parece_atender_criterio: false })));
+
+    const resultado = await processarMensagemRegulacao(sessao, 'Paciente assintomático, quer check-up.');
+
+    expect(resultado.texto_resposta).toContain('não parece atender aos critérios');
+    expect(resultado.opcoes).toEqual(['Novo pedido']);
+  });
 });

@@ -47,15 +47,31 @@ function telemetriaLocal(etiqueta: string): ResultadoRegulacao['telemetria'] {
   return { modelo_usado: `nenhum (${etiqueta})`, tokens_prompt: 0, tokens_resposta: 0 };
 }
 
+// O prompt já instrui o modelo a omitir a chave quando o campo não aparece no pedido — este
+// filtro é a rede de segurança para quando ele preenche com null/"" mesmo assim.
+function camposPresentesPreenchidos(analise: any): [string, any][] {
+  const presentes = analise.campos_presentes;
+  if (!presentes || typeof presentes !== 'object' || Array.isArray(presentes)) return [];
+  return Object.entries(presentes).filter(([, valor]) => !valorVazio(valor));
+}
+
+// Uma análise só vira relatório se trouxer algo sobre o caso: campo presente, campo faltante ou
+// veredito. Sem isso, o "não permitem confirmar um critério" do relatório seria uma afirmação
+// sobre o caso produzida por uma resposta vazia do modelo.
+function analiseTemConteudo(analise: any, camposFaltantes: string[]): boolean {
+  return (
+    camposPresentesPreenchidos(analise).length > 0 ||
+    camposFaltantes.length > 0 ||
+    typeof analise.parece_atender_criterio === 'boolean'
+  );
+}
+
 function construirRelatorio(especialidade: string, analise: any, camposFaltantes: string[]): string {
   const linhas = [
     `**Análise do pedido — ${ROTULO_ESPECIALIDADE[especialidade]}** (${NOTA_TECNICA_POR_ESPECIALIDADE[especialidade]})`,
     '',
   ];
-  const presentes: Record<string, any> = analise.campos_presentes || {};
-  // O prompt já instrui o modelo a omitir a chave quando o campo não aparece no pedido — este
-  // filtro é a rede de segurança para quando ele preenche com null/"" mesmo assim.
-  const presentesPreenchidos = Object.entries(presentes).filter(([, valor]) => !valorVazio(valor));
+  const presentesPreenchidos = camposPresentesPreenchidos(analise);
   if (presentesPreenchidos.length > 0) {
     linhas.push('**Conteúdo mínimo presente no pedido:**');
     for (const [campo, valor] of presentesPreenchidos) linhas.push(`- ${campo}: ${valor}`);
@@ -192,8 +208,15 @@ export async function processarMensagemRegulacao(sessao: any, mensagemUsuario: s
   ]);
 
   let analise: any;
+  let camposFaltantes: string[];
   try {
     analise = JSON.parse(respostaAnalise.conteudo);
+    // JSON válido não basta (ex: `{"": ""}`): valida a forma, como já é feito na identificação.
+    if (!analise || typeof analise !== 'object' || Array.isArray(analise)) throw new Error('análise não é um objeto');
+    camposFaltantes = (Array.isArray(analise.campos_faltantes) ? analise.campos_faltantes : []).filter(
+      (c: unknown) => !valorVazio(c)
+    );
+    if (!analiseTemConteudo(analise, camposFaltantes)) throw new Error('análise sem campos nem veredito');
   } catch (error) {
     console.error('[Regulação] Falha ao analisar o pedido:', respostaAnalise.conteudo);
     return {
@@ -209,7 +232,6 @@ export async function processarMensagemRegulacao(sessao: any, mensagemUsuario: s
     };
   }
 
-  const camposFaltantes: string[] = (analise.campos_faltantes || []).filter((c: unknown) => !valorVazio(c));
   const relatorio = construirRelatorio(especialidade, analise, camposFaltantes);
 
   return {
