@@ -1,0 +1,530 @@
+[
+  {
+    "timestamp": 1794173871.0587277,
+    "system_cpu_percent": 34.6,
+    "system_mem_used_mb": 22734.3125,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.7,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 1.85,
+    "postgres_mem_mb": 56.36,
+    "pg_connections": {
+      "total": 2,
+      "active": 2,
+      "idle": 0
+    }
+  },
+  {
+    "timestamp": 1794173872.9876146,
+    "system_cpu_percent": 8.1,
+    "system_mem_used_mb": 22741.5390625,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.7,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 2.71,
+    "postgres_mem_mb": 56.21,
+    "pg_connections": {
+      "total": 2,
+      "active": 1,
+      "idle": 1
+    }
+  },
+  {
+    "timestamp": 1794173875.0044496,
+    "system_cpu_percent": 8.9,
+    "system_mem_used_mb": 22753.078125,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.7,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 4.22,
+    "postgres_mem_mb": 56.46,
+    "pg_connections": {
+      "total": 2,
+      "active": 1,
+      "idle": 1
+    }
+  },
+  {
+    "timestamp": 1794173877.0066059,
+    "system_cpu_percent": 11.4,
+    "system_mem_used_mb": 22787.6328125,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.8,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 6.49,
+    "postgres_mem_mb": 56.22,
+    "pg_connections": {
+      "total": 2,
+      "active": 2,
+      "idle": 0
+    }
+  },
+  {
+    "timestamp": 1794173879.0229027,
+    "system_cpu_percent": 14.8,
+    "system_mem_used_mb": 22774.94921875,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.8,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 7.76,
+    "postgres_mem_mb": 56.25,
+    "pg_connections": {
+      "total": 2,
+      "active": 1,
+      "idle": 1
+    }
+  },
+  {
+    "timestamp": 1794173881.0313268,
+    "system_cpu_percent": 12.1,
+    "system_mem_used_mb": 22783.21875,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.8,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 9.34,
+    "postgres_mem_mb": 58.36,
+    "pg_connections": {
+      "total": 3,
+      "active": 1,
+      "idle": 2
+    }
+  },
+  {
+    "timestamp": 1794173883.0196981,
+    "system_cpu_percent": 11.4,
+    "system_mem_used_mb": 22780.52734375,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.8,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 9.98,
+    "postgres_mem_mb": 58.36,
+    "pg_connections": {
+      "total": 3,
+      "active": 1,
+      "idle": 2
+    }
+  },
+  {
+    "timestamp": 1794173885.0459769,
+    "system_cpu_percent": 10.8,
+    "system_mem_used_mb": 22774.9453125,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.8,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 11.77,
+    "postgres_mem_mb": 58.84,
+    "pg_connections": {
+      "total": 3,
+      "active": 1,
+      "idle": 2
+    }
+  },
+  {
+    "timestamp": 1794173887.0645304,
+    "system_cpu_percent": 12.8,
+    "system_mem_used_mb": 22769.26953125,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.8,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 13.46,
+    "postgres_mem_mb": 59.31,
+    "pg_connections": {
+      "total": 3,
+      "active": 1,
+      "idle": 2
+    }
+  },
+  {
+    "timestamp": 1794173889.078095,
+    "system_cpu_percent": 16.2,
+    "system_mem_used_mb": 22756.78125,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.7,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 13.93,
+    "postgres_mem_mb": 60.5,
+    "pg_connections": {
+      "total": 4,
+      "active": 1,
+      "idle": 3
+    }
+  },
+  {
+    "timestamp": 1794173891.0558121,
+    "system_cpu_percent": 11.8,
+    "system_mem_used_mb": 22772.37109375,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.8,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 14.14,
+    "postgres_mem_mb": 61.73,
+    "pg_connections": {
+      "total": 4,
+      "active": 2,
+      "idle": 2
+    }
+  },
+  {
+    "timestamp": 1794173893.0690954,
+    "system_cpu_percent": 11.7,
+    "system_mem_used_mb": 22766.06640625,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.8,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 16.37,
+    "postgres_mem_mb": 61.23,
+    "pg_connections": {
+      "total": 4,
+      "active": 1,
+      "idle": 3
+    }
+  },
+  {
+    "timestamp": 1794173895.1299472,
+    "system_cpu_percent": 18.2,
+    "system_mem_used_mb": 22789.8984375,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.9,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 17.07,
+    "postgres_mem_mb": 61.0,
+    "pg_connections": {
+      "total": 4,
+      "active": 1,
+      "idle": 3
+    }
+  },
+  {
+    "timestamp": 1794173897.1337218,
+    "system_cpu_percent": 16.6,
+    "system_mem_used_mb": 22819.49609375,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.9,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 17.24,
+    "postgres_mem_mb": 61.01,
+    "pg_connections": {
+      "total": 4,
+      "active": 1,
+      "idle": 3
+    }
+  },
+  {
+    "timestamp": 1794173899.1305997,
+    "system_cpu_percent": 13.9,
+    "system_mem_used_mb": 22839.75390625,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.0,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 16.55,
+    "postgres_mem_mb": 65.08,
+    "pg_connections": {
+      "total": 6,
+      "active": 1,
+      "idle": 5
+    }
+  },
+  {
+    "timestamp": 1794173901.1361377,
+    "system_cpu_percent": 14.3,
+    "system_mem_used_mb": 22818.109375,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.9,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 16.41,
+    "postgres_mem_mb": 65.82,
+    "pg_connections": {
+      "total": 6,
+      "active": 1,
+      "idle": 5
+    }
+  },
+  {
+    "timestamp": 1794173903.1510644,
+    "system_cpu_percent": 11.8,
+    "system_mem_used_mb": 22821.37890625,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.0,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 17.28,
+    "postgres_mem_mb": 64.93,
+    "pg_connections": {
+      "total": 6,
+      "active": 1,
+      "idle": 5
+    }
+  },
+  {
+    "timestamp": 1794173905.1634588,
+    "system_cpu_percent": 10.8,
+    "system_mem_used_mb": 22829.140625,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.0,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 15.23,
+    "postgres_mem_mb": 65.45,
+    "pg_connections": {
+      "total": 6,
+      "active": 1,
+      "idle": 5
+    }
+  },
+  {
+    "timestamp": 1794173907.160942,
+    "system_cpu_percent": 14.0,
+    "system_mem_used_mb": 22806.07421875,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.9,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 17.28,
+    "postgres_mem_mb": 64.98,
+    "pg_connections": {
+      "total": 6,
+      "active": 1,
+      "idle": 5
+    }
+  },
+  {
+    "timestamp": 1794173909.1633499,
+    "system_cpu_percent": 11.9,
+    "system_mem_used_mb": 22791.54296875,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.9,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 17.33,
+    "postgres_mem_mb": 65.64,
+    "pg_connections": {
+      "total": 6,
+      "active": 3,
+      "idle": 3
+    }
+  },
+  {
+    "timestamp": 1794173911.178971,
+    "system_cpu_percent": 11.3,
+    "system_mem_used_mb": 22798.640625,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.9,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 17.17,
+    "postgres_mem_mb": 65.93,
+    "pg_connections": {
+      "total": 6,
+      "active": 1,
+      "idle": 5
+    }
+  },
+  {
+    "timestamp": 1794173913.1894898,
+    "system_cpu_percent": 11.4,
+    "system_mem_used_mb": 22800.32421875,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 72.9,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 17.44,
+    "postgres_mem_mb": 65.2,
+    "pg_connections": {
+      "total": 6,
+      "active": 1,
+      "idle": 5
+    }
+  },
+  {
+    "timestamp": 1794173915.1951907,
+    "system_cpu_percent": 11.6,
+    "system_mem_used_mb": 22830.6484375,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.0,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 17.46,
+    "postgres_mem_mb": 69.77,
+    "pg_connections": {
+      "total": 8,
+      "active": 1,
+      "idle": 6
+    }
+  },
+  {
+    "timestamp": 1794173917.2270675,
+    "system_cpu_percent": 21.7,
+    "system_mem_used_mb": 22932.66796875,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.3,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 16.92,
+    "postgres_mem_mb": 70.25,
+    "pg_connections": {
+      "total": 8,
+      "active": 1,
+      "idle": 7
+    }
+  },
+  {
+    "timestamp": 1794173919.2105892,
+    "system_cpu_percent": 17.4,
+    "system_mem_used_mb": 22938.73828125,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.3,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 16.34,
+    "postgres_mem_mb": 69.81,
+    "pg_connections": {
+      "total": 8,
+      "active": 1,
+      "idle": 7
+    }
+  },
+  {
+    "timestamp": 1794173921.2100635,
+    "system_cpu_percent": 11.1,
+    "system_mem_used_mb": 22954.31640625,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.4,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 17.43,
+    "postgres_mem_mb": 70.01,
+    "pg_connections": {
+      "total": 8,
+      "active": 1,
+      "idle": 7
+    }
+  },
+  {
+    "timestamp": 1794173923.2198656,
+    "system_cpu_percent": 11.3,
+    "system_mem_used_mb": 22917.94140625,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.3,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 17.63,
+    "postgres_mem_mb": 69.38,
+    "pg_connections": {
+      "total": 8,
+      "active": 1,
+      "idle": 7
+    }
+  },
+  {
+    "timestamp": 1794173925.2326887,
+    "system_cpu_percent": 13.2,
+    "system_mem_used_mb": 22912.04296875,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.2,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 17.11,
+    "postgres_mem_mb": 71.98,
+    "pg_connections": {
+      "total": 9,
+      "active": 1,
+      "idle": 8
+    }
+  },
+  {
+    "timestamp": 1794173927.2452123,
+    "system_cpu_percent": 11.5,
+    "system_mem_used_mb": 22876.0859375,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.1,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 13.52,
+    "postgres_mem_mb": 71.28,
+    "pg_connections": {
+      "total": 9,
+      "active": 3,
+      "idle": 6
+    }
+  },
+  {
+    "timestamp": 1794173929.2667832,
+    "system_cpu_percent": 14.9,
+    "system_mem_used_mb": 22893.3515625,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.2,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 10.87,
+    "postgres_mem_mb": 71.7,
+    "pg_connections": {
+      "total": 9,
+      "active": 1,
+      "idle": 8
+    }
+  },
+  {
+    "timestamp": 1794173931.2516444,
+    "system_cpu_percent": 12.1,
+    "system_mem_used_mb": 22896.68359375,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.2,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 6.92,
+    "postgres_mem_mb": 71.96,
+    "pg_connections": {
+      "total": 9,
+      "active": 1,
+      "idle": 8
+    }
+  },
+  {
+    "timestamp": 1794173933.238963,
+    "system_cpu_percent": 15.1,
+    "system_mem_used_mb": 22923.36328125,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.3,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 3.15,
+    "postgres_mem_mb": 71.99,
+    "pg_connections": {
+      "total": 9,
+      "active": 1,
+      "idle": 8
+    }
+  },
+  {
+    "timestamp": 1794173935.2440617,
+    "system_cpu_percent": 8.5,
+    "system_mem_used_mb": 22910.04296875,
+    "system_mem_total_mb": 31282.875,
+    "system_mem_percent": 73.2,
+    "node_cpu_percent": 0.0,
+    "node_mem_mb": 81.8046875,
+    "postgres_cpu_percent": 0.72,
+    "postgres_mem_mb": 71.25,
+    "pg_connections": {
+      "total": 9,
+      "active": 1,
+      "idle": 8
+    }
+  }
+]

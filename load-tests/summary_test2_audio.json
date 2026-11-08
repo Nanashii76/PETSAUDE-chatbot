@@ -1,0 +1,150 @@
+{
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "audio status is 200 or 504": {
+                    "path": "::audio status is 200 or 504",
+                    "id": "6281a2c2207eb776eed43c342894d334",
+                    "passes": 38,
+                    "fails": 543,
+                    "name": "audio status is 200 or 504"
+                },
+                "audio returned json": {
+                    "name": "audio returned json",
+                    "path": "::audio returned json",
+                    "id": "bb029dc183cfaddb7de5df5d8646cdff",
+                    "passes": 581,
+                    "fails": 0
+                }
+            }
+    },
+    "metrics": {
+        "audio_errors": {
+            "passes": 543,
+            "fails": 0,
+            "thresholds": {
+                "rate<0.15": true
+            },
+            "value": 1
+        },
+        "http_reqs": {
+            "count": 581,
+            "rate": 8.756103173891374
+        },
+        "http_req_duration": {
+            "avg": 2241.2555426798604,
+            "min": 330.431907,
+            "med": 2293.899949,
+            "max": 7308.691108,
+            "p(90)": 3816.950899,
+            "p(95)": 4451.442418
+        },
+        "http_req_connecting": {
+            "avg": 0.030787647160068855,
+            "min": 0,
+            "med": 0,
+            "max": 0.518119,
+            "p(90)": 0,
+            "p(95)": 0.335266
+        },
+        "http_req_waiting": {
+            "min": 329.539293,
+            "med": 2292.975491,
+            "max": 7308.079766,
+            "p(90)": 3816.28934,
+            "p(95)": 4450.629251,
+            "avg": 2240.514123340793
+        },
+        "http_req_blocked": {
+            "med": 0.012913,
+            "max": 0.981459,
+            "p(90)": 0.026854,
+            "p(95)": 0.465435,
+            "avg": 0.055659805507745325,
+            "min": 0.004503
+        },
+        "audio_upload_duration_ms": {
+            "avg": 2242.09982788296,
+            "min": 331,
+            "med": 2295,
+            "max": 7309,
+            "p(90)": 3818,
+            "p(95)": 4454
+        },
+        "http_req_receiving": {
+            "avg": 0.1306218623063685,
+            "min": 0.029059,
+            "med": 0.125667,
+            "max": 0.294295,
+            "p(90)": 0.177141,
+            "p(95)": 0.190587
+        },
+        "data_sent": {
+            "count": 279172682,
+            "rate": 4207340.45942163
+        },
+        "data_received": {
+            "rate": 3134.2780261228277,
+            "count": 207971
+        },
+        "vus": {
+            "value": 4,
+            "min": 1,
+            "max": 50
+        },
+        "vus_max": {
+            "value": 50,
+            "min": 50,
+            "max": 50
+        },
+        "http_req_failed": {
+            "passes": 543,
+            "fails": 38,
+            "value": 0.9345955249569707
+        },
+        "checks": {
+            "passes": 619,
+            "fails": 543,
+            "value": 0.5327022375215146
+        },
+        "iteration_duration": {
+            "med": 4281.202629,
+            "max": 9310.082821,
+            "p(90)": 5774.050061200001,
+            "p(95)": 6442.0151999,
+            "avg": 4236.285348069082,
+            "min": 2331.676425
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 1002.9883901052632,
+            "min": 397.319357,
+            "med": 583.14693,
+            "max": 4006.287631,
+            "p(90)": 1894.6471976000014,
+            "p(95)": 2370.7917591999994
+        },
+        "http_req_sending": {
+            "min": 0.308249,
+            "med": 0.579853,
+            "max": 1.424677,
+            "p(90)": 0.839065,
+            "p(95)": 0.909395,
+            "avg": 0.610797476764199
+        },
+        "http_req_tls_handshaking": {
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0
+        },
+        "iterations": {
+            "count": 579,
+            "rate": 8.725961682759218
+        }
+    }
+}

@@ -1,0 +1,187 @@
+{
+    "metrics": {
+        "http_reqs": {
+            "rate": 12.002223644585362,
+            "count": 1124
+        },
+        "dashboard_time_ms": {
+            "avg": 6.226666666666667,
+            "min": 4,
+            "med": 6,
+            "max": 12,
+            "p(90)": 8,
+            "p(95)": 8
+        },
+        "iterations": {
+            "count": 849,
+            "rate": 9.065736542929692
+        },
+        "http_req_duration{expected_response:true}": {
+            "min": 1.542529,
+            "med": 3.0325115,
+            "max": 23478.777903,
+            "p(90)": 566.8651807000009,
+            "p(95)": 5276.983677449995,
+            "avg": 870.8570056135603
+        },
+        "http_req_connecting": {
+            "avg": 0.016166476868327406,
+            "min": 0,
+            "med": 0,
+            "max": 0.650417,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "http_req_sending": {
+            "avg": 0.2417487704626333,
+            "min": 0.01092,
+            "med": 0.048329,
+            "max": 2.096695,
+            "p(90)": 0.6834828,
+            "p(95)": 0.8201453999999997
+        },
+        "vus": {
+            "value": 1,
+            "min": 1,
+            "max": 50
+        },
+        "checks": {
+            "passes": 590,
+            "fails": 534,
+            "value": 0.5249110320284698
+        },
+        "triage_response_time_ms": {
+            "p(90)": 10976.400000000003,
+            "p(95)": 20455.84999999998,
+            "avg": 3241.483193277311,
+            "min": 270,
+            "med": 527,
+            "max": 35001
+        },
+        "audio_transcribe_time_ms": {
+            "avg": 604.098445595855,
+            "min": 352,
+            "med": 562.5,
+            "max": 1421,
+            "p(90)": 861.5,
+            "p(95)": 977.25
+        },
+        "vus_max": {
+            "value": 50,
+            "min": 50,
+            "max": 50
+        },
+        "http_req_waiting": {
+            "avg": 894.8208726334528,
+            "min": 1.464728,
+            "med": 372.152547,
+            "max": 35000.919447,
+            "p(90)": 842.1105825000001,
+            "p(95)": 2044.8673357999617
+        },
+        "http_req_failed": {
+            "passes": 534,
+            "fails": 590,
+            "value": 0.4750889679715303
+        },
+        "iteration_duration": {
+            "avg": 4197.359405732629,
+            "min": 2013.7504,
+            "med": 3536.01766,
+            "max": 38805.668194,
+            "p(90)": 4560.9917758,
+            "p(95)": 7923.003829199996
+        },
+        "http_req_tls_handshaking": {
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0
+        },
+        "overall_failures": {
+            "fails": 0,
+            "passes": 534,
+            "thresholds": {
+                "rate<0.10": true
+            },
+            "value": 1
+        },
+        "http_req_duration": {
+            "max": 35000.940692,
+            "p(90)": 842.8254306000001,
+            "p(95)": 2045.0330651499617,
+            "avg": 895.1780599590751,
+            "min": 1.542529,
+            "med": 372.6511865
+        },
+        "http_req_blocked": {
+            "max": 1.154201,
+            "p(90)": 0.01948450000000001,
+            "p(95)": 0.06190344999999968,
+            "avg": 0.0367371806049822,
+            "min": 0.00397,
+            "med": 0.010766
+        },
+        "data_received": {
+            "count": 511820,
+            "rate": 5465.283012252385
+        },
+        "http_req_receiving": {
+            "avg": 0.11543855516014236,
+            "min": 0,
+            "med": 0.1096885,
+            "max": 0.448666,
+            "p(90)": 0.15731090000000003,
+            "p(95)": 0.17580915
+        },
+        "data_sent": {
+            "rate": 1981812.5179395275,
+            "count": 185595381
+        }
+    },
+    "root_group": {
+        "checks": {
+            "ident status is 200": {
+                "name": "ident status is 200",
+                "path": "::ident status is 200",
+                "id": "1ed4008a3f4f23db6ffeb90256753537",
+                "passes": 50,
+                "fails": 0
+            },
+            "painel 200": {
+                "id": "c8ae9d499ffc939bd1bf0571d0cb11be",
+                "passes": 225,
+                "fails": 0,
+                "name": "painel 200",
+                "path": "::painel 200"
+            },
+            "encaminhamentos 200": {
+                "path": "::encaminhamentos 200",
+                "id": "6c8b67e348abf80ad90422a67951e4ef",
+                "passes": 225,
+                "fails": 0,
+                "name": "encaminhamentos 200"
+            },
+            "audio ok or handled": {
+                "id": "bba53f1daf7dc5855e7dead9178839c4",
+                "passes": 44,
+                "fails": 342,
+                "name": "audio ok or handled",
+                "path": "::audio ok or handled"
+            },
+            "triage responded": {
+                "passes": 46,
+                "fails": 192,
+                "name": "triage responded",
+                "path": "::triage responded",
+                "id": "c5e5f2617128ee0821b26f6df5c396ea"
+            }
+        },
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {}
+    }
+}
