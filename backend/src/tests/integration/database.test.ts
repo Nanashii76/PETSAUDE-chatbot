@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Pool } from 'pg';
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { migrate } from '../../database/migrate.js';
 
 const url = process.env.TEST_DATABASE_URL;
@@ -20,7 +20,8 @@ afterAll(async () => { await pool.end(); await admin.end(); });
 describe('PostgreSQL 16 + pgvector real', () => {
   it('bootstrap é repetível e valida checksums', async () => {
     await Promise.all([migrate(admin), migrate(admin)]);
-    expect((await admin.query('SELECT * FROM schema_migrations')).rowCount).toBe(2);
+    const files = (await readdir(new URL('../../database/migrations/', import.meta.url))).filter(f => f.endsWith('.sql'));
+    expect((await admin.query('SELECT * FROM schema_migrations')).rowCount).toBe(files.length);
     await admin.query("UPDATE schema_migrations SET checksum = 'alterado' WHERE version = '002_integridade_indices.sql'");
     await expect(migrate(admin)).rejects.toThrow('Migração alterada');
     const { checksum } = await import('../../database/migrate.js');
@@ -73,6 +74,29 @@ describe('PostgreSQL 16 + pgvector real', () => {
     await admin.query('DELETE FROM sessoes WHERE id = $1', [s.id]);
     expect((await admin.query('SELECT * FROM mensagens WHERE sessao_id = $1', [s.id])).rowCount).toBe(0);
     expect((await admin.query('SELECT sessao_id FROM eventos')).rows[0].sessao_id).toBeNull();
+  });
+  it('painel: aceita os tipos de evento novos e agrega telemetria e sessões', async () => {
+    const s = await db.buscarOuCriarSessao('painel-metricas');
+    for (const tipo of ['rag_vazio', 'pedido_analisado', 'devolucao_redigida', 'consulta_criterio'] as const) {
+      await db.registrarEvento(tipo, 'cardiologia', s.id, null, { campos_faltantes: ['ECG'] });
+    }
+    await expect(admin.query("INSERT INTO eventos(tipo) VALUES ('inventado')")).rejects.toMatchObject({ code: '23514' });
+    const eventos = await db.buscarEventosParaPainel(null);
+    expect(eventos.filter(e => e.sessao_id === s.id).map(e => e.tipo).sort())
+      .toEqual(['consulta_criterio', 'devolucao_redigida', 'pedido_analisado', 'rag_vazio']);
+
+    await db.salvarMensagem(s.id, 'profissional', 'relato 1');
+    await db.salvarMensagem(s.id, 'profissional', 'relato 2');
+    await db.salvarMensagem(s.id, 'bot', 'r1', 'modelo-a', 100, 10, { fontes: [{ titulo: 'NT' }] });
+    await db.salvarMensagem(s.id, 'bot', 'r2', 'modelo-a', 50, 5);
+    await db.salvarMensagem(s.id, 'bot', 'r3', 'modelo-b', 20, 2);
+    const telemetria = await db.buscarTelemetriaModelos(new Date(0));
+    expect(telemetria.find(t => t.modelo_usado === 'modelo-a'))
+      .toEqual({ modelo_usado: 'modelo-a', respostas: 2, tokens_prompt: 150, tokens_resposta: 15, com_fontes_rag: 1 });
+
+    const [sessao] = await db.buscarSessoesParaPainel([s.id]);
+    expect(sessao).toMatchObject({ sessao_id: s.id, status: 'PENDENTE', turnos: 2 });
+    expect(await db.buscarSessoesParaPainel([])).toEqual([]);
   });
   it('busca vetorial respeita especialidade, limite e contrato dos campos mínimos', async () => {
     for (const specialty of ['cardiologia', 'dermatologia']) {

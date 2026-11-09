@@ -374,8 +374,44 @@ describe('processarMensagemLLM', () => {
       's12', 'cardiologia', 'Verde', 'Texto final já pronto, gerado no turno anterior.', expect.any(Object), true
     );
     expect(registrarEventoMock).toHaveBeenCalledWith(
-      'texto_gerado', 'cardiologia', 's12', 'interlocutor-conf', { cor_risco: 'Verde' }
+      'texto_gerado', 'cardiologia', 's12', 'interlocutor-conf', { cor_risco: 'Verde', origem_cor: 'rag' }
     );
+  });
+
+  it('confirmação final: cor escolhida pelo profissional (NT sem cor) é registrada como origem manual', async () => {
+    const sessao = {
+      id: 's12b', agente_atual: 'endocrinologia', status: 'PENDENTE',
+      dados_coletados: {
+        diagnostico: 'nódulo de tireoide',
+        _cor_risco_perguntada: true,
+        _aguardando_confirmacao_final: true,
+        _texto_final_pendente: 'Texto final.',
+        _cor_final_pendente: 'Azul',
+      },
+      dados_pendentes: [],
+    };
+
+    await processarMensagemLLM(sessao, 'Confirmar e gerar texto', 'interlocutor-conf');
+
+    expect(registrarEventoMock).toHaveBeenCalledWith(
+      'texto_gerado', 'endocrinologia', 's12b', 'interlocutor-conf', { cor_risco: 'Azul', origem_cor: 'manual' }
+    );
+  });
+
+  it('RAG sem trecho da NT para um especialista registra o evento rag_vazio; com trecho, não', async () => {
+    const sessao = { id: 's14', agente_atual: 'cardiologia', status: 'PENDENTE', dados_coletados: {}, dados_pendentes: [] };
+    const respostaEspecialista = respostaLLM(
+      JSON.stringify({ status: 'PENDENTE', texto_resposta: 'Qual a idade?', dados_coletados_ate_o_momento: {}, dados_pendentes: ['idade'], cor_risco: null, urgencia: false })
+    );
+    chamarLLMComCascataMock.mockResolvedValue(respostaEspecialista);
+
+    await processarMensagemLLM(sessao, 'paciente com dor no peito', 'interlocutor-rag');
+    expect(registrarEventoMock).toHaveBeenCalledWith('rag_vazio', 'cardiologia', 's14', 'interlocutor-rag');
+
+    registrarEventoMock.mockClear();
+    buscarContextoMock.mockResolvedValue({ contexto: 'trecho da NT', fontes: [{ titulo: 'NT', similarity: 0.9 }], camposMinimos: [] });
+    await processarMensagemLLM(sessao, 'paciente com dor no peito', 'interlocutor-rag');
+    expect(registrarEventoMock).not.toHaveBeenCalledWith('rag_vazio', expect.anything(), expect.anything(), expect.anything());
   });
 
   it('confirmação final: "Preciso corrigir algo" volta pra coleta sem chamar o LLM, sem gravar nada', async () => {

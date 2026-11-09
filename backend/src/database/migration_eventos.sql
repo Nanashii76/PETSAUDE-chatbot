@@ -4,7 +4,7 @@
 
 CREATE TABLE eventos (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tipo VARCHAR(30) NOT NULL,              -- caso_iniciado | texto_gerado | nao_elegivel | urgencia
+    tipo VARCHAR(30) NOT NULL,              -- caso_iniciado | texto_gerado | nao_elegivel | urgencia | rag_vazio | pedido_analisado | devolucao_redigida | consulta_criterio
     especialidade VARCHAR(50),
     sessao_id UUID REFERENCES sessoes(id) ON DELETE SET NULL,
     interlocutor_id UUID REFERENCES interlocutores(id) ON DELETE SET NULL,
